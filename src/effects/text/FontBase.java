@@ -4,22 +4,22 @@ import java.util.HashMap;
 
 public abstract class FontBase implements IFont {
 	
-	private HashMap<Character, String> _charList;
+	private HashMap<String, String> _charList;
 	private int _charSizeX;
 	private int _charSizeY;
 	
 	public FontBase(int charSizeX, int charSizeY) {
 		_charSizeX = charSizeX;
 		_charSizeY = charSizeY;
-		_charList = new HashMap<Character, String>();
+		_charList = new HashMap<String, String>();
 	}
 	
-	public void addChar(char newChar, String stringRepresentation) {
+	public void addChar(String newChar, String stringRepresentation) {
 		if (!_charList.containsKey(newChar))
 			_charList.put(newChar, stringRepresentation);
 	}
 	
-	public String getCharPixelString(char c) {
+	public String getCharPixelString(String c) {
 		if (_charList.containsKey(c))
 			return _charList.get(c);
 		return charNotFoundString();

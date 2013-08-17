@@ -12,14 +12,7 @@ public class PixelatedFont implements IPixelatedFont {
 
 	
 	public byte[][] toPixels(char character) {
-		byte[][] result = new byte[_font.charSizeX()][_font.charSizeY()];
-		String charString = _font.getCharPixelString(character);
-		for(int y=0; y<_font.charSizeY(); y++) {
-			for(int x=0; x<_font.charSizeX(); x++) {
-				result[x][y] = (byte) (charString.charAt(y*_font.charSizeX()+x) == '1' ? 1 : 0);
-			}
-		}
-		return result;
+		return convertSingleChar(""+character);
 	}
 	
 	public byte[][] toPixels(String string) {
@@ -30,6 +23,17 @@ public class PixelatedFont implements IPixelatedFont {
 				for (int y=0; y<_font.charSizeY(); y++) {
 					result[x + i*_font.charSizeX() + i*_charSpacing][y] = charPixels[x][y];
 				}
+			}
+		}
+		return result;
+	}
+	
+	private byte[][] convertSingleChar(String character) {
+		byte[][] result = new byte[_font.charSizeX()][_font.charSizeY()];
+		String charString = _font.getCharPixelString(character);
+		for(int y=0; y<_font.charSizeY(); y++) {
+			for(int x=0; x<_font.charSizeX(); x++) {
+				result[x][y] = (byte) (charString.charAt(y*_font.charSizeX()+x) == '1' ? 1 : 0);
 			}
 		}
 		return result;

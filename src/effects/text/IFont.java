@@ -1,9 +1,9 @@
 package effects.text;
 
 public interface IFont {
-	public void addChar(char newChar, String stringRepresentation);
+	public void addChar(String newChar, String stringRepresentation);
 	
-	public String getCharPixelString(char c);
+	public String getCharPixelString(String c);
 	
 	public int charSizeX();
 	
