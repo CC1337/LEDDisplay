@@ -1,5 +1,6 @@
 package led;
 
+import effects.IColor;
 import effects.IEffect;
 
 public interface ILEDArray {

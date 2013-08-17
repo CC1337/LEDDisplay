@@ -1,4 +1,5 @@
 import effects.background.*;
+import effects.coloring.*;
 import effects.text.*;
 import output.*;
 import led.*;
@@ -28,18 +29,18 @@ public class LEDDisplay implements Runnable {
 		
 		LEDArray leds = new LEDArray(60, 16);
 		
-		SolidBackgroundEffect bg = new SolidBackgroundEffect(); 
-		bg.setColor(5, 5, 30);
+		ColoringSolid bgColor = new ColoringSolid(5, 5, 30);
+		SolidBackgroundEffect bg = new SolidBackgroundEffect(bgColor); 
 		
 		leds.applyEffect(bg);
 
 		// Flash Test
 		for (int i=0; i<10; i++) {
 			
-			bg.setColor(250, 15, 0);
+			bgColor.setColor(250, 15, 0);
 			leds.applyEffect(bg);
 			display.show(leds);
-			bg.setColor(0, 0, 0);
+			bgColor.setColor(0, 0, 0);
 			leds.applyEffect(bg);
 			display.show(leds);
 		}
@@ -47,7 +48,7 @@ public class LEDDisplay implements Runnable {
 		
 		// Pfeil Test
 		for (int i=0; i<55; i++) {
-			bg.setColor(5, 5, 30);
+			bgColor.setColor(5, 5, 30);
 			leds.applyEffect(bg);
 			
 			int pos = i%55;	
@@ -68,14 +69,16 @@ public class LEDDisplay implements Runnable {
 
 		
 		//Text Test
-		bg.setColor(0, 30, 0);
+		bgColor.setColor(0, 30, 0);
 		leds.applyEffect(bg);
 		IPixelatedFont font = new PixelatedFont(new FontDefault7px());
-		TextEffect text = new TextEffect(font, "1337 ALTA!", 1, 1, 80, 80, 140);
+		ColoringSolid textColor = new ColoringSolid(80, 80, 140);
+		TextEffect text = new TextEffect(font, textColor, "1337 ALTA!", 1, 1);
+		
 		
 		for (int i=0; i<60; i++) {
 			
-			bg.setColor(2*(60-i), 120-i, 60-i);
+			bgColor.setColor(2*(60-i), 120-i, 60-i);
 			leds.applyEffect(bg);
 			text.setPosX(61-i);
 			leds.applyEffect(text);
@@ -84,11 +87,11 @@ public class LEDDisplay implements Runnable {
 		
 		waitms(1000);
 		
-		bg.setColor(1, 1, 1);
+		bgColor.setColor(1, 1, 1);
 		leds.applyEffect(bg);
-		text.setR(20);
-		text.setG(0);
-		text.setB(0);
+		textColor.setR(20);
+		textColor.setG(0);
+		textColor.setB(0);
 		leds.applyEffect(text);
 		display.show(leds);
 		

@@ -1,43 +1,36 @@
 package effects.text;
 
-import effects.IEffect;
 import led.ILEDArray;
+import effects.*;
 
-public class TextEffect implements IEffect {
+public class TextEffect implements IColorableEffect {
 	
 	private IPixelatedFont _font;
+	private IColor _color;
 	private byte[][] _textArray;
 	private int _posX;
 	private int _posY;
-	private int _r;
-	private int _g;
-	private int _b;
 	
-	public TextEffect(IPixelatedFont font, String text, int posX, int posY, int r, int g, int b) {
+	public TextEffect(IPixelatedFont font, IColor color, String text, int posX, int posY) {
 		_font = font;
 		setPosX(posX);
 		setPosY(posY);
-		setR(r);
-		_g = g;
-		_b = b;
 		setText(text);
+		_color = color;
+	}
+	
+	public TextEffect(IPixelatedFont font, IColor color, String text) {
+		_font = font;
+		setText(text);
+		_posX = 0;
+		_posY = 0;
+		_color = color;
 	}
 	
 	public void setText(String text) {
 		_textArray = _font.toPixels(text);
 	}
 	
-	
-	@Override
-	public void apply(ILEDArray leds) {
-		for(int x=0; x<_textArray.length; x++) {
-			for(int y=0; y<_textArray[0].length; y++) {
-				if (_textArray[x][y] == 1)
-					leds.setLed(x+_posX, y+_posY, _r, _g, _b);
-			}
-		}		
-	}
-
 	public int getPosX() {
 		return _posX;
 	}
@@ -54,28 +47,24 @@ public class TextEffect implements IEffect {
 		this._posY = _posY;
 	}
 
-	public int getR() {
-		return _r;
+	@Override
+	public void apply(ILEDArray leds) {
+		_color.apply(leds, this);
 	}
 
-	public void setR(int _r) {
-		this._r = _r;
-	}
-	
-	public int getG() {
-		return _g;
+	@Override
+	public IColor getColor() {
+		return _color;
 	}
 
-	public void setG(int _g) {
-		this._g = _g;
-	}
-	
-	public int getB() {
-		return _b;
+	@Override
+	public void setColor(IColor color) {
+		_color = color;
 	}
 
-	public void setB(int _b) {
-		this._b = _b;
+	@Override
+	public byte[][] getEffectData() {
+		return _textArray;
 	}
 
 }

@@ -1,49 +1,64 @@
 package effects.background;
 
-import effects.IEffect;
+import effects.*;
 import led.ILEDArray;
 
-public class SolidBackgroundEffect implements IEffect {
+public class SolidBackgroundEffect implements IColorableEffect {
 	
-	int _r, _g, _b = 0;
+	IColor _color;
+	byte[][] _data;
 	
-	public void setColor(int r, int g, int b) {
-		_r = r;
-		_g = g;
-		_b = b;
+	public SolidBackgroundEffect(IColor color) {
+		_color = color;
 	}
 	
-	public void setR(int val) {
-		_r = val;
+	@Override
+	public void setColor(IColor color) {
+		_color = color;
 	}
 	
-	public void setG(int val) {
-		_g = val;
+	@Override
+	public IColor getColor() {
+		return _color;
 	}
 	
-	public void setB(int val) {
-		_b = val;
-	}
-	
-	public int getR() {
-		return _r;
-	}
-	
-	public int getG() {
-		return _g;
-	}
-	
-	public int getB() {
-		return _b;
+	@Override
+	public void apply(ILEDArray leds) {
+		_data = new byte[leds.sizeX()][leds.sizeY()];
+		for(int x=0; x<leds.sizeX(); x++) {
+			for(int y=0; y<leds.sizeY(); y++) {
+				_data[x][y] = 1;
+			}
+		}
+		_color.apply(leds, this);
 	}
 
 	@Override
-	public void apply(ILEDArray leds) {
-		for(int x=0; x<leds.sizeX(); x++) {
-			for(int y=0; y<leds.sizeY(); y++) {
-				leds.setLed(x, y, _r, _g, _b);
-			}
-		}
+	public void setPosX(int x) {
+		
 	}
+
+	@Override
+	public void setPosY(int y) {
+		
+	}
+
+	@Override
+	public int getPosX() {
+
+		return 0;
+	}
+
+	@Override
+	public int getPosY() {
+
+		return 0;
+	}
+
+	@Override
+	public byte[][] getEffectData() {
+		return _data;
+	}
+
 	
 }
