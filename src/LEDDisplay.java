@@ -3,6 +3,7 @@ import effects.coloring.*;
 import effects.text.*;
 import output.*;
 import led.*;
+import modes.ModeSelector;
 
 public class LEDDisplay implements Runnable {
 
@@ -25,15 +26,16 @@ public class LEDDisplay implements Runnable {
 		}
 		
 		serial.openSerialPort();
-				
+		ILEDArray leds = new LEDArray(60, 16);
 		
-		LEDArray leds = new LEDArray(60, 16);
+		Thread shutdownHook = new ShutdownHook(serial, display, leds);
+		Runtime.getRuntime().addShutdownHook(shutdownHook);
 		
 		ColoringSolid bgColor = new ColoringSolid(5, 5, 30);
 		SolidBackgroundEffect bg = new SolidBackgroundEffect(bgColor); 
 		
 		leds.applyEffect(bg);
-
+/*
 		// Flash Test
 		for (int i=0; i<10; i++) {
 			
@@ -95,14 +97,19 @@ public class LEDDisplay implements Runnable {
 		leds.applyEffect(text);
 		display.show(leds);
 		
-		
+		*/
 		
 		/*
 		bg.setColor(1, 1, 1);
 		leds.applyEffect(bg);
 		display.show(leds);
 		*/
-		serial.closeSerialPort();
+		
+		ModeSelector modeSelector =  new ModeSelector(display, leds);
+		new Thread(modeSelector).start();
+		
+		//serial.closeSerialPort();
+		
 		
 		
 		if (isWindows()) {
