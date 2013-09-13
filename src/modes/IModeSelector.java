@@ -1,8 +1,8 @@
 package modes;
 
 public interface IModeSelector extends Runnable {
-		
-	/** Should be called by every IMode "often" to enable program to react quickly if state change requested **/
+	
+	/** Called to trigger check if current mode should stay or change **/
 	void modeCheck();
 	
 	/** Called by active mode if nothing to display -> requests mode selector to start another **/

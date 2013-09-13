@@ -22,7 +22,7 @@ public class GuiDisplayAdaptor implements IDisplayAdaptor {
 	private void initWindow() {
 		frame = new JFrame("LED Display Preview");
 		JLabel textLabel = new JLabel("Waiting for Data to visualize...",SwingConstants.CENTER); 
-		textLabel.setPreferredSize(new Dimension(1330, 170)); 
+		textLabel.setPreferredSize(new Dimension(1330, 350)); 
 		frame.getContentPane().add(textLabel, BorderLayout.CENTER); 
 		frame.setLocationRelativeTo(null);
 		frame.pack();

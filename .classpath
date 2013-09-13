@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry excluding="libs/javaxcomm/" kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="src/libs/javaxcomm/comm.jar"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="lib" path="src/libs/commons-configuration-1.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="src/libs/javaxcomm/comm.jar"/>
+	<classpathentry kind="lib" path="src/libs/commons-lang-2.6/commons-lang-2.6.jar"/>
+	<classpathentry kind="lib" path="src/libs/commons-collections-3.2.1/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="lib" path="src/libs/commons-logging-1.1.3/commons-logging-1.1.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

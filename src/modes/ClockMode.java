@@ -1,7 +1,17 @@
 package modes;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+
+import javax.print.DocFlavor.STRING;
 
 import effects.background.SolidBackgroundEffect;
 import effects.coloring.*;
@@ -39,16 +49,27 @@ public class ClockMode implements IMode {
 		SolidBackgroundEffect bg = new SolidBackgroundEffect(bgColor); 
 		
 		IPixelatedFont font = new PixelatedFont(new FontDefault7px());
-		ColoringSolid textColor = new ColoringSolid(80, 0, 0);
-		TextEffect text = new TextEffect(font, textColor, "1337 ALTA!", 1, 1);
+		ColoringSolid timeTextColor = new ColoringSolid(80, 0, 0);
+		ColoringSolid pvTextColor = new ColoringSolid(0, 80, 0);
+		TextEffect timetext = new TextEffect(font, timeTextColor, "1337 ALTA!", 7, 0);
+		TextEffect pvtext = new TextEffect(font, pvTextColor, "1337 ALTA!", 3, 8);
 		String currentTime;
+		
+		int pvUpdateCounter = 1337;
 		
 		while (!_aborted && !_end) {
 			currentTime = new SimpleDateFormat("H:mm:ss").format(new Date());
-			text.setText(currentTime);
+			timetext.setText(currentTime);
+			
+			pvUpdateCounter++;
+			if (pvUpdateCounter > 150) {
+				pvtext.setText(getPvText());
+				pvUpdateCounter = 0;
+			}
 			
 			_leds.applyEffect(bg);
-			_leds.applyEffect(text);
+			_leds.applyEffect(timetext);
+			_leds.applyEffect(pvtext);
 			_display.show(_leds);
 			
 			try {
@@ -58,6 +79,36 @@ public class ClockMode implements IMode {
 			}
 		}
 		_modeSelector.modeEnded();
+	}
+
+	private String getPvText() {
+		String result = "";
+		try
+		{
+		    URL url = new URL("http://lcars/netio/mcsolar.php?giball=1");
+		
+		    URLConnection urlConn = url.openConnection(); 
+		    urlConn.setDoInput(true); 
+		    urlConn.setUseCaches(false);
+		
+		    BufferedReader reader = new BufferedReader(new InputStreamReader(urlConn.getInputStream())); 
+		    String s = reader.readLine(); 
+		    reader.close(); 
+		    
+		    String[] data = s.split(";");
+		    result = String.format("%dW%s%.1f", Integer.parseInt(data[1]), getSpaces(4-data[1].length()) , Float.parseFloat(data[2]));
+	    }
+	    catch (MalformedURLException mue) {} 
+	    catch (IOException ioe) {} 
+		
+		return result;
+	}
+
+	private String getSpaces(int count) {
+		String result = "";
+		for (int i = 0; i < count; i++)
+			result += " ";
+		return result;
 	}
 
 }
