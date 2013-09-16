@@ -49,10 +49,10 @@ public class ClockMode implements IMode {
 		SolidBackgroundEffect bg = new SolidBackgroundEffect(bgColor); 
 		
 		IPixelatedFont font = new PixelatedFont(new FontDefault7px());
-		ColoringSolid timeTextColor = new ColoringSolid(80, 0, 0);
-		ColoringSolid pvTextColor = new ColoringSolid(0, 80, 0);
+		ColoringSolid timeTextColor = new ColoringSolid(130, 0, 0);
+		ColoringSolid pvTextColor = new ColoringSolid(0, 100, 0);
 		TextEffect timetext = new TextEffect(font, timeTextColor, "1337 ALTA!", 7, 0);
-		TextEffect pvtext = new TextEffect(font, pvTextColor, "1337 ALTA!", 3, 8);
+		TextEffect pvtext = new TextEffect(font, pvTextColor, "1337 ALTA!", 1, 8);
 		String currentTime;
 		
 		int pvUpdateCounter = 1337;
@@ -96,10 +96,10 @@ public class ClockMode implements IMode {
 		    reader.close(); 
 		    
 		    String[] data = s.split(";");
-		    result = String.format("%dW%s%.1f", Integer.parseInt(data[1]), getSpaces(4-data[1].length()) , Float.parseFloat(data[2]));
+		    result = String.format("%dW%s%.1f", Integer.parseInt(data[1]), getSpaces(4-data[1].length() + 5-data[2].length()) , Float.parseFloat(data[2]));
 	    }
-	    catch (MalformedURLException mue) {} 
-	    catch (IOException ioe) {} 
+	    catch (MalformedURLException mue) {}
+	    catch (IOException ioe) {}
 		
 		return result;
 	}

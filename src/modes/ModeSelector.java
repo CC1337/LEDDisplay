@@ -8,6 +8,9 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
+import configuration.DisplayConfiguration;
+import configuration.IDisplayConfiguration;
+
 import led.ILEDArray;
 import output.IDisplayAdaptor;
 
@@ -20,12 +23,11 @@ public class ModeSelector implements IModeSelector {
 	private IMode _defaultMode;
 	private IMode _currentMode;
 	private IMode _lastConfiguredMode;
-	private Configuration _config;
+	private IDisplayConfiguration _config;
 	private boolean _modeEnded = false;
 	
 	private ModeSelector(IDisplayAdaptor display, ILEDArray leds) {
 		System.out.println("ModeSelector Init");
-		readConfig();
 		_display = display;
 		_leds = leds;
 		
@@ -36,6 +38,8 @@ public class ModeSelector implements IModeSelector {
 		
 		_defaultMode = clockMode;	
 		_lastConfiguredMode = clockMode;
+		
+		_config = new DisplayConfiguration("modeselector.properties", true);
 	}
 	
 	public static ModeSelector getInstance(IDisplayAdaptor display, ILEDArray leds) {
@@ -45,7 +49,7 @@ public class ModeSelector implements IModeSelector {
 	}
 
 	public void modeCheck() {
-		readConfig();
+
 		IMode configuredMode = getModeFromConfig();
 		if (configuredMode.getClass() != _lastConfiguredMode.getClass()) {
 			_currentMode.end();
@@ -94,15 +98,6 @@ public class ModeSelector implements IModeSelector {
 		new Thread(_currentMode).start();
 	}
 	
-	private void readConfig() {
-		//System.out.println("Reading modeselector.properties");
-		try {
-			_config = new PropertiesConfiguration("modeselector.properties");
-		} catch (ConfigurationException e) {
-			System.out.println("Error reading config from modeselector.properties");
-			e.printStackTrace();
-		}
-	}
 	
 	private IMode getModeFromConfig() {
 		String modeCurrent = _config.getString("mode.current");
