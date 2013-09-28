@@ -9,6 +9,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 import javax.print.DocFlavor.STRING;
@@ -45,27 +46,40 @@ public class ClockMode implements IMode {
 
 	@Override
 	public void run() {
-		ColoringSolid bgColor = new ColoringSolid(5, 5, 5);
+		_aborted = false;
+		_end = false;
+		
+		//ColoringSolid bgColor = new ColoringSolid(5, 5, 5);
+		ColoringPlasma bgColor = new ColoringPlasma(_leds.sizeX(), _leds.sizeY(), 5);
 		SolidBackgroundEffect bg = new SolidBackgroundEffect(bgColor); 
 		
 		IPixelatedFont font = new PixelatedFont(new FontDefault7px());
-		ColoringSolid timeTextColor = new ColoringSolid(130, 0, 0);
-		ColoringSolid pvTextColor = new ColoringSolid(0, 100, 0);
+		ColoringSolid timeTextColor = new ColoringSolid(155, 155, 155);
+		//ColoringPlasma timeTextColor = new ColoringPlasma(60, 7);
+		ColoringSolid pvTextColor = new ColoringSolid(155, 155, 155);
+		//ColoringPlasma pvTextColor = new ColoringPlasma(60, 7);
 		TextEffect timetext = new TextEffect(font, timeTextColor, "1337 ALTA!", 7, 0);
 		TextEffect pvtext = new TextEffect(font, pvTextColor, "1337 ALTA!", 1, 8);
 		String currentTime;
+		Calendar calendar = Calendar.getInstance();
+		int currentMinute;
 		
-		int pvUpdateCounter = 1337;
+		int lastPvUpdate = 1337;
+		pvtext.setText(getPvText());
 		
 		while (!_aborted && !_end) {
 			currentTime = new SimpleDateFormat("H:mm:ss").format(new Date());
+			currentMinute = calendar.get(Calendar.MINUTE);
 			timetext.setText(currentTime);
 			
-			pvUpdateCounter++;
-			if (pvUpdateCounter > 150) {
+			if (currentMinute % 5 == 1 && currentMinute != lastPvUpdate) {
 				pvtext.setText(getPvText());
-				pvUpdateCounter = 0;
+				lastPvUpdate = currentMinute;
 			}
+			
+			//timeTextColor.nextFrame();
+			//pvTextColor.nextFrame();
+			bgColor.nextFrame();
 			
 			_leds.applyEffect(bg);
 			_leds.applyEffect(timetext);
@@ -73,12 +87,14 @@ public class ClockMode implements IMode {
 			_display.show(_leds);
 			
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(5);
 			} catch (InterruptedException e) {
 				break;
 			}
+			
 		}
 		_modeSelector.modeEnded();
+		System.out.println("ClockMode exit");
 	}
 
 	private String getPvText() {

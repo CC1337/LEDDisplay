@@ -25,6 +25,7 @@ public class ModeSelector implements IModeSelector {
 	private IMode _lastConfiguredMode;
 	private IDisplayConfiguration _config;
 	private boolean _modeEnded = false;
+	private boolean _modeCheckInProgress = false;
 	
 	private ModeSelector(IDisplayAdaptor display, ILEDArray leds) {
 		System.out.println("ModeSelector Init");
@@ -49,7 +50,11 @@ public class ModeSelector implements IModeSelector {
 	}
 
 	public void modeCheck() {
-
+		if (_modeCheckInProgress)
+			return;
+		
+		_modeCheckInProgress = true;
+		
 		IMode configuredMode = getModeFromConfig();
 		if (configuredMode.getClass() != _lastConfiguredMode.getClass()) {
 			_currentMode.end();
@@ -68,6 +73,7 @@ public class ModeSelector implements IModeSelector {
 			startMode(configuredMode);
 			_lastConfiguredMode = configuredMode;
 		}
+		_modeCheckInProgress = false;
 	}
 
 	@Override

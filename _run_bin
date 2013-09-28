@@ -1,0 +1,1 @@
+java -cp bin/:bin/*/:bin/*/*:bin/*/*/*:bin/libs/:bin/libs/*:src/libs/commons-lang-2.6/*:bin/libs/commons-collections-3.2.1/*:bin/libs/commons-logging-1.1.3/*:/share/java/RXTXcomm.jar LEDDisplay

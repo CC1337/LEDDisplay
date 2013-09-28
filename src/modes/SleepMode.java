@@ -35,21 +35,27 @@ public class SleepMode implements IMode {
 
 	@Override
 	public void run() {
-		ColoringSolid bgColor = new ColoringSolid(0, 10, 0);
+		_aborted = false;
+		_end = false;
+		
+		ColoringWarpcore bgColor = new ColoringWarpcore(_leds.sizeX(), _leds.sizeY(), 50);
 		SolidBackgroundEffect bg = new SolidBackgroundEffect(bgColor); 
-		_leds.applyEffect(bg);
+		
 		
 		while (!_aborted && !_end) {
-			
+			bgColor.nextFrame();
+			_leds.applyEffect(bg);
 			_display.show(_leds);
-			
+			/*
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(500);
 			} catch (InterruptedException e) {
 				break;
 			}
+			*/
 		}
 		_modeSelector.modeEnded();
+		System.out.println("SleepMode exit");
 	}
 
 }
