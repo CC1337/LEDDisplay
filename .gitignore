@@ -2,6 +2,8 @@ bin/
 ./build/
 ./run/
 *.class
+*.d
+*.o
 
 # Package Files #
 *.jar

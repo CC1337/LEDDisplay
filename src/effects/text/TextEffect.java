@@ -10,6 +10,7 @@ public class TextEffect implements IColorableEffect {
 	private byte[][] _textArray;
 	private int _posX;
 	private int _posY;
+	private String _text;
 	
 	public TextEffect(IPixelatedFont font, IColor color, String text, int posX, int posY) {
 		_font = font;
@@ -20,15 +21,16 @@ public class TextEffect implements IColorableEffect {
 	}
 	
 	public TextEffect(IPixelatedFont font, IColor color, String text) {
-		_font = font;
-		setText(text);
-		_posX = 0;
-		_posY = 0;
-		_color = color;
+		this(font, color, text, 0, 0);
 	}
 	
 	public void setText(String text) {
+		_text = text;
 		_textArray = _font.toPixels(text);
+	}
+	
+	public String getText() {
+		return _text;
 	}
 	
 	public int getPosX() {
