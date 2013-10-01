@@ -10,6 +10,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import net.PvData;
+
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
 
@@ -35,6 +37,7 @@ public class ClockMode implements IMode {
 	private IPixelatedFont _font = new PixelatedFont(new FontDefault7px());
 	TextEffect _timeText = null;
 	TextEffect _pvText = null;
+	private PvData _pvData = PvData.getInstance();
 	
 	public ClockMode(IDisplayAdaptor display, ILEDArray leds, IModeSelector modeSelector) {
 		_display = display;
@@ -75,7 +78,7 @@ public class ClockMode implements IMode {
 			currentMinute = calendar.get(Calendar.MINUTE);
 			_timeText.setText(currentTime);
 			
-			if (currentMinute % 5 == 1 && currentMinute != lastPvUpdate) {
+			if (currentMinute != lastPvUpdate) {
 				_pvText.setText(getPvText());
 				lastPvUpdate = currentMinute;
 			}
@@ -121,26 +124,9 @@ public class ClockMode implements IMode {
 	}
 
 	private String getPvText() {
-		String result = "";
-		try
-		{
-		    URL url = new URL("http://lcars/netio/mcsolar.php?giball=1");
-		
-		    URLConnection urlConn = url.openConnection(); 
-		    urlConn.setDoInput(true); 
-		    urlConn.setUseCaches(false);
-		
-		    BufferedReader reader = new BufferedReader(new InputStreamReader(urlConn.getInputStream())); 
-		    String s = reader.readLine(); 
-		    reader.close(); 
-		    
-		    String[] data = s.split(";");
-		    result = String.format("%dW%s%.1f", Integer.parseInt(data[1]), getSpaces(4-data[1].length() + 5-data[2].length()) , Float.parseFloat(data[2]));
-	    }
-	    catch (MalformedURLException mue) {}
-	    catch (IOException ioe) {}
-		
-		return result;
+		int pac = _pvData.getPac();
+		double kwh = _pvData.getKwhDay();
+		return String.format("%dW%s%.1f", pac, getSpaces(4-String.valueOf(pac).length() + 5-String.valueOf(kwh).length()) , (float)kwh);
 	}
 
 	private String getSpaces(int count) {

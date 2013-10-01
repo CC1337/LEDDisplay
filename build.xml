@@ -17,7 +17,6 @@
         <pathelement location="src/libs/commons-collections-3.2.1/commons-collections-3.2.1.jar"/>
         <pathelement location="src/libs/commons-logging-1.1.3/commons-logging-1.1.3.jar"/>
         <pathelement location="src/libs/jnotify-0.94.jar"/>
-        <pathelement location="src/libs/libjnotify.so"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
