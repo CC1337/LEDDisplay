@@ -1,8 +1,10 @@
 package net;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -112,18 +114,19 @@ public class PvData {
     private void updateDayData() {
     	if (_lastDayData != null && lastResultValid(_lastDayDataUpdate, 5))
     		return;
-    	
-    	SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+
 		try
 		{
-			String address = _config.getString("net.pvdata.url") + format.format(Calendar.getInstance().getTime()) + ".js";
-		    URL url = new URL(address);
-		    System.out.print("Loading data from " + address + "...");
-		    
-		    URLConnection urlConn = url.openConnection(); 
-		    urlConn.setDoInput(true); 
-		    urlConn.setUseCaches(false);
-		
+			Calendar cal = Calendar.getInstance();
+	        URLConnection urlConn = getDayDataConnection(cal.getTime());
+		    if (urlConn == null) {
+		    	// Try yesterday
+		    	cal.add(Calendar.DAY_OF_MONTH,-1);
+		    	urlConn = getDayDataConnection(cal.getTime());
+		    	if (urlConn == null)
+		    		throw new IOException("No PV Data for today and yesterday :( giving up...");
+		    }
+
 		    BufferedReader reader = new BufferedReader(new InputStreamReader(urlConn.getInputStream())); 
 		    List<String> list = new ArrayList<String>();
 		    String line = reader.readLine();
@@ -145,6 +148,40 @@ public class PvData {
 	    	_lastDayData = new String[0];
 		    _lastDayDataUpdate = Calendar.getInstance();
 	    }
+    }
+    
+    private URLConnection getDayDataConnection(Date date) {
+    	SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+    	String address = _config.getString("net.pvdata.url") + format.format(date) + ".js";
+		System.out.print("Loading data from " + address + "...");
+		
+		URLConnection urlConn = null;
+		try {
+	    	URL url = new URL(address);
+		    urlConn = url.openConnection();
+		    urlConn.setDoInput(true); 
+		    urlConn.setUseCaches(false);
+
+		    if (urlConn instanceof HttpURLConnection)
+		    {
+		       HttpURLConnection httpConnection = (HttpURLConnection) urlConn;
+		       if (httpConnection.getResponseCode() != 200) {
+		    	   System.out.println("HTTP Error: " + httpConnection.getResponseCode());
+		    	   return null;
+		       }
+		    }
+		    	
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+
+	    
+	    return urlConn;
     }
 
 	private boolean lastResultValid(Calendar cacheDate, int cacheTimeout) {
