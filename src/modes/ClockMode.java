@@ -1,11 +1,5 @@
 package modes;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -17,6 +11,7 @@ import configuration.IDisplayConfiguration;
 
 import effects.IColor;
 import effects.IColorableEffect;
+import effects.info.PvDayChartEffect;
 import effects.text.*;
 import output.IDisplayAdaptor;
 import led.ILEDArray;
@@ -37,6 +32,7 @@ public class ClockMode implements IMode {
 	private IPixelatedFont _font = new PixelatedFont(new FontDefault7px());
 	TextEffect _timeText = null;
 	TextEffect _pvText = null;
+	PvDayChartEffect _pvDayChart = null;
 	private PvData _pvData = PvData.getInstance();
 	
 	public ClockMode(IDisplayAdaptor display, ILEDArray leds, IModeSelector modeSelector) {
@@ -80,12 +76,17 @@ public class ClockMode implements IMode {
 			
 			if (currentMinute != lastPvUpdate) {
 				_pvText.setText(getPvText());
+				_pvDayChart.updateData();
 				lastPvUpdate = currentMinute;
 			}
 			
 			_leds.applyEffect(_bg);
 			_leds.applyEffect(_timeText);
 			_leds.applyEffect(_pvText);
+			if (_pvData.getPac() == 0) {
+				_leds.applyEffect(_pvDayChart);
+			}
+						
 			_display.show(_leds);
 			
 			try {
@@ -117,6 +118,7 @@ public class ClockMode implements IMode {
 			if (_pvTextColor == null || !newPvtextColor.endsWith(_pvTextColor.getClass().getCanonicalName())) {
 				_pvTextColor = (IColor) Class.forName(newPvtextColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "pvtext.");
 				_pvText = new TextEffect(_font, _pvTextColor, _pvText != null ? _pvText.getText() : "1337 ALTA!", 1, 8);
+				_pvDayChart = new PvDayChartEffect(0, 8, 36, 7, _pvTextColor);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -126,7 +128,7 @@ public class ClockMode implements IMode {
 	private String getPvText() {
 		int pac = _pvData.getPac();
 		double kwh = _pvData.getKwhDay();
-		return String.format("%dW%s%.1f", pac, getSpaces(4-String.valueOf(pac).length() + 5-String.valueOf(kwh).length()) , (float)kwh);
+		return String.format("%dW%s%.1f", pac, getSpaces(4-String.valueOf(pac).length() + 5-String.valueOf(kwh).length()) , (float)kwh).replace("0W", "  ");
 	}
 
 	private String getSpaces(int count) {

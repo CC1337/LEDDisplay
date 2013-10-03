@@ -14,6 +14,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import sun.security.krb5.Config;
+
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
 
@@ -30,7 +32,6 @@ public class PvData {
         }
         return _instance;
     }
-    
     
     
     public int getPac() {
@@ -81,6 +82,31 @@ public class PvData {
 			}
 		}
     	return 0;
+    }
+    
+    public int[] getPacValues() {
+    	updateDayData();
+    	
+    	String data = null;
+    	int[] result = new int[0];
+    	for (String line : _lastDayData) {
+			if (line.contains("wr0_pac_vals=[")) {
+				data = line.substring(line.indexOf('[') + 1, line.indexOf(']'));
+				break;
+			}
+		}
+    	if (data != null) {
+    		String[] tmp = data.split(",");
+    		result = new int[tmp.length];
+    		for(int i=0; i<tmp.length; i++) {
+    			result[i] = Integer.parseInt(tmp[i]);
+    		}
+    	}    	
+    	return result;
+    }
+    
+    public int getMaxPossiblePac() {
+    	return _config.getInt("net.pvdata.maxPossiblePac", 8000);
     }
     
     private void updateDayData() {
