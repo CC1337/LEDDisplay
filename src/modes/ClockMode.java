@@ -24,6 +24,7 @@ public class ClockMode implements IMode {
 	private boolean _aborted = false;
 	private boolean _end = false;
 	private IDisplayConfiguration _config;
+	private PvData _pvData = PvData.getInstance();
 	
 	private IColor _bgColor = null;
 	private IColor _timeTextColor = null;
@@ -31,9 +32,12 @@ public class ClockMode implements IMode {
 	private IColorableEffect _bg = null;
 	private IPixelatedFont _font = new PixelatedFont(new FontDefault7px());
 	TextEffect _timeText = null;
+	TextEffect _dateText = null;
 	TextEffect _pvText = null;
 	PvDayChartEffect _pvDayChart = null;
-	private PvData _pvData = PvData.getInstance();
+	int _displayDateEverySeconds = 30;
+	int _displayDateForSeconds = 5;
+	
 	
 	public ClockMode(IDisplayAdaptor display, ILEDArray leds, IModeSelector modeSelector) {
 		_display = display;
@@ -62,6 +66,7 @@ public class ClockMode implements IMode {
 		String currentTime;
 		Calendar calendar;
 		int currentMinute;
+		int currentSecond;
 		
 		int lastPvUpdate = 1337;
 		_pvText.setText(getPvText());
@@ -72,6 +77,8 @@ public class ClockMode implements IMode {
 			currentTime = new SimpleDateFormat("H:mm:ss").format(new Date());
 			calendar = Calendar.getInstance();
 			currentMinute = calendar.get(Calendar.MINUTE);
+			currentSecond = calendar.get(Calendar.SECOND);
+
 			_timeText.setText(currentTime);
 			
 			if (currentMinute != lastPvUpdate) {
@@ -82,9 +89,14 @@ public class ClockMode implements IMode {
 			
 			_leds.applyEffect(_bg);
 			_leds.applyEffect(_timeText);
-			_leds.applyEffect(_pvText);
-			if (_pvData.getPac() == 0) {
-				_leds.applyEffect(_pvDayChart);
+			if (_displayDateEverySeconds > 0 && currentSecond % _displayDateEverySeconds < _displayDateForSeconds) {
+				_dateText.setText(new SimpleDateFormat("dd.MM.yyyy").format(new Date()));
+				_leds.applyEffect(_dateText);
+			} else {
+				_leds.applyEffect(_pvText);
+				if (_pvData.getPac() == 0) {
+					_leds.applyEffect(_pvDayChart);
+				}
 			}
 						
 			_display.show(_leds);
@@ -102,6 +114,9 @@ public class ClockMode implements IMode {
 	
 	private void reloadConfig() {
 		try {
+			_displayDateEverySeconds = _config.getInt("displayDateEverySeconds", 30);
+			_displayDateForSeconds = _config.getInt("displayDateForSeconds", 5);
+						
 			String newBgColor = _config.getString("bg.Coloring", "effects.coloring.ColoringSolid");
 			String newBgEffect = _config.getString("bg.Effect", "effects.background.SolidBackgroundEffect");
 			String newTimetextColor = _config.getString("timetext.Coloring", "effects.coloring.ColoringSolid");
@@ -114,6 +129,7 @@ public class ClockMode implements IMode {
 			if (_timeTextColor == null || !newTimetextColor.endsWith(_timeTextColor.getClass().getCanonicalName())) {
 				_timeTextColor = (IColor) Class.forName(newTimetextColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "timetext.");
 				_timeText = new TextEffect(_font, _timeTextColor, _timeText != null ? _timeText.getText() : "1337 ALTA!", 7, 0);
+				_dateText = new TextEffect(_font, _timeTextColor, _dateText != null ? _dateText.getText() : "1337 ALTA!", 1, 8);
 			}
 			if (_pvTextColor == null || !newPvtextColor.endsWith(_pvTextColor.getClass().getCanonicalName())) {
 				_pvTextColor = (IColor) Class.forName(newPvtextColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "pvtext.");

@@ -112,7 +112,7 @@ public class PvData {
     }
     
     private void updateDayData() {
-    	if (_lastDayData != null && lastResultValid(_lastDayDataUpdate, 5))
+    	if (_lastDayData != null && lastResultValid(_lastDayDataUpdate, 1))
     		return;
 
 		try
