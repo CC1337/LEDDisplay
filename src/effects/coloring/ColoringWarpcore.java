@@ -25,9 +25,9 @@ public class ColoringWarpcore extends ColoringPlasma {
 					leds.setLed(
 							x+effect.getPosX(), 
 							y+effect.getPosY(), 
-							applyBrightness((int)(_r[x][y]*0.2)), 
-							applyBrightness((int)((_g[x][y]+_r[x][y])*0.3)), 
-							applyBrightness((int)(_b[x][y]+_r[x][y]))
+							applyBrightness((int)Math.min((_r[x][y]*0.4), 255)), 
+							applyBrightness((int)Math.min(((_g[x][y]*0.7+_r[x][y]*2)*0.3), 255)), 
+							applyBrightness((int)Math.min((_b[x][y]*1.5+_r[x][y]*2), 255))
 					);
 			}
 		}		

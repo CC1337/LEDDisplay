@@ -124,6 +124,7 @@ public class ClockMode implements IMode {
 
 			if (_bgColor == null || !newBgColor.endsWith(_bgColor.getClass().getCanonicalName()))
 				_bgColor = (IColor) Class.forName(newBgColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "bg.");
+				_bg = (IColorableEffect) Class.forName(newBgEffect).getConstructor(IColor.class).newInstance(_bgColor);
 			if (_bg == null || !newBgEffect.endsWith(_bg.getClass().getCanonicalName()))
 				_bg = (IColorableEffect) Class.forName(newBgEffect).getConstructor(IColor.class).newInstance(_bgColor); 
 			if (_timeTextColor == null || !newTimetextColor.endsWith(_timeTextColor.getClass().getCanonicalName())) {
