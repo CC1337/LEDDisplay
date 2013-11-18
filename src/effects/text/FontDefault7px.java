@@ -7,6 +7,7 @@ public class FontDefault7px extends FontBase {
 	
 		super(5,7);
 		
+		// Sonderzeichenliste: http://www.bennyn.de/programmierung/java/umlaute-und-sonderzeichen-in-java.html
 		
 		// Grossbuchstaben
 		addChar("A", "01110" +
@@ -17,7 +18,7 @@ public class FontDefault7px extends FontBase {
 					 "10001" +
 					 "10001");
 		
-		addChar("Ä", "10001" +
+		addChar("\u00C4", "10001" +
 					 "00100" +
 					 "01010" +
 					 "10001" +
@@ -137,7 +138,7 @@ public class FontDefault7px extends FontBase {
 					 "10001" +
 					 "01110");
 		
-		addChar("Ö", "10001" +
+		addChar("\u00D6", "10001" +
 					 "00000" +
 					 "01110" +
 					 "10001" +
@@ -177,7 +178,7 @@ public class FontDefault7px extends FontBase {
 					 "00001" +
 					 "11110");
 		
-		addChar("S", "01100" +
+		addChar("\u00DF", "01100" +
 					 "10010" +
 					 "10010" +
 					 "10110" +
@@ -201,7 +202,7 @@ public class FontDefault7px extends FontBase {
 					 "10001" +
 					 "01110");
 		
-		addChar("Ü", "10001" +
+		addChar("\u00DC", "10001" +
 					 "00000" +
 					 "10001" +
 					 "10001" +
@@ -259,7 +260,7 @@ public class FontDefault7px extends FontBase {
 					 "10001" +
 					 "01111");
 		
-		addChar("ä", "01001" +
+		addChar("\u00E4", "01001" +
 					 "00000" +
 					 "01110" +
 					 "00001" +
@@ -379,7 +380,7 @@ public class FontDefault7px extends FontBase {
 					 "10001" +
 					 "01110");
 		
-		addChar("ö", "10001" +
+		addChar("\u00F6", "10001" +
 					 "00000" +
 					 "01110" +
 					 "10001" +
@@ -435,7 +436,7 @@ public class FontDefault7px extends FontBase {
 					 "10010" +
 					 "01101");
 		
-		addChar("ü", "10010" +
+		addChar("\u00FC", "10010" +
 				 	 "00000" +
 					 "10010" +
 					 "10010" +
@@ -638,7 +639,7 @@ public class FontDefault7px extends FontBase {
 					  "00010" +
 					  "00010");
 		
-		addChar("°", "00111" +
+		addChar("\u00BA", "00111" +
 					 "00101" +
 					 "00111" +
 					 "00000" +
