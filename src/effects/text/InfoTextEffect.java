@@ -62,21 +62,24 @@ public class InfoTextEffect implements IColorableEffect {
 			_prevStateData = _nextStateData;
 			_animationState = 1;
 			if (_stateProgress == 0) {
-				_nextStateData = _font.toPixels("Au: " + _netIO1OGData.getTempAussenKueche() + "\u00BA");
-			}
-			if (_stateProgress == 1) {
 				_nextStateData = _font.toPixels("SZ: " + _netIO1OGData.getTempSchlafzimmer() + "\u00BA");
 			}
-			if (_stateProgress == 2) {
+			if (_stateProgress == 1) {
 				_nextStateData = _font.toPixels("WZ: " + _netIO1OGData.getTempWohnzimmer() + "\u00BA");
 			}
-			if (_stateProgress == 3) {
+			if (_stateProgress == 2) {
 				_nextStateData = _font.toPixels("AQ: " + _netIO1OGData.getTempAquarium() + "\u00BA");
 			}
-			if (_stateProgress == 4) {
+			if (_stateProgress == 3) {
 				_nextStateData = _font.toPixels("Ba: " + _netIO1OGData.getTempBalkon() + "\u00BA");
 			}
-			_stateProgress = ++_stateProgress % 6;
+			if (_stateProgress == 4) {
+				_nextStateData = _font.toPixels("Au: " + _netIO1OGData.getTempAussenKueche() + "\u00BA");
+			}
+			if (_stateProgress == 5) {
+				_nextStateData = _font.toPixels(printOptionalSpace(_netIO1OGData.getTempAussenKuecheMin(), 4) + _netIO1OGData.getTempAussenKuecheMin() + "-" + _netIO1OGData.getTempAussenKuecheMax() + "\u00BA");
+			}
+			_stateProgress = ++_stateProgress % 7;
 			if (_stateProgress == 0) {
 				_state = State.PVInfo;
 				processState();
@@ -87,17 +90,16 @@ public class InfoTextEffect implements IColorableEffect {
 		if (_state == State.PVInfo) {
 			_prevStateData = _nextStateData;
 			_animationState = 1;
-			double dayExpected = 0;
+			double dayExpected = _pvData.getMonthExpected()/Calendar.getInstance().getActualMaximum(Calendar.DAY_OF_MONTH);
 			if (_stateProgress == 0) {
 				_nextStateData = _font.toPixels("Max W:" + _pvData.getMaxPac());
 			}
 			if (_stateProgress == 1) {
-				dayExpected = _pvData.getMonthExpected()/Calendar.getInstance().getActualMaximum(Calendar.DAY_OF_MONTH);
-				_nextStateData = _font.toPixels("Soll:" + (Math.abs(dayExpected) >= 10 ? "" : " ") + String.format("%.1f", (float)dayExpected));
+				_nextStateData = _font.toPixels("Soll:" + printOptionalSpace(dayExpected, 10) + String.format("%.1f", (float)dayExpected));
 			}
 			if (_stateProgress == 2) {
 				double dayDiff = _pvData.getKwhDay() - dayExpected;
-				_nextStateData = _font.toPixels("Diff:" + (Math.abs(dayDiff) >= 10 ? "" : " ") + (dayDiff >= 0 ? "+" : "-") + String.format("%.1f", (float)dayDiff));
+				_nextStateData = _font.toPixels("Diff:" + printOptionalSpace(dayDiff, 10) + (dayDiff >= 0 ? "+" : "") + String.format("%.1f", (float)dayDiff));
 			}
 			_stateProgress = ++_stateProgress % 4;
 			if (_stateProgress == 0) {
@@ -133,6 +135,14 @@ public class InfoTextEffect implements IColorableEffect {
 			_animationState = ++_animationState % 8;
 		}
 		
+	}
+	
+	private String printOptionalSpace(double val, int thresholdVal) {
+		return Math.abs(val) >= thresholdVal ? "" : " ";
+	}
+	
+	private String printOptionalSpace(String val, int thresholdLength) {
+		return val.length() >= thresholdLength ? "" : " ";
 	}
 	
 	public int getPosX() {
