@@ -1,6 +1,9 @@
 package effects.text;
 
+import java.util.Calendar;
+
 import net.NetIO1OG;
+import net.PvData;
 import led.ILEDArray;
 import effects.*;
 
@@ -25,6 +28,7 @@ public class InfoTextEffect implements IColorableEffect {
 	private byte[][] _prevStateData;
 	private byte[][] _nextStateData;
 	private NetIO1OG _netIO1OGData = NetIO1OG.getInstance();
+	private PvData _pvData = PvData.getInstance();
 	
 	public InfoTextEffect(IPixelatedFont font, IColor color, int posX, int posY) {
 		_font = font;
@@ -56,28 +60,51 @@ public class InfoTextEffect implements IColorableEffect {
 	private void processState() {
 		if (_state == State.Temperatures) {
 			_prevStateData = _nextStateData;
+			_animationState = 1;
 			if (_stateProgress == 0) {
 				_nextStateData = _font.toPixels("Au: " + _netIO1OGData.getTempAussenKueche() + "\u00BA");
-				_animationState = 1;
 			}
 			if (_stateProgress == 1) {
 				_nextStateData = _font.toPixels("SZ: " + _netIO1OGData.getTempSchlafzimmer() + "\u00BA");
-				_animationState = 1;
 			}
 			if (_stateProgress == 2) {
 				_nextStateData = _font.toPixels("WZ: " + _netIO1OGData.getTempWohnzimmer() + "\u00BA");
-				_animationState = 1;
 			}
 			if (_stateProgress == 3) {
 				_nextStateData = _font.toPixels("AQ: " + _netIO1OGData.getTempAquarium() + "\u00BA");
-				_animationState = 1;
 			}
 			if (_stateProgress == 4) {
 				_nextStateData = _font.toPixels("Ba: " + _netIO1OGData.getTempBalkon() + "\u00BA");
-				_animationState = 1;
 			}
-
-			_stateProgress = ++_stateProgress % 5;
+			_stateProgress = ++_stateProgress % 6;
+			if (_stateProgress == 0) {
+				_state = State.PVInfo;
+				processState();
+				return;
+			}
+		}
+		
+		if (_state == State.PVInfo) {
+			_prevStateData = _nextStateData;
+			_animationState = 1;
+			double dayExpected = 0;
+			if (_stateProgress == 0) {
+				_nextStateData = _font.toPixels("Max W:" + _pvData.getMaxPac());
+			}
+			if (_stateProgress == 1) {
+				dayExpected = _pvData.getMonthExpected()/Calendar.getInstance().getActualMaximum(Calendar.DAY_OF_MONTH);
+				_nextStateData = _font.toPixels("Soll:" + (Math.abs(dayExpected) >= 10 ? "" : " ") + String.format("%.1f", (float)dayExpected));
+			}
+			if (_stateProgress == 2) {
+				double dayDiff = _pvData.getKwhDay() - dayExpected;
+				_nextStateData = _font.toPixels("Diff:" + (Math.abs(dayDiff) >= 10 ? "" : " ") + (dayDiff >= 0 ? "+" : "-") + String.format("%.1f", (float)dayDiff));
+			}
+			_stateProgress = ++_stateProgress % 4;
+			if (_stateProgress == 0) {
+				_state = State.Temperatures;
+				processState();
+				return;
+			}
 		}
 	}
 	
@@ -85,22 +112,21 @@ public class InfoTextEffect implements IColorableEffect {
 		if (_textArray == null || _prevStateData == null)
 			return;
 		
-		if (_state == State.Temperatures) {
+		if (_state == State.Temperatures || _state == State.PVInfo) {
 			for(int x=0; x<_textArray.length; x++) {
 				for(int y=0; y<_textArray[0].length; y++) {
-					if (x >= _nextStateData.length || x >= _prevStateData.length) {
-						_textArray[x][y] = 0;
-					} else {
-						//System.out.print("x: "+x + "  y: " + y + "  as: " + _animationState + "  ta0len: " + _textArray[0].length );
-						
-						if (y + _animationState >= _textArray[0].length) { 
-							//System.out.println(" c1 " + (-_textArray[0].length + y + _animationState));
-							_textArray[x][y] = _nextStateData[x][-_textArray[0].length + y + _animationState];
+					if (y + _animationState >= _textArray[0].length) { 
+						if (x >= _nextStateData.length) {
+							_textArray[x][y] = 0;
 						} else {
-							//System.out.println(" c2 " + (y + _animationState));
+							_textArray[x][y] = _nextStateData[x][-_textArray[0].length + y + _animationState];
+						}
+					} else {
+						if (x >= _prevStateData.length) {
+							_textArray[x][y] = 0;
+						} else {
 							_textArray[x][y] = _prevStateData[x][y + _animationState];
 						}
-							
 					}
 				}
 			}

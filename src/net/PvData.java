@@ -86,6 +86,17 @@ public class PvData {
     	return 0;
     }
     
+    public int getMonthExpected() {
+    	updateDayData();
+    	
+    	for (String line : _lastDayData) {
+			if (line.contains("var month_expected=[")) {
+				return Integer.parseInt(line.substring(line.indexOf('[') + 1, line.indexOf(',')));
+			}
+		}
+    	return 0;
+    }
+        
     public int[] getPacValues() {
     	updateDayData();
     	

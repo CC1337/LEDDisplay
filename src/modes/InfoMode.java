@@ -12,6 +12,7 @@ import configuration.IDisplayConfiguration;
 import effects.IColor;
 import effects.IColorableEffect;
 import effects.info.PvDayChartEffect;
+import effects.shape.RectEffect;
 import effects.text.*;
 import output.IDisplayAdaptor;
 import led.ILEDArray;
@@ -30,13 +31,16 @@ public class InfoMode implements IMode {
 	private IColor _timeTextColor = null;
 	private IColor _pvTextColor = null;
 	private IColor _infoTextColor = null;
+	private IColor _secondPixelColor = null;
 	private IColorableEffect _bg = null;
 	private IPixelatedFont _font = new PixelatedFont(new FontDefault7px());
 	TextEffect _timeText = null;
 	TextEffect _pvText = null;
 	InfoTextEffect _infoText = null;
+	RectEffect _secondPixel = null;
 	PvDayChartEffect _pvDayChart = null;
 	int _infoChangeDelay = 5;
+	boolean _showSecondPixel = true;
 	
 	
 	public InfoMode(IDisplayAdaptor display, ILEDArray leds, IModeSelector modeSelector) {
@@ -98,10 +102,15 @@ public class InfoMode implements IMode {
 			_leds.applyEffect(_pvText);
 			_leds.applyEffect(_infoText);
 		
+			if (_showSecondPixel) {
+				_secondPixel.setPosX(currentSecond);
+				_leds.applyEffect(_secondPixel);
+			}
+			
 			_display.show(_leds);
 			
 			try {
-				Thread.sleep(5);
+				Thread.sleep(1);
 			} catch (InterruptedException e) {
 				break;
 			}
@@ -114,12 +123,14 @@ public class InfoMode implements IMode {
 	private void reloadConfig() {
 		try {
 			_infoChangeDelay = _config.getInt("infoChangeDelay", 5);
+			_showSecondPixel = _config.getInt("showSecond", 1) == 1;
 						
 			String newBgColor = _config.getString("bg.Coloring", "effects.coloring.ColoringSolid");
 			String newBgEffect = _config.getString("bg.Effect", "effects.background.SolidBackgroundEffect");
 			String newTimetextColor = _config.getString("timetext.Coloring", "effects.coloring.ColoringSolid");
 			String newPvtextColor = _config.getString("pvtext.Coloring", "effects.coloring.ColoringSolid");
 			String newInfotextColor = _config.getString("infotext.Coloring", "effects.coloring.ColoringSolid");
+			String newSecondPixelColor = _config.getString("second.Coloring", "effects.coloring.ColoringSolid");
 
 			if (_bgColor == null || !newBgColor.endsWith(_bgColor.getClass().getCanonicalName()))
 				_bgColor = (IColor) Class.forName(newBgColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "bg.");
@@ -139,6 +150,12 @@ public class InfoMode implements IMode {
 				_infoTextColor = (IColor) Class.forName(newInfotextColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "infotext.");
 				_infoText = new InfoTextEffect(_font, _infoTextColor, 1, 8);
 			}
+			if (_secondPixelColor == null || !newSecondPixelColor.endsWith(_secondPixelColor.getClass().getCanonicalName())) {
+				_secondPixelColor = (IColor) Class.forName(newSecondPixelColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "second.");
+				_secondPixel = new RectEffect(0, 7, 1, 1, _secondPixelColor);
+			}
+			
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
