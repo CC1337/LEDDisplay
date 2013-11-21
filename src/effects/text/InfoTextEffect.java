@@ -7,22 +7,23 @@ import net.PvData;
 import led.ILEDArray;
 import effects.*;
 
-enum State {
-	Temperatures,
-	PVInfo,
-	News,
-	Weather
-}
-
 public class InfoTextEffect implements IColorableEffect {
+	
+	private enum State {
+		Start,
+		Temperatures,
+		PVInfo,
+		News,
+		Weather
+	}
 	
 	private IPixelatedFont _font;
 	private IColor _color;
 	private byte[][] _textArray;
 	private int _posX;
 	private int _posY;
-	private State _state = State.Temperatures;
-	private int _stateProgress = 0;
+	private State _state = State.Start;
+	private int _stateProgress = 2;
 	private boolean _switchToNextInfo = false;
 	private int _animationState = 0;
 	private byte[][] _prevStateData;
@@ -47,6 +48,19 @@ public class InfoTextEffect implements IColorableEffect {
 		_switchToNextInfo = true;
 	}
 	
+	/**
+	 * true every time a loop ended. Note: only between to calls to nixtInfo()
+	 * @return true if currently in last state of the info loop
+	 */
+	public boolean loopEnded() {
+		return _state == State.Start && _stateProgress < 2;
+	}
+	
+	public void toStart() {
+		_state = State.Start;
+		_stateProgress = 2;
+	}
+	
 	private void nextFrame() {
 		if (_animationState > 0)
 			changeAnimation();
@@ -58,6 +72,19 @@ public class InfoTextEffect implements IColorableEffect {
 	}
 	
 	private void processState() {
+		if (_state == State.Start) {
+			_stateProgress++;
+			if (_stateProgress >= 3) {
+				_state = State.Temperatures;
+				_stateProgress = 0;
+				processState();
+				return;
+			} else {
+				_prevStateData = _nextStateData;
+				_nextStateData = _font.toPixels(" ");
+				_animationState = 1;
+			}
+		}
 		if (_state == State.Temperatures) {
 			_prevStateData = _nextStateData;
 			_animationState = 1;
@@ -103,7 +130,7 @@ public class InfoTextEffect implements IColorableEffect {
 			}
 			_stateProgress = ++_stateProgress % 4;
 			if (_stateProgress == 0) {
-				_state = State.Temperatures;
+				_state = State.Start;
 				processState();
 				return;
 			}
@@ -114,7 +141,7 @@ public class InfoTextEffect implements IColorableEffect {
 		if (_textArray == null || _prevStateData == null)
 			return;
 		
-		if (_state == State.Temperatures || _state == State.PVInfo) {
+		if (_state == State.Temperatures || _state == State.PVInfo || _state == State.Start) {
 			for(int x=0; x<_textArray.length; x++) {
 				for(int y=0; y<_textArray[0].length; y++) {
 					if (y + _animationState >= _textArray[0].length) { 
