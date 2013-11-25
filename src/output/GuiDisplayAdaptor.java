@@ -33,12 +33,15 @@ public class GuiDisplayAdaptor implements IDisplayAdaptor {
 	public void show(ILEDArray leds) {
 		frame.getContentPane().removeAll();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		Color color;
 		for(int x=0; x<leds.sizeX(); x++) {
 			for(int y=0; y<leds.sizeY(); y++) {
+				color = new Color(leds.led(x, y).r(), leds.led(x, y).g(), leds.led(x, y).b());
 				JLabel textLabel = new JLabel("."); 
 				textLabel.setPreferredSize(new Dimension(20, 20)); 
 				textLabel.setOpaque(true);
-				textLabel.setBackground(new Color(leds.led(x, y).r(), leds.led(x, y).g(), leds.led(x, y).b()));
+				textLabel.setBackground(color);
+				textLabel.setForeground(color);
 				textLabel.setBounds(x*22, y*22, 20, 20);
 				frame.getContentPane().add(textLabel);
 			}

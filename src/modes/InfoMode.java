@@ -52,6 +52,7 @@ public class InfoMode implements IMode {
 	MarqueeTextEffect _newsText = null;
 	int _infoChangeDelay = 5;
 	int _newsPerRssFeed = 3;
+	int _newsScrollSpeed = 1;
 	String _newsDelimiter;
 	boolean _showSecondPixel = true;
 	
@@ -93,7 +94,7 @@ public class InfoMode implements IMode {
 		_newsText.setText(getNews());
 		
 		while (!_aborted && !_end) {
-			reloadConfig();
+			//reloadConfig();
 			
 			currentTime = new SimpleDateFormat("H:mm").format(new Date());
 			calendar = Calendar.getInstance();
@@ -120,17 +121,17 @@ public class InfoMode implements IMode {
 					currentText = TextType.NEWSTEXT;
 					_infoText.toStart();
 				}
+				if (currentMinute % 5 == 0 && currentMinute != lastNewsUpdate) {
+					_newsText.setText(getNews());
+					lastNewsUpdate = currentMinute;
+				}
 			}
 			_leds.applyEffect(_infoText);
 			
 			if (currentText == TextType.NEWSTEXT) {
 				_leds.applyEffect(_newsText);
-				if (_newsText.shift(1))
+				if (_newsText.shift(_newsScrollSpeed))
 					currentText = TextType.INFOTEXT;
-				if (currentMinute % 5 == 0 && currentMinute != lastNewsUpdate) {
-					_newsText.setText(getNews());
-					lastNewsUpdate = currentMinute;
-				}
 			}
 		
 			if (_showSecondPixel) {
@@ -155,10 +156,11 @@ public class InfoMode implements IMode {
 		try {
 			_infoChangeDelay = _config.getInt("infoChangeDelay", 5);
 			_newsPerRssFeed = _config.getInt("newsPerRssFeed", 3);
-			_newsDelimiter = _config.getString("newsDelimiter", "---");
+			_newsDelimiter = _config.getString("newsDelimiter", " - ").replace("\"", "");
 			_showSecondPixel = _config.getInt("showSecond", 1) == 1;
+			_newsScrollSpeed = _config.getInt("newsScrollSpeed", 1);
 			initRss();
-						
+						System.out.println("cfg reload");
 			String newBgColor = _config.getString("bg.Coloring", "effects.coloring.ColoringSolid");
 			String newBgEffect = _config.getString("bg.Effect", "effects.background.SolidBackgroundEffect");
 			String newTimetextColor = _config.getString("timetext.Coloring", "effects.coloring.ColoringSolid");
@@ -215,11 +217,14 @@ public class InfoMode implements IMode {
 			return "No RSS Feeds configured :(";
 		String result = "";
 		for (RssReader reader : _rssReaders) {
+			if (result != "")
+				result += _newsDelimiter;
 			result += reader.getLastMessages(3, _newsDelimiter);
 		}
 		if (result.isEmpty())
 			return "No News available :(";
-		return "News " + result;
+		System.out.println(result);
+		return result;
 	}
 
 	private String getPvText() {

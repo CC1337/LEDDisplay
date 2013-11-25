@@ -25,13 +25,15 @@ public class RssReader {
     }
 	
 	public String getLastMessages(int count, String separator) {
+		updateData();
+
 		if (_lastData == null)
 			return "";
 		
-		String result = _lastData.getTitle();
+		String result = _lastData.getTitle().trim();
 		List<FeedMessage> messages = _lastData.getMessages();
 		for (int i=0; i<Math.min(count, messages.size()); i++) {
-			result += separator + messages.get(i).getTitle();
+			result += separator + messages.get(i).getTitle().trim();
 		}
 		return result;
 	}
