@@ -6,6 +6,5 @@ bin/
 *.o
 
 # Package Files #
-*.jar
 *.war
 *.ear
