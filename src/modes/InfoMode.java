@@ -51,6 +51,7 @@ public class InfoMode implements IMode {
 	PvDayChartEffect _pvDayChart = null;
 	MarqueeTextEffect _newsText = null;
 	int _infoChangeDelay = 5;
+	int _newsEnabled = 1;
 	int _newsPerRssFeed = 3;
 	int _newsScrollSpeed = 1;
 	String _newsDelimiter;
@@ -91,7 +92,8 @@ public class InfoMode implements IMode {
 		int lastPvUpdate = 1337;
 		int lastNewsUpdate = 1337;
 		_pvText.setText(getPvText());
-		_newsText.setText(getNews());
+		if (_newsEnabled == 1)
+			_newsText.setText(getNews());
 		
 		while (!_aborted && !_end) {
 			//reloadConfig();
@@ -121,7 +123,7 @@ public class InfoMode implements IMode {
 					currentText = TextType.NEWSTEXT;
 					_infoText.toStart();
 				}
-				if (currentMinute % 5 == 0 && currentMinute != lastNewsUpdate) {
+				if (_newsEnabled == 1 && currentMinute % 5 == 0 && currentMinute != lastNewsUpdate) {
 					_newsText.setText(getNews());
 					lastNewsUpdate = currentMinute;
 				}
@@ -129,9 +131,13 @@ public class InfoMode implements IMode {
 			_leds.applyEffect(_infoText);
 			
 			if (currentText == TextType.NEWSTEXT) {
-				_leds.applyEffect(_newsText);
-				if (_newsText.shift(_newsScrollSpeed))
+				if (_newsEnabled == 1) {
+					_leds.applyEffect(_newsText);
+					if (_newsText.shift(_newsScrollSpeed))
+						currentText = TextType.INFOTEXT;
+				} else {
 					currentText = TextType.INFOTEXT;
+				}
 			}
 		
 			if (_showSecondPixel) {
@@ -155,12 +161,13 @@ public class InfoMode implements IMode {
 	private void reloadConfig() {
 		try {
 			_infoChangeDelay = _config.getInt("infoChangeDelay", 5);
+			_newsEnabled = _config.getInt("newsEnabled", 1);
 			_newsPerRssFeed = _config.getInt("newsPerRssFeed", 3);
 			_newsDelimiter = _config.getString("newsDelimiter", " - ").replace("\"", "");
 			_showSecondPixel = _config.getInt("showSecond", 1) == 1;
 			_newsScrollSpeed = _config.getInt("newsScrollSpeed", 1);
 			initRss();
-						System.out.println("cfg reload");
+			System.out.println("cfg reload");
 			String newBgColor = _config.getString("bg.Coloring", "effects.coloring.ColoringSolid");
 			String newBgEffect = _config.getString("bg.Effect", "effects.background.SolidBackgroundEffect");
 			String newTimetextColor = _config.getString("timetext.Coloring", "effects.coloring.ColoringSolid");
@@ -191,7 +198,7 @@ public class InfoMode implements IMode {
 				_secondPixelColor = (IColor) Class.forName(newSecondPixelColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "second.");
 				_secondPixel = new RectEffect(0, 7, 1, 1, _secondPixelColor);
 			}
-			if (_newsTextColor == null || !newInfotextColor.endsWith(_newsTextColor.getClass().getCanonicalName())) {
+			if (_newsEnabled == 1 && (_newsTextColor == null || !newInfotextColor.endsWith(_newsTextColor.getClass().getCanonicalName()))) {
 				_newsTextColor = (IColor) Class.forName(newNewstextColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "newstext.");
 				_newsText = new MarqueeTextEffect(_font, _newsTextColor, getNews(), 1, 8, _leds.sizeX());
 			}
@@ -213,6 +220,8 @@ public class InfoMode implements IMode {
 	}
 	
 	private String getNews() {
+		if (_newsEnabled == 0)
+			return "";
 		if (_rssReaders.size() == 0)
 			return "No RSS Feeds configured :(";
 		String result = "";
