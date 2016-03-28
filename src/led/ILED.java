@@ -7,6 +7,12 @@ public interface ILED {
 	int g();
 	
 	int b();
+	
+	int rWithBrightnessCorrection();
+	
+	int gWithBrightnessCorrection();
+	
+	int bWithBrightnessCorrection();
 
 	void r(int r);
 	

@@ -4,10 +4,13 @@ import net.contentobjects.jnotify.JNotify;
 import net.contentobjects.jnotify.JNotifyException;
 import net.contentobjects.jnotify.JNotifyListener;
 
+import java.util.Observable;
+
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
-public class DisplayConfiguration implements JNotifyListener, IDisplayConfiguration {
+
+public class DisplayConfiguration extends Observable implements JNotifyListener, IDisplayConfiguration{
 
 	private String _filename;
 	private boolean _enableAutoReload;
@@ -37,6 +40,8 @@ public class DisplayConfiguration implements JNotifyListener, IDisplayConfigurat
 			e.printStackTrace();
 			System.err.println("Error reading config from " + _filename);
 		}
+		setChanged();
+		notifyObservers();
 		_configHasChanged = false;
 	}
 	

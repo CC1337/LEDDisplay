@@ -2,6 +2,8 @@ package output;
 import java.awt.*;
 import javax.swing.*;
 
+import brightness.BrightnessCorrection;
+import brightness.IBrightnessCorrection;
 import led.*;
 
 
@@ -9,14 +11,17 @@ public class GuiDisplayAdaptor implements IDisplayAdaptor {
 	
 	JFrame frame;
 	IDisplayAdaptor parentAdaptor;
+	private IBrightnessCorrection _brightnessCorrection;
 	
 	public GuiDisplayAdaptor(IDisplayAdaptor parentAdaptor) {
 		this.parentAdaptor = parentAdaptor;
 		initWindow();
+		_brightnessCorrection = BrightnessCorrection.getInstance();
 	}
 	
 	public GuiDisplayAdaptor() {
 		initWindow();
+		_brightnessCorrection = BrightnessCorrection.getInstance();
 	}
 	
 	private void initWindow() {
@@ -31,12 +36,13 @@ public class GuiDisplayAdaptor implements IDisplayAdaptor {
 	
 	@Override
 	public void show(ILEDArray leds) {
+		_brightnessCorrection.doDimmingStep();
 		frame.getContentPane().removeAll();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		Color color;
 		for(int x=0; x<leds.sizeX(); x++) {
 			for(int y=0; y<leds.sizeY(); y++) {
-				color = new Color(leds.led(x, y).r(), leds.led(x, y).g(), leds.led(x, y).b());
+				color = new Color(leds.led(x, y).rWithBrightnessCorrection(), leds.led(x, y).gWithBrightnessCorrection(), leds.led(x, y).bWithBrightnessCorrection());
 				JLabel textLabel = new JLabel("."); 
 				textLabel.setPreferredSize(new Dimension(20, 20)); 
 				textLabel.setOpaque(true);

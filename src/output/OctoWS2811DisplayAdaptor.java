@@ -1,23 +1,29 @@
 package output;
 
+import brightness.BrightnessCorrection;
+import brightness.IBrightnessCorrection;
 import led.*;
 
 public class OctoWS2811DisplayAdaptor implements IDisplayAdaptor{
 
 	private ISerial _serial;
 	private int _linesPerPin = 1;
+	private IBrightnessCorrection _brightnessCorrection;
 
 	public OctoWS2811DisplayAdaptor(ISerial serial) {
 		this._serial = serial;
+		_brightnessCorrection = BrightnessCorrection.getInstance();
 	}
 	
 	public OctoWS2811DisplayAdaptor(ISerial serial, int linesPerPin) {
 		this._serial = serial;
 		this._linesPerPin = linesPerPin;
+		_brightnessCorrection = BrightnessCorrection.getInstance();
 	}
 	
 	@Override
 	public void show(ILEDArray leds) {
+		_brightnessCorrection.doDimmingStep();
 		//long startTime = System.currentTimeMillis();
 		byte[] transmitArray = image2data(leds);
 		//System.out.println("transmitarray ready: " + (System.currentTimeMillis() - startTime));
@@ -58,7 +64,7 @@ public class OctoWS2811DisplayAdaptor implements IDisplayAdaptor{
 				  if (curLedYPosition >= leds.sizeY())
 					  break;
 				  ILED curLed = leds.led(x, curLedYPosition);
-				  pixelColumn[i] = (curLed.g() << 16) | (curLed.r() << 8) | curLed.b(); // GRB LED Layout
+				  pixelColumn[i] = (curLed.gWithBrightnessCorrection() << 16) | (curLed.rWithBrightnessCorrection() << 8) | curLed.bWithBrightnessCorrection(); // GRB LED Layout
 			  }
 			  // convert 8 pixels to 24 bytes
 			  for (mask = 0x800000; mask != 0; mask >>= 1) {
