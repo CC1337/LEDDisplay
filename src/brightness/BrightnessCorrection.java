@@ -3,6 +3,13 @@ package brightness;
 import java.util.Observable;
 import java.util.Observer;
 
+import com.pi4j.io.gpio.GpioController;
+import com.pi4j.io.gpio.GpioFactory;
+import com.pi4j.io.gpio.GpioPinDigitalInput;
+import com.pi4j.io.gpio.GpioPinDigitalOutput;
+import com.pi4j.io.gpio.PinState;
+import com.pi4j.io.gpio.RaspiPin;
+
 import configuration.DisplayConfiguration;
 
 public class BrightnessCorrection implements IBrightnessCorrection, Observer {
@@ -11,6 +18,7 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 	private DisplayConfiguration _config;
 	private int _currentBrightness;
 	private int _newBrightness;
+	final GpioController gpio = GpioFactory.getInstance();
 	
 	private BrightnessCorrection () {
 		_config = new DisplayConfiguration("brightness.properties", true);
@@ -35,6 +43,18 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 	
 	private int getAutoBrightness() {
 		// TODO
+//		gpio.provisionDigitalOutputPin(RaspiPin.GPIO_07, "LDR", PinState.LOW);
+//		try {
+//			Thread.sleep(100);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
+//		GpioPinDigitalInput ldr = gpio.provisionDigitalInputPin(RaspiPin.GPIO_07, "LDR");
+//		int count = 0;
+//		while (ldr.isLow())
+//			count++;
+//		
+//		System.out.println(count);
 		return 0;
 	}
 
