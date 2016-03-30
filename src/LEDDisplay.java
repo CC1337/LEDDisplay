@@ -1,6 +1,7 @@
 import effects.background.*;
 import effects.coloring.*;
 import effects.text.*;
+import helper.Helper;
 import output.*;
 import led.*;
 import modes.IModeSelector;
@@ -18,7 +19,7 @@ public class LEDDisplay implements Runnable {
 		IDisplayAdaptor display;
 		ISerial serial = null;
 				
-		if (isWindows()) {
+		if (Helper.isWindows()) {
 			serial = new SerialFake();
 			display = new GuiDisplayAdaptor(new OctoWS2811DisplayAdaptor(serial));
 		} else {
@@ -116,7 +117,7 @@ public class LEDDisplay implements Runnable {
 		
 		
 		
-		if (isWindows()) {
+		if (Helper.isWindows()) {
 			waitms(2000);
 		}
 		
@@ -129,9 +130,6 @@ public class LEDDisplay implements Runnable {
 		System.out.println("LEDDisplay starting...");
 	}
 	
-	private boolean isWindows() {
-		return System.getProperty("os.name").startsWith("Windows");
-	}
 	
 	private void waitms(int ms) {
 		try {

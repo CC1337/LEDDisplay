@@ -3,14 +3,10 @@ package brightness;
 import java.util.Observable;
 import java.util.Observer;
 
-import com.pi4j.io.gpio.GpioController;
-import com.pi4j.io.gpio.GpioFactory;
-import com.pi4j.io.gpio.GpioPinDigitalInput;
-import com.pi4j.io.gpio.GpioPinDigitalOutput;
-import com.pi4j.io.gpio.PinState;
-import com.pi4j.io.gpio.RaspiPin;
-
 import configuration.DisplayConfiguration;
+import configuration.IDisplayConfiguration;
+import helper.Helper;
+
 
 public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 	
@@ -18,56 +14,93 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 	private DisplayConfiguration _config;
 	private int _currentBrightness;
 	private int _newBrightness;
-	final GpioController gpio = GpioFactory.getInstance();
+	private int _configuredBrightness;
+	private IBrightnessSensorReader _brightnessSensorReader;
+	private BrightnessReaderThread _brightnessReaderThread;
+	private int _configuredAutoBrightnessNotificationThreshold = 0;
+	private int _configuredAutoBrightnessMsBetweenUpdates = 5000;
+	private String _configuredAutoBrightnessPin;
 	
 	private BrightnessCorrection () {
 		_config = new DisplayConfiguration("brightness.properties", true);
 		_config.addObserver(this);
-		_currentBrightness = _config.getInt("brightness", 100);
-		_newBrightness = _currentBrightness;
+		reloadConfig();
+		_currentBrightness = _configuredBrightness;
+		_newBrightness = _configuredBrightness;
 		System.out.println("Initial brightness: " + _currentBrightness);
+		initBrightnessSensorReader();
 	}
-
+	
 	public static IBrightnessCorrection getInstance() {
 		if (_instance == null) {
 			_instance = new BrightnessCorrection();
 		}
 		return BrightnessCorrection._instance;
-	  }
-
-	public int getBrightnessPercentage() {
-		if (_currentBrightness != 0)
-			return _currentBrightness;
-		return getAutoBrightness();
 	}
 	
-	private int getAutoBrightness() {
-		// TODO
-//		gpio.provisionDigitalOutputPin(RaspiPin.GPIO_07, "LDR", PinState.LOW);
-//		try {
-//			Thread.sleep(100);
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//		GpioPinDigitalInput ldr = gpio.provisionDigitalInputPin(RaspiPin.GPIO_07, "LDR");
-//		int count = 0;
-//		while (ldr.isLow())
-//			count++;
-//		
-//		System.out.println(count);
-		return 0;
+	private void initBrightnessSensorReader() {
+		if (_brightnessReaderThread != null)
+			return;
+		
+		if (Helper.isWindows() || _configuredAutoBrightnessPin == null) {
+			_brightnessSensorReader = new DummyBrightnessSensorReader(100);
+			if (_configuredAutoBrightnessPin == null)
+				System.out.println("Warning: brightness.properties Brightness.AutoBrightness.LdrPinName invalid, falling back to dummy auto-brightness");
+		} else {
+			_brightnessSensorReader = new GpioLdrReader(_configuredAutoBrightnessPin);
+		}
+		
+		_brightnessReaderThread = new BrightnessReaderThread(_brightnessSensorReader, _configuredAutoBrightnessNotificationThreshold, _configuredAutoBrightnessMsBetweenUpdates);
+		_brightnessReaderThread.addObserver(this);
+		
+		new Thread(_brightnessReaderThread).start();
+	}
+
+	public int getBrightnessPercentage() {
+		return _currentBrightness;
+	}
+	
+	private void updateAutoBrightness() {
+		if (_configuredBrightness == 0) {
+			_newBrightness = _brightnessSensorReader.getLastBrightnessValue();
+			System.out.println("New AutoBrightness value: " + _newBrightness);
+		}
 	}
 
 	@Override
-	public void update(Observable arg0, Object arg1) {
-		System.out.println("Brightness config updated");
-		reloadConfig();
+	public void update(Observable observable, Object arg1) {
+		if (observable instanceof IDisplayConfiguration) {
+			System.out.println("Brightness config updated");
+			reloadConfig();
+		}
+		if (observable instanceof BrightnessReaderThread) {
+			updateAutoBrightness();
+		}
 	}
 	
 	private void reloadConfig() {
-		_newBrightness = _config.getInt("brightness", 100);
+		_configuredBrightness = _config.getInt("Brightness.Value", 100);
+		_configuredAutoBrightnessNotificationThreshold = _config.getInt("Brightness.AutoBrightness.NotificationThresholdPercent", 0);
+		_configuredAutoBrightnessMsBetweenUpdates = _config.getInt("Brightness.AutoBrightness.MillisecondsBetweenUpdates", 0);
+		
+		String newPin = _config.getString("Brightness.AutoBrightness.LdrPinName");;
+		if (_configuredAutoBrightnessPin != null && _configuredAutoBrightnessPin != newPin)
+			System.out.println("Warning: You changed LDR Pin. You have to restart the application that changes take effect.");
+		_configuredAutoBrightnessPin = _config.getString("Brightness.AutoBrightness.LdrGpioPinNumber");
+		updateBrightnessReaderSettings();
+
+		if (_configuredBrightness != 0)
+			_newBrightness = _configuredBrightness;
 		if (_currentBrightness != _newBrightness)
 			System.out.println("New brightness: " + _newBrightness);
+	}
+
+	private void updateBrightnessReaderSettings() {
+		if (_brightnessReaderThread == null)
+			return;
+		
+		_brightnessReaderThread.setBrightnessDiffNotificationThreshold(_configuredAutoBrightnessNotificationThreshold);
+		_brightnessReaderThread.setMsBetweenUpdates(_configuredAutoBrightnessMsBetweenUpdates);
 	}
 
 	public void doDimmingStep() {

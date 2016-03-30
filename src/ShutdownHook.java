@@ -1,6 +1,7 @@
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 
+import helper.Helper;
 import led.ILEDArray;
 import output.IDisplayAdaptor;
 import output.ISerial;
@@ -11,7 +12,6 @@ public class ShutdownHook extends Thread {
 	private ISerial _serial;
 	private IDisplayAdaptor _display;
 	private ILEDArray _leds;
-	final GpioController gpio = GpioFactory.getInstance();
 	
 	public ShutdownHook(ISerial serial, IDisplayAdaptor display, ILEDArray leds) {
 		_serial = serial;
@@ -22,7 +22,8 @@ public class ShutdownHook extends Thread {
 	@Override
 	public void run() {
 		shutdownSerial();
-		shutdownGpio();
+		if (!Helper.isWindows())
+			shutdownGpio();
 	}
 	
 	private void shutdownSerial() {
@@ -36,6 +37,7 @@ public class ShutdownHook extends Thread {
 	}
 	
 	private void shutdownGpio() {
+		final GpioController gpio = GpioFactory.getInstance();
 		gpio.shutdown();
 	}
 }
