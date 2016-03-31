@@ -97,8 +97,6 @@ public class InfoMode implements IMode {
 		if (_newsEnabled == 1)
 			_newsText.setText(getNews());
 		
-		int frames = 0;
-		long lastSecondIntervalStart = System.currentTimeMillis();
 		while (!_aborted && !_end) {
 			//reloadConfig();
 			
