@@ -13,6 +13,7 @@ import effects.IColor;
 import effects.IColorableEffect;
 import effects.info.PvDayChartEffect;
 import effects.text.*;
+import helper.FpsController;
 import output.IDisplayAdaptor;
 import led.ILEDArray;
 
@@ -25,6 +26,7 @@ public class ClockMode implements IMode {
 	private boolean _end = false;
 	private IDisplayConfiguration _config;
 	private PvData _pvData = PvData.getInstance();
+	private FpsController _fpsController = FpsController.getInstance();
 	
 	private IColor _bgColor = null;
 	private IColor _timeTextColor = null;
@@ -101,12 +103,7 @@ public class ClockMode implements IMode {
 						
 			_display.show(_leds);
 			
-			try {
-				Thread.sleep(5);
-			} catch (InterruptedException e) {
-				break;
-			}
-			
+			_fpsController.waitForNextFrame();
 		}
 		_modeSelector.modeEnded();
 		System.out.println("ClockMode exit");

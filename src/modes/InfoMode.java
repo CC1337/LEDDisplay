@@ -16,6 +16,7 @@ import effects.IColorableEffect;
 import effects.info.PvDayChartEffect;
 import effects.shape.RectEffect;
 import effects.text.*;
+import helper.FpsController;
 import output.IDisplayAdaptor;
 import led.ILEDArray;
 
@@ -35,6 +36,7 @@ public class InfoMode implements IMode {
 	private IDisplayConfiguration _config;
 	private PvData _pvData = PvData.getInstance();
 	private ArrayList<RssReader> _rssReaders = new ArrayList<RssReader>();
+	private FpsController _fpsController = FpsController.getInstance();
 	
 	private IColor _bgColor = null;
 	private IColor _timeTextColor = null;
@@ -95,6 +97,8 @@ public class InfoMode implements IMode {
 		if (_newsEnabled == 1)
 			_newsText.setText(getNews());
 		
+		int frames = 0;
+		long lastSecondIntervalStart = System.currentTimeMillis();
 		while (!_aborted && !_end) {
 			//reloadConfig();
 			
@@ -147,12 +151,7 @@ public class InfoMode implements IMode {
 			
 			_display.show(_leds);
 			
-			try {
-				Thread.sleep(1);
-			} catch (InterruptedException e) {
-				break;
-			}
-			
+			_fpsController.waitForNextFrame();
 		}
 		_modeSelector.modeEnded();
 		System.out.println("ClockMode exit");
