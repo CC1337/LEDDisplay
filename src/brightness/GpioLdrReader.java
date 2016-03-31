@@ -27,40 +27,42 @@ public class GpioLdrReader implements IBrightnessSensorReader {
 
 	@Override
 	public void updateBrightnessValue() {
-		int value = measureCurrentValue();
+		int time = measureCurrentTime();
 		
-		//System.out.print(value + " / ");
+		time = time / 900000;
 		
-		if (value < 15)
-			value *= 3;
-		else
-			value = value * 2 + 15;
+		if (time > 100)
+			time = 100;
 		
-		value = 100 - value;
+		time = 100 - time;	
+		time = time * time;
+		time = time / 100;
 		
-		if (value < 10) value = 10;
-		if (value > 100) value = 100;
-		
-		//System.out.println(value);
+		//System.out.println(time);
 
-		_lastValue = value;
+		_lastValue = time;
 	}
 
-	private int measureCurrentValue() {
-		_ldrPin.setMode(PinMode.DIGITAL_OUTPUT);
-		_ldrPin.setState(PinState.LOW);
-		
+	private int measureCurrentTime() {
+		long time = 40;
 		try {
+			_ldrPin.setMode(PinMode.DIGITAL_OUTPUT);
+			_ldrPin.setState(PinState.LOW);
+			// Load capacitor
 			Thread.sleep(100);
+			
+			_ldrPin.setMode(PinMode.DIGITAL_INPUT);
+			
+			time = System.nanoTime();
+			
+			while (_ldrPin.isLow())
+				Thread.sleep(1);
+			
+			time = System.nanoTime() - time;		
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		_ldrPin.setMode(PinMode.DIGITAL_INPUT);
-		int count = 0;
-		while (_ldrPin.isLow())
-			count++;
-	
-		return count;
+		return (int) time;
 	}
 
 
