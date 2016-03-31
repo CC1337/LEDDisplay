@@ -20,6 +20,9 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 	private int _configuredAutoBrightnessNotificationThreshold = 0;
 	private int _configuredAutoBrightnessMsBetweenUpdates = 5000;
 	private String _configuredAutoBrightnessPin;
+	private int _configuredAutoBrightnessMinimalValue;
+	private int _configuredAutoBrightnessNumValuesForAverage;
+	private int _configuredAutoBrightnessCapacitorUnloadNs;
 	
 	private BrightnessCorrection () {
 		_config = new DisplayConfiguration("brightness.properties", true);
@@ -47,10 +50,10 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 			if (_configuredAutoBrightnessPin == null)
 				System.out.println("Warning: brightness.properties Brightness.AutoBrightness.LdrPinName invalid, falling back to dummy auto-brightness");
 		} else {
-			_brightnessSensorReader = new GpioLdrReader(_configuredAutoBrightnessPin);
+			_brightnessSensorReader = new GpioLdrReader(_configuredAutoBrightnessPin, _configuredAutoBrightnessCapacitorUnloadNs);
 		}
 		
-		_brightnessReaderThread = new BrightnessReaderThread(_brightnessSensorReader, _configuredAutoBrightnessNotificationThreshold, _configuredAutoBrightnessMsBetweenUpdates);
+		_brightnessReaderThread = new BrightnessReaderThread(_brightnessSensorReader, _configuredAutoBrightnessNotificationThreshold, _configuredAutoBrightnessMsBetweenUpdates, _configuredAutoBrightnessNumValuesForAverage);
 		_brightnessReaderThread.addObserver(this);
 		
 		new Thread(_brightnessReaderThread).start();
@@ -63,6 +66,8 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 	private void updateAutoBrightness() {
 		if (_configuredBrightness == 0) {
 			_newBrightness = _brightnessSensorReader.getLastBrightnessValue();
+			if (_newBrightness < _configuredAutoBrightnessMinimalValue)
+				_newBrightness = _configuredAutoBrightnessMinimalValue;
 			System.out.println("New AutoBrightness value: " + _newBrightness);
 		}
 	}
@@ -82,11 +87,19 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 		_configuredBrightness = _config.getInt("Brightness.Value", 100);
 		_configuredAutoBrightnessNotificationThreshold = _config.getInt("Brightness.AutoBrightness.NotificationThresholdPercent", 0);
 		_configuredAutoBrightnessMsBetweenUpdates = _config.getInt("Brightness.AutoBrightness.MillisecondsBetweenUpdates", 0);
-		
-		String newPin = _config.getString("Brightness.AutoBrightness.LdrPinName");;
+		_configuredAutoBrightnessMinimalValue = _config.getInt("Brightness.AutoBrightness.MinimalValue", 0);
+		_configuredAutoBrightnessNumValuesForAverage = _config.getInt("Brightness.AutoBrightness.NumValuesForAverage", 0);
+				
+		String newPin = _config.getString("Brightness.AutoBrightness.LdrPinName");
 		if (_configuredAutoBrightnessPin != null && _configuredAutoBrightnessPin != newPin)
 			System.out.println("Warning: You changed LDR Pin. You have to restart the application that changes take effect.");
-		_configuredAutoBrightnessPin = _config.getString("Brightness.AutoBrightness.LdrGpioPinNumber");
+		_configuredAutoBrightnessPin = _config.getString("Brightness.AutoBrightness.LdrGpioPinNumber");	
+		
+		int newCapacitorUnloadNs = _config.getInt("Brightness.AutoBrightness.MaxCapacitorUnloadNanoseconds");
+		if (_configuredAutoBrightnessCapacitorUnloadNs != 0 && _configuredAutoBrightnessCapacitorUnloadNs != newCapacitorUnloadNs)
+			System.out.println("Warning: You changed LDR Capacitor Unload milliseconds. You have to restart the application that changes take effect.");
+		_configuredAutoBrightnessCapacitorUnloadNs = newCapacitorUnloadNs;
+				
 		updateBrightnessReaderSettings();
 
 		if (_configuredBrightness != 0)
@@ -101,6 +114,7 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 		
 		_brightnessReaderThread.setBrightnessDiffNotificationThreshold(_configuredAutoBrightnessNotificationThreshold);
 		_brightnessReaderThread.setMsBetweenUpdates(_configuredAutoBrightnessMsBetweenUpdates);
+		_brightnessReaderThread.setNumValuesForAverage(_configuredAutoBrightnessNumValuesForAverage);
 	}
 
 	public void doDimmingStep() {

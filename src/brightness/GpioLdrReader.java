@@ -1,5 +1,6 @@
 package brightness;
 
+
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.GpioPinDigitalMultipurpose;
@@ -13,11 +14,13 @@ public class GpioLdrReader implements IBrightnessSensorReader {
 	final GpioController gpio = GpioFactory.getInstance();
 	private GpioPinDigitalMultipurpose _ldrPin;
 	private int _lastValue = 0;
+	private int _maxCapacitorUnloadNs;
 
-	public GpioLdrReader(String pinNumber) {
+	public GpioLdrReader(String pinNumber, int maxCapacitorUnloadNs) {
 		String pinName = "GPIO " + pinNumber;
 		System.out.println("Using Pin " + pinName + " for LDR");
 		_ldrPin = gpio.provisionDigitalMultipurposePin(RaspiPin.getPinByName(pinName), "LDR", PinMode.DIGITAL_OUTPUT);
+		_maxCapacitorUnloadNs = maxCapacitorUnloadNs;
 	}
 	
 	@Override
@@ -29,7 +32,7 @@ public class GpioLdrReader implements IBrightnessSensorReader {
 	public void updateBrightnessValue() {
 		int time = measureCurrentTime();
 		
-		time = time / 900000;
+		time = time / _maxCapacitorUnloadNs;
 		
 		if (time > 100)
 			time = 100;
