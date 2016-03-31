@@ -188,8 +188,6 @@ public class PvData {
 			return null;
 		}
 		
-
-	    
 	    return urlConn;
     }
 
