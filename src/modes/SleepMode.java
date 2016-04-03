@@ -1,11 +1,8 @@
 package modes;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import effects.background.SolidBackgroundEffect;
 import effects.coloring.*;
-import effects.text.*;
+import helper.FpsController;
 import output.IDisplayAdaptor;
 import led.ILEDArray;
 
@@ -16,6 +13,7 @@ public class SleepMode implements IMode {
 	private IModeSelector _modeSelector;
 	private boolean _aborted = false;
 	private boolean _end = false;
+	private FpsController _fpsController = FpsController.getInstance();
 	
 	public SleepMode(IDisplayAdaptor display, ILEDArray leds, IModeSelector modeSelector) {
 		_display = display;
@@ -31,11 +29,13 @@ public class SleepMode implements IMode {
 	@Override
 	public void abort() {
 		_aborted = true;
+		System.out.println(modeName() + " abort() called");
 	}
 
 	@Override
 	public void end() {
 		_end = true;
+		System.out.println(modeName() + " end() called");
 	}
 
 	@Override
@@ -50,17 +50,13 @@ public class SleepMode implements IMode {
 		while (!_aborted && !_end) {
 			bgColor.nextFrame();
 			_leds.applyEffect(bg);
+			
 			_display.show(_leds);
-			/*
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				break;
-			}
-			*/
+			
+			_fpsController.waitForNextFrame();
 		}
 		_modeSelector.modeEnded();
-		System.out.println("SleepMode exit");
+		System.out.println(modeName() + " exit");
 	}
 
 }
