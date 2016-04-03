@@ -26,5 +26,13 @@ public final class Helper {
 		return result;
 	}
 
+	public static void waitms(int ms) {
+		try {
+			Thread.sleep(ms);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
 
 }

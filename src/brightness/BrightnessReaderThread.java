@@ -29,11 +29,7 @@ public class BrightnessReaderThread extends Observable implements Runnable {
 		while (42 < 1337) {
 			checkAndNotifyBrightness();
 			
-			try {
-				Thread.sleep(_msBetweenUpdates);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			Helper.waitms(_msBetweenUpdates);
 		}
 	}
 	

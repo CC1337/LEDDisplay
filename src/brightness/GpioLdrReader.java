@@ -8,6 +8,8 @@ import com.pi4j.io.gpio.PinMode;
 import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
 
+import helper.Helper;
+
 
 public class GpioLdrReader implements IBrightnessSensorReader {
 
@@ -47,24 +49,21 @@ public class GpioLdrReader implements IBrightnessSensorReader {
 	}
 
 	private int measureCurrentTime() {
-		long time = 40;
-		try {
-			_ldrPin.setMode(PinMode.DIGITAL_OUTPUT);
-			_ldrPin.setState(PinState.LOW);
-			// Load capacitor
-			Thread.sleep(100);
-			
-			_ldrPin.setMode(PinMode.DIGITAL_INPUT);
-			
-			time = System.nanoTime();
-			
-			while (_ldrPin.isLow())
-				Thread.sleep(1);
-			
-			time = System.nanoTime() - time;		
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		_ldrPin.setMode(PinMode.DIGITAL_OUTPUT);
+		_ldrPin.setState(PinState.LOW);
+		
+		// Load capacitor
+		Helper.waitms(100);
+		
+		_ldrPin.setMode(PinMode.DIGITAL_INPUT);
+		
+		long time = System.nanoTime();
+		
+		while (_ldrPin.isLow())
+			Helper.waitms(1);
+		
+		time = System.nanoTime() - time;		
+
 		return (int) time;
 	}
 

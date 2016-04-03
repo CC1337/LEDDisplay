@@ -26,11 +26,7 @@ public class FpsController {
 		long timediff = System.currentTimeMillis() - _lastFrameStartTime;
 		
 		if (timediff < _msBetweenFrames) {
-			try {
-				Thread.sleep(_msBetweenFrames - timediff);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			Helper.waitms((int)(_msBetweenFrames - timediff));
 		}
 		
 		_lastFrameStartTime = System.currentTimeMillis();

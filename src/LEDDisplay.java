@@ -115,10 +115,8 @@ public class LEDDisplay implements Runnable {
 		
 		//serial.closeSerialPort();
 		
-		
-		
 		if (Helper.isWindows()) {
-			waitms(2000);
+			Helper.waitms(2000);
 		}
 		
 	}
@@ -128,15 +126,6 @@ public class LEDDisplay implements Runnable {
 		Runnable runnable = new LEDDisplay();
 		new Thread(runnable).start();
 		System.out.println("LEDDisplay starting...");
-	}
-	
-	
-	private void waitms(int ms) {
-		try {
-			Thread.sleep(ms);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 	}
 
 }

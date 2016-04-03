@@ -6,7 +6,7 @@ import java.util.TimerTask;
 
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
-
+import helper.Helper;
 import led.ILEDArray;
 import output.IDisplayAdaptor;
 
@@ -56,15 +56,13 @@ public class ModeSelector implements IModeSelector {
 		IMode configuredMode = getModeFromConfig();
 		if (configuredMode.getClass() != _lastConfiguredMode.getClass()) {
 			_currentMode.end();
-			try {
-				for (int i=0; i<50; i++) {
-					if (_modeEnded)
-						break;
-					Thread.sleep(100);
-				}
-			} catch (InterruptedException e) {
 
+			for (int i=0; i<50; i++) {
+				if (_modeEnded)
+					break;
+				Helper.waitms(100);
 			}
+
 			_currentMode.abort();
 			//_currentMode.notify();
 
