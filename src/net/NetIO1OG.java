@@ -149,7 +149,7 @@ public class NetIO1OG {
 
     private String getDataByIndex(int index) {
     	updateDayData();
-    	if (_lastData[0].length() < index + 1)
+    	if (_lastData.length < index + 1)
     		return "";
     	
     	return _lastData[index];
