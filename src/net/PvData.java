@@ -1,12 +1,9 @@
 package net;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -18,6 +15,7 @@ import java.util.List;
 
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
+import helper.Helper;
 
 public class PvData {
 	
@@ -127,11 +125,11 @@ public class PvData {
 		try
 		{
 			Calendar cal = Calendar.getInstance();
-	        URLConnection urlConn = getDayDataConnection(cal.getTime());
+	        URLConnection urlConn = Helper.getUrlConnection(getDayDataUrl(cal.getTime()));
 		    if (urlConn == null) {
 		    	// Try yesterday
 		    	cal.add(Calendar.DAY_OF_MONTH,-1);
-		    	urlConn = getDayDataConnection(cal.getTime());
+		    	urlConn = Helper.getUrlConnection(getDayDataUrl(cal.getTime()));
 		    	if (urlConn == null)
 		    		throw new IOException("No PV Data for today and yesterday :( giving up...");
 		    }
@@ -146,51 +144,25 @@ public class PvData {
 		    
 		    _lastDayData = list.toArray(new String[0]);
 		    _lastDayDataUpdate = Calendar.getInstance();
-		    System.out.println("ok");
 		    
 		    reader.close(); 
 	    }
-	    catch (MalformedURLException mue) {
-	    	mue.printStackTrace();
+	    catch (MalformedURLException exception) {
+	    	exception.printStackTrace();
 	    }
-	    catch (IOException ioe) {
+	    catch (IOException exception) {
+	    	exception.printStackTrace();
 	    	_lastDayData = new String[0];
 		    _lastDayDataUpdate = Calendar.getInstance();
 	    }
     }
     
-    private URLConnection getDayDataConnection(Date date) {
+    private String getDayDataUrl(Date date) {
     	SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-    	String address = _config.getString("net.pvdata.url") + format.format(date) + ".js";
-		System.out.print("Loading data from " + address + "...");
-		
-		URLConnection urlConn = null;
-		try {
-	    	URL url = new URL(address);
-		    urlConn = url.openConnection();
-		    urlConn.setDoInput(true); 
-		    urlConn.setUseCaches(false);
-
-		    if (urlConn instanceof HttpURLConnection)
-		    {
-		       HttpURLConnection httpConnection = (HttpURLConnection) urlConn;
-		       if (httpConnection.getResponseCode() != 200) {
-		    	   System.out.println("HTTP Error: " + httpConnection.getResponseCode());
-		    	   return null;
-		       }
-		    }
-		    	
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			return null;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-		
-	    return urlConn;
+    	return _config.getString("net.pvdata.url") + format.format(date) + ".js";
     }
-
+    
+  
 	private boolean lastResultValid(Calendar cacheDate, int cacheTimeout) {
 		if (cacheDate == null)
 			return false;

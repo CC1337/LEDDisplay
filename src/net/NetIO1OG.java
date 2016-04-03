@@ -1,17 +1,16 @@
 package net;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
+import java.net.ConnectException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLConnection;
 import java.util.Calendar;
 
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
+import helper.Helper;
 
 public class NetIO1OG {
 	
@@ -154,7 +153,7 @@ public class NetIO1OG {
 
     private String getDataByIndex(int index) {
     	updateDayData();
-    	if (_lastData[0].length() == 0)
+    	if (_lastData[0].length() < index + 1)
     		return "";
     	
     	return _lastData[index];
@@ -170,7 +169,7 @@ public class NetIO1OG {
 
 		try
 		{
-	        URLConnection urlConn = getDataConnection();
+	        URLConnection urlConn = Helper.getUrlConnection(_config.getString("net.netio_1og.url"));
 		   	if (urlConn == null)
 		   		throw new IOException("Cannot load data for NETIO 1.OG - giving up...");
 
@@ -184,50 +183,24 @@ public class NetIO1OG {
 		    
 		    _lastData = result.split(";");
 		    _lastUpdate = Calendar.getInstance();
-		    System.out.println("ok");
 		    
 		    reader.close(); 
 	    }
-	    catch (MalformedURLException mue) {
-	    	mue.printStackTrace();
+	    catch (MalformedURLException exception) {
+	    	exception.printStackTrace();
 	    }
-	    catch (IOException ioe) {
+		catch (ConnectException exception) {
+			exception.printStackTrace();
+			_lastData = new String[0];
+		    _lastUpdate = Calendar.getInstance();
+	    }
+	    catch (IOException exception) {
+	    	exception.printStackTrace();
 	    	_lastData = new String[0];
 		    _lastUpdate = Calendar.getInstance();
 	    }
     }
     
-    private URLConnection getDataConnection() {
-    	String address = _config.getString("net.netio_1og.url");
-		System.out.print("Loading data from " + address + "...");
-		
-		URLConnection urlConn = null;
-		try {
-	    	URL url = new URL(address);
-		    urlConn = url.openConnection();
-		    urlConn.setDoInput(true); 
-		    urlConn.setUseCaches(false);
-
-		    if (urlConn instanceof HttpURLConnection)
-		    {
-		       HttpURLConnection httpConnection = (HttpURLConnection) urlConn;
-		       if (httpConnection.getResponseCode() != 200) {
-		    	   System.out.println("HTTP Error: " + httpConnection.getResponseCode());
-		    	   return null;
-		       }
-		    }
-		    	
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			return null;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-
-		return urlConn;
-    }
-
 	private boolean lastResultValid(Calendar cacheDate, int cacheTimeout) {
 		if (cacheDate == null)
 			return false;
