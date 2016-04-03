@@ -1,12 +1,11 @@
 package net;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URLConnection;
 import java.util.Calendar;
+import java.util.List;
 
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
@@ -173,18 +172,15 @@ public class NetIO1OG {
 		   	if (urlConn == null)
 		   		throw new IOException("Cannot load data for NETIO 1.OG - giving up...");
 
-		    BufferedReader reader = new BufferedReader(new InputStreamReader(urlConn.getInputStream())); 
-		    String result = "";
-		    String line = reader.readLine();
-		    while (line != null) {
-		    	result += line.replace("\r", "").replace("\n", "");
-		    	line = reader.readLine();
-		    }
+		   	List<String> resultList = Helper.getFileAsList(urlConn);
+		   	
+		   	String result = "";
+		   	for (String line: resultList) {
+		   		result += line.replace("\r", "").replace("\n", "");
+		   	}
 		    
 		    _lastData = result.split(";");
 		    _lastUpdate = Calendar.getInstance();
-		    
-		    reader.close(); 
 	    }
 	    catch (MalformedURLException exception) {
 	    	exception.printStackTrace();
