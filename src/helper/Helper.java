@@ -95,6 +95,10 @@ public final class Helper {
 
 	    return list;
     }
+    
+    public static List<String> getFileAsList(String address) {
+    	return getFileAsList(getUrlConnection(address));
+    }
 
 
 }

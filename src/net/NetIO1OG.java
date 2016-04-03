@@ -1,9 +1,6 @@
 package net;
 
 import java.io.IOException;
-import java.net.ConnectException;
-import java.net.MalformedURLException;
-import java.net.URLConnection;
 import java.util.Calendar;
 import java.util.List;
 
@@ -168,11 +165,9 @@ public class NetIO1OG {
 
 		try
 		{
-	        URLConnection urlConn = Helper.getUrlConnection(_config.getString("net.netio_1og.url"));
-		   	if (urlConn == null)
+		   	List<String> resultList = Helper.getFileAsList(_config.getString("net.netio_1og.url"));
+		   	if (resultList.size() == 0)
 		   		throw new IOException("Cannot load data for NETIO 1.OG - giving up...");
-
-		   	List<String> resultList = Helper.getFileAsList(urlConn);
 		   	
 		   	String result = "";
 		   	for (String line: resultList) {
@@ -180,14 +175,6 @@ public class NetIO1OG {
 		   	}
 		    
 		    _lastData = result.split(";");
-		    _lastUpdate = Calendar.getInstance();
-	    }
-	    catch (MalformedURLException exception) {
-	    	exception.printStackTrace();
-	    }
-		catch (ConnectException exception) {
-			exception.printStackTrace();
-			_lastData = new String[0];
 		    _lastUpdate = Calendar.getInstance();
 	    }
 	    catch (IOException exception) {
