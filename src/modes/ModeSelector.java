@@ -35,10 +35,10 @@ public class ModeSelector implements IModeSelector {
 		_modes.put("SleepMode", sleepMode);
 		_modes.put("InfoMode", infoMode);
 		
-		_defaultMode = clockMode;	
-		_lastConfiguredMode = clockMode;
-		
 		_config = new DisplayConfiguration("modeselector.properties", true);
+		
+		_defaultMode = clockMode;	
+		_lastConfiguredMode = getModeFromConfig();
 	}
 	
 	public static ModeSelector getInstance(IDisplayAdaptor display, ILEDArray leds) {
