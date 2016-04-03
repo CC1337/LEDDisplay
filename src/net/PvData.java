@@ -134,34 +134,24 @@ public class PvData {
 		    		throw new IOException("No PV Data for today and yesterday :( giving up...");
 		    }
 
-		    BufferedReader reader = new BufferedReader(new InputStreamReader(urlConn.getInputStream())); 
-		    List<String> list = new ArrayList<String>();
-		    String line = reader.readLine();
-		    while (line != null) {
-		    	list.add(line);
-		    	line = reader.readLine();
-		    }
-		    
-		    _lastDayData = list.toArray(new String[0]);
+		    List<String> resultList = Helper.getFileAsList(urlConn);
+
+		    if (resultList != null && resultList.size() > 0)
+		    	_lastDayData = resultList.toArray(new String[0]);
+		    else
+		    	_lastDayData = new String[0];
 		    _lastDayDataUpdate = Calendar.getInstance();
-		    
-		    reader.close(); 
-	    }
-	    catch (MalformedURLException exception) {
-	    	exception.printStackTrace();
-	    }
+		}
 	    catch (IOException exception) {
 	    	exception.printStackTrace();
-	    	_lastDayData = new String[0];
-		    _lastDayDataUpdate = Calendar.getInstance();
 	    }
+
     }
-    
+     
     private String getDayDataUrl(Date date) {
     	SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
     	return _config.getString("net.pvdata.url") + format.format(date) + ".js";
     }
-    
   
 	private boolean lastResultValid(Calendar cacheDate, int cacheTimeout) {
 		if (cacheDate == null)

@@ -1,10 +1,15 @@
 package helper;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class Helper {
 	
@@ -68,6 +73,27 @@ public final class Helper {
 		}
 
 		return urlConn;
+    }
+	
+    public static List<String> getFileAsList(URLConnection urlConn) {
+		List<String> list = new ArrayList<String>();
+    	try { 
+    		BufferedReader reader = new BufferedReader(new InputStreamReader(urlConn.getInputStream())); 
+    		String line = reader.readLine();
+    		while (line != null) {
+    			list.add(line);
+    			line = reader.readLine();
+    		}
+    		reader.close();
+    	}
+	    catch (MalformedURLException exception) {
+	    	exception.printStackTrace();
+	    }
+	    catch (IOException exception) {
+	    	exception.printStackTrace();
+	    }
+
+	    return list;
     }
 
 
