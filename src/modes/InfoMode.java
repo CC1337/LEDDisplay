@@ -17,6 +17,7 @@ import effects.info.PvDayChartEffect;
 import effects.shape.RectEffect;
 import effects.text.*;
 import helper.FpsController;
+import helper.Helper;
 import output.IDisplayAdaptor;
 import led.ILEDArray;
 
@@ -245,16 +246,9 @@ public class InfoMode implements IMode {
 		int pac = _pvData.getPac();
 		double kwh = _pvData.getKwhDay();
 		if (pac > 0)
-			return getSpaces(4-String.valueOf(pac).length())+pac+"W";
+			return Helper.getSpaces(4-String.valueOf(pac).length())+pac+"W";
 		else 
-			return String.format("%s%.1f", getSpaces(5-String.valueOf(kwh).length()) , (float)kwh);
-	}
-
-	private String getSpaces(int count) {
-		String result = "";
-		for (int i = 0; i < count; i++)
-			result += " ";
-		return result;
+			return String.format("%s%.1f", Helper.getSpaces(5-String.valueOf(kwh).length()) , (float)kwh);
 	}
 
 }

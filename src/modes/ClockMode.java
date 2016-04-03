@@ -14,6 +14,7 @@ import effects.IColorableEffect;
 import effects.info.PvDayChartEffect;
 import effects.text.*;
 import helper.FpsController;
+import helper.Helper;
 import output.IDisplayAdaptor;
 import led.ILEDArray;
 
@@ -149,14 +150,7 @@ public class ClockMode implements IMode {
 	private String getPvText() {
 		int pac = _pvData.getPac();
 		double kwh = _pvData.getKwhDay();
-		return String.format("%dW%s%.1f", pac, getSpaces(4-String.valueOf(pac).length() + 5-String.valueOf(kwh).length()) , (float)kwh).replace("0W", "  ");
-	}
-
-	private String getSpaces(int count) {
-		String result = "";
-		for (int i = 0; i < count; i++)
-			result += " ";
-		return result;
+		return String.format("%dW%s%.1f", pac, Helper.getSpaces(4-String.valueOf(pac).length() + 5-String.valueOf(kwh).length()) , (float)kwh).replace("0W", "  ");
 	}
 
 }
