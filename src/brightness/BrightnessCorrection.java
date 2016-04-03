@@ -56,9 +56,7 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 		_brightnessReaderThread = new BrightnessReaderThread(_brightnessSensorReader, _configuredAutoBrightnessNotificationThreshold, _configuredAutoBrightnessMsBetweenUpdates, _configuredAutoBrightnessNumValuesForAverage);
 		_brightnessReaderThread.addObserver(this);
 		
-		Thread readerThread = new Thread(_brightnessReaderThread);
-		readerThread.setDaemon(true);
-		readerThread.start();
+		new Thread(_brightnessReaderThread).start();
 	}
 
 	public int getBrightnessPercentage() {
