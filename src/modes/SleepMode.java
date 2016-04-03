@@ -22,6 +22,11 @@ public class SleepMode implements IMode {
 		_leds = leds;
 		_modeSelector = modeSelector;
 	}
+
+	@Override
+	public String modeName() {
+		return this.getClass().getName();
+	}
 	
 	@Override
 	public void abort() {

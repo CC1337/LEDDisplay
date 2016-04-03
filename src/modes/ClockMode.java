@@ -45,19 +45,24 @@ public class ClockMode implements IMode {
 		_display = display;
 		_leds = leds;
 		_modeSelector = modeSelector;
-		_config = new DisplayConfiguration("clockmode.properties", true);
+		_config = new DisplayConfiguration(modeName().toLowerCase() + ".properties", true);
+	}
+	
+	@Override
+	public String modeName() {
+		return this.getClass().getName();
 	}
 	
 	@Override
 	public void abort() {
 		_aborted = true;
-		System.out.println("ClockMode abort() called");
+		System.out.println(modeName() + " abort() called");
 	}
 
 	@Override
 	public void end() {
 		_end = true;
-		System.out.println("ClockMode abort() called");
+		System.out.println(modeName() + " abort() called");
 	}
 
 	@Override
@@ -108,7 +113,7 @@ public class ClockMode implements IMode {
 			_fpsController.waitForNextFrame();
 		}
 		_modeSelector.modeEnded();
-		System.out.println("ClockMode exit");
+		System.out.println(modeName() + " exit");
 	}
 	
 	private void reloadConfig() {
