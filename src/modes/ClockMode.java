@@ -50,7 +50,7 @@ public class ClockMode implements IMode {
 	
 	@Override
 	public String modeName() {
-		return this.getClass().getName();
+		return this.getClass().getSimpleName();
 	}
 	
 	@Override

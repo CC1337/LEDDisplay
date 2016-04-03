@@ -69,7 +69,7 @@ public class InfoMode implements IMode {
 	
 	@Override
 	public String modeName() {
-		return this.getClass().getName();
+		return this.getClass().getSimpleName();
 	}
 	
 	@Override
