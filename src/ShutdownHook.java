@@ -21,6 +21,7 @@ public class ShutdownHook extends Thread {
 
 	@Override
 	public void run() {
+		System.out.println("Shutting down...");
 		shutdownSerial();
 		if (!Helper.isWindows())
 			shutdownGpio();

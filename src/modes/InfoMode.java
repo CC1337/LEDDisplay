@@ -70,11 +70,13 @@ public class InfoMode implements IMode {
 	@Override
 	public void abort() {
 		_aborted = true;
+		System.out.println("InfoMode abort() called");
 	}
 
 	@Override
 	public void end() {
 		_end = true;
+		System.out.println("InfoMode end() called");
 	}
 
 	@Override
@@ -96,10 +98,11 @@ public class InfoMode implements IMode {
 		_pvText.setText(getPvText());
 		if (_newsEnabled == 1)
 			_newsText.setText(getNews());
-		
+
 		while (!_aborted && !_end) {
+
 			//reloadConfig();
-			
+
 			currentTime = new SimpleDateFormat("H:mm").format(new Date());
 			calendar = Calendar.getInstance();
 			currentMinute = calendar.get(Calendar.MINUTE);
@@ -111,7 +114,7 @@ public class InfoMode implements IMode {
 				_pvText.setText(getPvText());
 				lastPvUpdate = currentMinute;
 			}
-					
+
 			_leds.applyEffect(_bg);
 			_leds.applyEffect(_timeText);
 			_leds.applyEffect(_pvText);
@@ -131,7 +134,7 @@ public class InfoMode implements IMode {
 				}
 			}
 			_leds.applyEffect(_infoText);
-			
+
 			if (currentText == TextType.NEWSTEXT) {
 				if (_newsEnabled == 1) {
 					_leds.applyEffect(_newsText);
@@ -141,18 +144,18 @@ public class InfoMode implements IMode {
 					currentText = TextType.INFOTEXT;
 				}
 			}
-		
+
 			if (_showSecondPixel) {
 				_secondPixel.setPosX(currentSecond);
 				_leds.applyEffect(_secondPixel);
 			}
-			
+
 			_display.show(_leds);
-			
+
 			_fpsController.waitForNextFrame();
 		}
 		_modeSelector.modeEnded();
-		System.out.println("ClockMode exit");
+		System.out.println("InfoMode exit");
 	}
 	
 	private void reloadConfig() {

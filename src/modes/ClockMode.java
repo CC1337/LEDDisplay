@@ -51,11 +51,13 @@ public class ClockMode implements IMode {
 	@Override
 	public void abort() {
 		_aborted = true;
+		System.out.println("ClockMode abort() called");
 	}
 
 	@Override
 	public void end() {
 		_end = true;
+		System.out.println("ClockMode abort() called");
 	}
 
 	@Override
