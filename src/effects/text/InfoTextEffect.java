@@ -117,7 +117,14 @@ public class InfoTextEffect implements IColorableEffect {
 		if (_state == State.PVInfo) {
 			_prevStateData = _nextStateData;
 			_animationState = 1;
+			
 			double dayExpected = _pvData.getMonthExpected()/Calendar.getInstance().getActualMaximum(Calendar.DAY_OF_MONTH);
+			int currentD0Pac = _pvData.getCurrentD0Pac();
+			int currentSelfConsumption = _pvData.getCurrentSelfConsumption();
+			int currentOverallConsumption = _pvData.getCurrentOverallConsumption();
+			float drawnKwh = _pvData.getDrawnKwh();
+			float suppliedKwh = _pvData.getSuppliedKwh();
+			
 			if (_stateProgress == 0) {
 				_nextStateData = _font.toPixels("Max W:" + _pvData.getMaxPac());
 			}
@@ -128,7 +135,22 @@ public class InfoTextEffect implements IColorableEffect {
 				double dayDiff = _pvData.getKwhDay() - dayExpected;
 				_nextStateData = _font.toPixels("Diff:" + printOptionalSpace(dayDiff, 10) + (dayDiff >= 0 ? "+" : "") + String.format("%.1f", (float)dayDiff));
 			}
-			_stateProgress = ++_stateProgress % 4;
+			if (_stateProgress == 3) {
+				_nextStateData = _font.toPixels("I/O:" + printOptionalSpace(currentD0Pac, 11) + currentD0Pac + "W");
+			}
+			if (_stateProgress == 4) {
+				_nextStateData = _font.toPixels("EV:" + printOptionalSpace(currentSelfConsumption, 12) + currentSelfConsumption + "W");
+			}
+			if (_stateProgress == 5) {
+				_nextStateData = _font.toPixels("VB:" + printOptionalSpace(currentOverallConsumption, 12) + currentOverallConsumption + "W");
+			}
+			if (_stateProgress == 6) {
+				_nextStateData = _font.toPixels("In:" + printOptionalSpace(drawnKwh, 12) + drawnKwh);
+			}
+			if (_stateProgress == 7) {
+				_nextStateData = _font.toPixels("Out:" + printOptionalSpace(suppliedKwh, 11) + suppliedKwh);
+			}
+			_stateProgress = ++_stateProgress % 9;
 			if (_stateProgress == 0) {
 				_state = State.Start;
 				processState();

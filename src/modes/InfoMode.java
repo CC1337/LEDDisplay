@@ -244,11 +244,13 @@ public class InfoMode implements IMode {
 
 	private String getPvText() {
 		int pac = _pvData.getPac();
+		int d0pac = _pvData.getCurrentD0Pac();
 		double kwh = _pvData.getKwhDay();
 		if (pac > 0)
 			return Helper.getSpaces(4-String.valueOf(pac).length())+pac+"W";
 		else 
-			return String.format("%s%.1f", Helper.getSpaces(5-String.valueOf(kwh).length()) , (float)kwh);
+			//return String.format("%s%.1f", Helper.getSpaces(5-String.valueOf(kwh).length()) , (float)kwh);
+			return Helper.getSpaces(5-String.valueOf(d0pac).length())+d0pac+"W";
 	}
 
 }
