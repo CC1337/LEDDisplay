@@ -180,7 +180,7 @@ public class FontDefault7px extends FontBase {
 					 "00001" +
 					 "11110");
 		
-		// ß
+		// sharp s
 		addChar("\u00DF", "01100" +
 						  "10010" +
 						  "10010" +
@@ -646,6 +646,14 @@ public class FontDefault7px extends FontBase {
 					  "00010" +
 					  "00010");
 		
+		addChar("%", "11001" +
+					 "11001" +
+					 "00010" +
+					 "00100" +
+					 "01000" +
+					 "10011" +
+					 "10011");
+		
 		// Ordinal indicator
 		addChar("\u00BA", "00111" +
 				 		  "00101" +
@@ -732,6 +740,16 @@ public class FontDefault7px extends FontBase {
 						  "10101" +
 						  "01110" +
 						  "00100");
+		
+		// summation
+		addChar("\u2211", "11111" +
+					 	  "01000" +
+						  "00100" +
+						  "00010" +
+						  "00100" +
+						  "01000" +
+						  "11111");
+		
 
 		// Numbers	
 		
