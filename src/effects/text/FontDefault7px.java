@@ -7,9 +7,9 @@ public class FontDefault7px extends FontBase {
 	
 		super(5,7);
 		
-		// Sonderzeichenliste: http://www.bennyn.de/programmierung/java/umlaute-und-sonderzeichen-in-java.html
+		// Special chars list: http://www.bennyn.de/programmierung/java/umlaute-und-sonderzeichen-in-java.html
 		
-		// Grossbuchstaben
+		// Uppercase chars
 		addChar("A", "01110" +
 					 "10001" +
 					 "10001" +
@@ -18,6 +18,7 @@ public class FontDefault7px extends FontBase {
 					 "10001" +
 					 "10001");
 		
+		// A umlaut
 		addChar("\u00C4", "10001" +
 						  "00100" +
 						  "01010" +
@@ -138,6 +139,7 @@ public class FontDefault7px extends FontBase {
 					 "10001" +
 					 "01110");
 		
+		// O umlaut
 		addChar("\u00D6", "10001" +
 						  "00000" +
 						  "01110" +
@@ -178,6 +180,7 @@ public class FontDefault7px extends FontBase {
 					 "00001" +
 					 "11110");
 		
+		// ß
 		addChar("\u00DF", "01100" +
 						  "10010" +
 						  "10010" +
@@ -202,6 +205,7 @@ public class FontDefault7px extends FontBase {
 					 "10001" +
 					 "01110");
 		
+		// U umlaut
 		addChar("\u00DC", "10001" +
 						  "00000" +
 						  "10001" +
@@ -250,7 +254,7 @@ public class FontDefault7px extends FontBase {
 					 "10000" +
 					 "11111");
 		
-		// Kleinbuchstaben
+		// Lowercase chars
 		
 		addChar("a", "00000" +
 					 "00000" +
@@ -260,6 +264,7 @@ public class FontDefault7px extends FontBase {
 					 "10001" +
 					 "01111");
 		
+		// a umlaut
 		addChar("\u00E4", "01001" +
 						  "00000" +
 						  "01110" +
@@ -380,6 +385,7 @@ public class FontDefault7px extends FontBase {
 					 "10001" +
 					 "01110");
 		
+		// o umlaut
 		addChar("\u00F6", "10001" +
 						  "00000" +
 						  "01110" +
@@ -436,6 +442,7 @@ public class FontDefault7px extends FontBase {
 					 "10010" +
 					 "01101");
 		
+		// u umlaut
 		addChar("\u00FC", "10010" +
 					 	  "00000" +
 						  "10010" +
@@ -485,7 +492,7 @@ public class FontDefault7px extends FontBase {
 					 "11111");
 		
 		
-		// Sonderzeichen
+		// Sepcial chars
 		
 		addChar(" ", "00000" +
 					 "00000" +
@@ -639,6 +646,7 @@ public class FontDefault7px extends FontBase {
 					  "00010" +
 					  "00010");
 		
+		// Ordinal indicator
 		addChar("\u00BA", "00111" +
 				 		  "00101" +
 				 		  "00111" +
@@ -670,8 +678,63 @@ public class FontDefault7px extends FontBase {
 					 "00000" +
 					 "00000" +
 					 "00000");
-	
-		// Zahlen	
+		
+		// Zigzag Arrow
+		addChar("\u21AF", "10000" +
+					 	  "10010" +
+						  "10110" +
+						  "11010" +
+						  "10010" +
+						  "00111" +
+						  "00010");
+		
+		// Arrow left
+		addChar("\u2190", "00000" +
+					 	  "00100" +
+						  "01000" +
+						  "11111" +
+						  "01000" +
+						  "00100" +
+						  "00000");
+		
+		// Arrow right
+		addChar("\u2192", "00000" +
+					 	  "00100" +
+						  "00010" +
+						  "11111" +
+						  "00010" +
+						  "00100" +
+						  "00000");
+
+		// Arrow up
+		addChar("\u2191", "00100" +
+					 	  "01110" +
+						  "10101" +
+						  "00100" +
+						  "00100" +
+						  "00100" +
+						  "00100");
+		
+		// Arrow down
+		addChar("\u2193", "00100" +
+					 	  "00100" +
+						  "00100" +
+						  "00100" +
+						  "10101" +
+						  "01110" +
+						  "00100");
+		
+		// Arrow up/down
+		addChar("\u2195", "00100" +
+					 	  "01110" +
+						  "10101" +
+						  "00100" +
+						  "10101" +
+						  "01110" +
+						  "00100");
+
+		// Numbers	
+		
 		addChar("1", "00100" +
 					 "01100" +
 					 "00100" +
@@ -751,10 +814,6 @@ public class FontDefault7px extends FontBase {
 					 "11001" +
 					 "10001" +
 					 "01110");
-		
-
-		
 
 	}
-	
 }
