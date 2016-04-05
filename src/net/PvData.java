@@ -30,7 +30,7 @@ public class PvData {
     }
     
 
-    public int getPac() {
+    public int getCurrentPac() {
     	updateDayData();
     	
     	for (String line : _lastDayData) {
@@ -41,57 +41,7 @@ public class PvData {
     	return 0;
     }
     
-    public int getMaxPac() {
-    	updateDayData();
-    	
-    	for (String line : _lastDayData) {
-			if (line.contains("var wr_pac_max=[")) {
-				return Integer.parseInt(line.substring(line.indexOf('[') + 1, line.indexOf(',')));
-			}
-		}
-    	return 0;
-    }
-    
-    public Date getLastUpdateTime() {
-    	updateDayData();
-    	
-    	for (String line : _lastDayData) {
-			if (line.contains("var Zeit='")) {
-				String date = line.replace("var Zeit='", "").replace("';", "");
-				DateFormat df = new SimpleDateFormat("dd.mm.yyyy hh:mm:ss");
-				try {
-					return df.parse(date);
-				} catch (ParseException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-    	return null;   	
-    }
-    
-    public double getKwhDay() {
-    	updateDayData();
-    	
-    	for (String line : _lastDayData) {
-			if (line.contains("var wr_kdy=[")) {
-				return Double.parseDouble(line.substring(line.indexOf('[') + 1, line.indexOf(',')));
-			}
-		}
-    	return 0;
-    }
-    
-    public int getMonthExpected() {
-    	updateDayData();
-    	
-    	for (String line : _lastDayData) {
-			if (line.contains("var month_expected=[")) {
-				return Integer.parseInt(line.substring(line.indexOf('[') + 1, line.indexOf(',')));
-			}
-		}
-    	return 0;
-    }
-        
-    public int[] getPacValues() {
+    public int[] getPacValuesDay() {
     	updateDayData();
     	
     	int[] result = new int[0];
@@ -102,28 +52,6 @@ public class PvData {
 			}
 		}
     	return result;
-    }
-        
-    public float getSuppliedKwh() {
-    	updateD0DayData();
-    	
-    	for (String line : _lastD0DayData) {
-			if (line.contains("var d0_gkdy=[")) {
-				return Float.parseFloat(line.substring(line.indexOf('[') + 1, line.indexOf(']')));
-			}
-		}
-    	return 0;
-    }
-    
-    public float getDrawnKwh() {
-    	updateD0DayData();
-    	
-    	for (String line : _lastD0DayData) {
-			if (line.contains("var d0_bkdy=[")) {
-				return Float.parseFloat(line.substring(line.indexOf('[') + 1, line.indexOf(']')));
-			}
-		}
-    	return 0;
     }
     
     public int getCurrentD0Pac() {
@@ -150,11 +78,107 @@ public class PvData {
     public int getCurrentOverallConsumption() {
     	return getCurrentSelfConsumption() - getCurrentD0Pac();
     }
+    
+    public int getMaxPacDay() {
+    	updateDayData();
+    	
+    	for (String line : _lastDayData) {
+			if (line.contains("var wr_pac_max=[")) {
+				return Integer.parseInt(line.substring(line.indexOf('[') + 1, line.indexOf(',')));
+			}
+		}
+    	return 0;
+    }
+    
+    public double getKwhDay() {
+    	updateDayData();
+    	
+    	for (String line : _lastDayData) {
+			if (line.contains("var wr_kdy=[")) {
+				return Double.parseDouble(line.substring(line.indexOf('[') + 1, line.indexOf(',')));
+			}
+		}
+    	return 0;
+    }
+    
+    public double getMonthExpected() {
+    	updateDayData();
+    	
+    	for (String line : _lastDayData) {
+			if (line.contains("var month_expected=[")) {
+				return Integer.parseInt(line.substring(line.indexOf('[') + 1, line.indexOf(',')));
+			}
+		}
+    	return 0;
+    }
+    
+    public double getDayExpected() {
+    	return getMonthExpected()/Calendar.getInstance().getActualMaximum(Calendar.DAY_OF_MONTH);
+    }
+    
+    public double getDayExpectedDiff() {
+    	return getKwhDay() - getDayExpected();
+    }
+       
+    public double getSuppliedKwhDay() {
+    	updateD0DayData();
+    	
+    	for (String line : _lastD0DayData) {
+			if (line.contains("var d0_gkdy=[")) {
+				return Double.parseDouble(line.substring(line.indexOf('[') + 1, line.indexOf(']')));
+			}
+		}
+    	return 0;
+    }
+    
+    public double getSelfConsumedKwhDay() {
+    	return getKwhDay() - getSuppliedKwhDay();
+    }
+    
+    public double getDrawnKwhDay() {
+    	updateD0DayData();
+    	
+    	for (String line : _lastD0DayData) {
+			if (line.contains("var d0_bkdy=[")) {
+				return Double.parseDouble(line.substring(line.indexOf('[') + 1, line.indexOf(']')));
+			}
+		}
+    	return 0;
+    }
+    
+    public double getOverallConsumedKwhDay() {
+    	return getDrawnKwhDay() + getSelfConsumedKwhDay();
+    }
+    
+    public int getSelfConsumptionRatioDay() {
+    	return (int) Math.round(getSelfConsumedKwhDay()/getKwhDay());
+    }
+    
+    public int getConsumptionPvCoverageDay() {
+    	return (int) Math.round(getKwhDay()/getOverallConsumedKwhDay());
+    }
+    
+    public Date getLastUpdateTime() {
+    	updateDayData();
+    	
+    	for (String line : _lastDayData) {
+			if (line.contains("var Zeit='")) {
+				String date = line.replace("var Zeit='", "").replace("';", "");
+				DateFormat df = new SimpleDateFormat("dd.mm.yyyy hh:mm:ss");
+				try {
+					return df.parse(date);
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+    	return null;   	
+    }
   
     public int getMaxPossiblePac() {
     	return _config.getInt("net.pvdata.maxPossiblePac", 8000);
     }
-    
+   
     private String[] getStringValueArrayFromLine(String line) {
     	String data = line.substring(line.indexOf('[') + 1, line.indexOf(']'));
     	if (data != null) {
@@ -171,19 +195,7 @@ public class PvData {
     		for(int i=0; i<data.length; i++) {
     			result[i] = Integer.parseInt(data[i]);
     		}
-    	}    
-    	return result;
-    }
-    
-    private float[] getFloatValueArrayFromLine(String line) {
-    	String[] data = getStringValueArrayFromLine(line);
-    	float[] result = null;
-    	if (data != null) {
-    		result = new float[data.length];
-    		for(int i=0; i<data.length; i++) {
-    			result[i] = Float.parseFloat(data[i]);
-    		}
-    	}    
+    	}
     	return result;
     }
     
@@ -250,11 +262,6 @@ public class PvData {
     private String getDayDataUrl(Date date) {
     	SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
     	return _config.getString("net.pvdata.url") + format.format(date) + ".js";
-    }
-    
-    private String getD0MonthDataUrl(Date date) {
-    	SimpleDateFormat format = new SimpleDateFormat("yyyyMM");
-    	return _config.getString("net.d0data.url") + "d0_" + format.format(date) + ".js";
     }
     
     private String getD0DayDataUrl(Date date) {

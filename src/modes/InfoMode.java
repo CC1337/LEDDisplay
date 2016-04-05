@@ -243,7 +243,7 @@ public class InfoMode implements IMode {
 	}
 
 	private String getPvText() {
-		int pac = _pvData.getPac();
+		int pac = _pvData.getCurrentPac();
 		int d0pac = _pvData.getCurrentD0Pac();
 		double kwh = _pvData.getKwhDay();
 		if (pac > 0)

@@ -118,22 +118,23 @@ public class InfoTextEffect implements IColorableEffect {
 			_prevStateData = _nextStateData;
 			_animationState = 1;
 			
-			double dayExpected = _pvData.getMonthExpected()/Calendar.getInstance().getActualMaximum(Calendar.DAY_OF_MONTH);
+			double dayExpected = _pvData.getDayExpected();
 			int currentD0Pac = _pvData.getCurrentD0Pac();
 			int currentSelfConsumption = _pvData.getCurrentSelfConsumption();
 			int currentOverallConsumption = _pvData.getCurrentOverallConsumption();
-			float drawnKwh = _pvData.getDrawnKwh();
-			float suppliedKwh = _pvData.getSuppliedKwh();
+			double drawnKwh = _pvData.getDrawnKwhDay();
+			double suppliedKwh = _pvData.getSuppliedKwhDay();
+			double dayDiff = _pvData.getDayExpectedDiff();
 			
 			if (_stateProgress == 0) {
-				_nextStateData = _font.toPixels("Max W:" + _pvData.getMaxPac());
+				_nextStateData = _font.toPixels("Max W:" + _pvData.getMaxPacDay());
 			}
 			if (_stateProgress == 1) {
-				_nextStateData = _font.toPixels("Soll:" + printOptionalSpace(dayExpected, 10) + String.format("%.1f", (float)dayExpected));
+				_nextStateData = _font.toPixels("Soll:" + printOptionalSpace(dayExpected, 10) + String.format("%.1f", (double)dayExpected));
 			}
 			if (_stateProgress == 2) {
-				double dayDiff = _pvData.getKwhDay() - dayExpected;
-				_nextStateData = _font.toPixels("Diff:" + printOptionalSpace(dayDiff, 10) + (dayDiff >= 0 ? "+" : "") + String.format("%.1f", (float)dayDiff));
+				
+				_nextStateData = _font.toPixels("Diff:" + printOptionalSpace(dayDiff, 10) + (dayDiff >= 0 ? "+" : "") + String.format("%.1f", (double)dayDiff));
 			}
 			if (_stateProgress == 3) {
 				_nextStateData = _font.toPixels("I/O:" + printOptionalSpace(currentD0Pac, 11) + currentD0Pac + "W");

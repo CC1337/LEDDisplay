@@ -104,7 +104,7 @@ public class ClockMode implements IMode {
 				_leds.applyEffect(_dateText);
 			} else {
 				_leds.applyEffect(_pvText);
-				if (_pvData.getPac() == 0) {
+				if (_pvData.getCurrentPac() == 0) {
 					_leds.applyEffect(_pvDayChart);
 				}
 			}
@@ -148,7 +148,7 @@ public class ClockMode implements IMode {
 	}
 
 	private String getPvText() {
-		int pac = _pvData.getPac();
+		int pac = _pvData.getCurrentPac();
 		double kwh = _pvData.getKwhDay();
 		return String.format("%dW%s%.1f", pac, Helper.getSpaces(4-String.valueOf(pac).length() + 5-String.valueOf(kwh).length()) , (float)kwh).replace("0W", "  ");
 	}

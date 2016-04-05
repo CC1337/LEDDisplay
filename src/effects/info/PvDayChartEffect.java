@@ -43,7 +43,7 @@ public class PvDayChartEffect extends ColorableEffectBase {
 	}
 		
 	private int[] getBars() {
-		int[] data = _pvData.getPacValues();
+		int[] data = _pvData.getPacValuesDay();
 		List<Integer> pacValues = new ArrayList<Integer>();
 		for (int i=0; i<data.length; i++) {
 			if (data[i] != 0)
