@@ -151,11 +151,11 @@ public class PvData {
     }
     
     public int getSelfConsumptionRatioDay() {
-    	return (int) Math.round(getSelfConsumedKwhDay()/getKwhDay());
+    	return (int) Math.round((getSelfConsumedKwhDay()/getKwhDay())*100);
     }
     
     public int getConsumptionPvCoverageDay() {
-    	return (int) Math.round(getKwhDay()/getOverallConsumedKwhDay());
+    	return (int) Math.round((getKwhDay()/getOverallConsumedKwhDay())*100);
     }
     
     public Date getLastUpdateTime() {

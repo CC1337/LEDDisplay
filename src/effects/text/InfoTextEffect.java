@@ -1,7 +1,5 @@
 package effects.text;
 
-import java.util.Calendar;
-
 import net.NetIO1OG;
 import net.PvData;
 import led.ILEDArray;
@@ -118,40 +116,55 @@ public class InfoTextEffect implements IColorableEffect {
 			_prevStateData = _nextStateData;
 			_animationState = 1;
 			
-			double dayExpected = _pvData.getDayExpected();
+			int currentPac = _pvData.getCurrentPac();
+			double kwhDay = _pvData.getKwhDay();
 			int currentD0Pac = _pvData.getCurrentD0Pac();
 			int currentSelfConsumption = _pvData.getCurrentSelfConsumption();
 			int currentOverallConsumption = _pvData.getCurrentOverallConsumption();
 			double drawnKwh = _pvData.getDrawnKwhDay();
 			double suppliedKwh = _pvData.getSuppliedKwhDay();
+			double overallConsumedKwhDay = _pvData.getOverallConsumedKwhDay();
 			double dayDiff = _pvData.getDayExpectedDiff();
+			int selfConsumedKwhDayInt = (int) Math.round(_pvData.getSelfConsumedKwhDay());
+			int selfConsumptionRatioDay = _pvData.getSelfConsumptionRatioDay();
 			
 			if (_stateProgress == 0) {
+				if (currentPac > 0)
+					_nextStateData = _font.toPixels("PAC:" + currentPac + "W");
+				else _stateProgress++;
+			} 
+			if (_stateProgress == 1) {
 				_nextStateData = _font.toPixels("Max W:" + _pvData.getMaxPacDay());
 			}
-			if (_stateProgress == 1) {
-				_nextStateData = _font.toPixels("Soll:" + printOptionalSpace(dayExpected, 10) + String.format("%.1f", (double)dayExpected));
-			}
 			if (_stateProgress == 2) {
-				
-				_nextStateData = _font.toPixels("Diff:" + printOptionalSpace(dayDiff, 10) + (dayDiff >= 0 ? "+" : "") + String.format("%.1f", (double)dayDiff));
+				_nextStateData = _font.toPixels("Prod:" + printOptionalSpace(kwhDay, 10) + String.format("%.1f", kwhDay));
 			}
 			if (_stateProgress == 3) {
-				_nextStateData = _font.toPixels("I/O:" + printOptionalSpace(currentD0Pac, 11) + currentD0Pac + "W");
+				
+				_nextStateData = _font.toPixels("Soll" + printOptionalSpace(dayDiff, 10) + (dayDiff >= 0 ? "+" : "") + String.format("%.1f", dayDiff));
 			}
 			if (_stateProgress == 4) {
-				_nextStateData = _font.toPixels("EV:" + printOptionalSpace(currentSelfConsumption, 12) + currentSelfConsumption + "W");
+				_nextStateData = _font.toPixels("\u2195:" + currentD0Pac + "W");
 			}
 			if (_stateProgress == 5) {
-				_nextStateData = _font.toPixels("VB:" + printOptionalSpace(currentOverallConsumption, 12) + currentOverallConsumption + "W");
+				if (currentSelfConsumption > 0)
+					_nextStateData = _font.toPixels("EV:" + currentSelfConsumption + "W");
+				else _stateProgress++;
 			}
 			if (_stateProgress == 6) {
-				_nextStateData = _font.toPixels("In:" + printOptionalSpace(drawnKwh, 12) + drawnKwh);
+				_nextStateData = _font.toPixels("EV:" + printOptionalSpace(selfConsumedKwhDayInt, 10) + selfConsumedKwhDayInt + " " + selfConsumptionRatioDay + "%");
 			}
 			if (_stateProgress == 7) {
-				_nextStateData = _font.toPixels("Out:" + printOptionalSpace(suppliedKwh, 11) + suppliedKwh);
+				_nextStateData = _font.toPixels("VB:" + currentOverallConsumption + "W");
 			}
-			_stateProgress = ++_stateProgress % 9;
+			if (_stateProgress == 8) {
+				_nextStateData = _font.toPixels("VB \u2211:" + printOptionalSpace(overallConsumedKwhDay, 10) + String.format("%.1f", overallConsumedKwhDay));
+			}
+			if (_stateProgress == 9) {
+				_nextStateData = _font.toPixels("\u2191" + printOptionalSpace(suppliedKwh, 10) + String.format("%.1f", suppliedKwh) + 
+						"\u2193" + printOptionalSpace(drawnKwh, 10) + String.format("%.1f", drawnKwh));
+			}
+			_stateProgress = ++_stateProgress % 11;
 			if (_stateProgress == 0) {
 				_state = State.Start;
 				processState();
