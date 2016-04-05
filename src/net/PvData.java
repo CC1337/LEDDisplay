@@ -226,7 +226,7 @@ public class PvData {
 	    }
 
     }
-    
+
     private void updateD0DayData() {
     	if (_lastD0DayData != null && lastResultValid(_lastD0DayDataUpdate, 1))
     		return;
@@ -254,27 +254,27 @@ public class PvData {
 	    }
 
     }
-    
+
     private Date getDateNow() {
     	Calendar cal = Calendar.getInstance();
     	cal.add(Calendar.DAY_OF_MONTH,-1);
     	return cal.getTime();
     }
-    
+
     private Date getDateYesterday() {
     	return  getDateNow();
     }
-     
+
     private String getDayDataUrl(Date date) {
     	SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
     	return _config.getString("net.pvdata.url") + format.format(date) + ".js";
     }
-    
+
     private String getD0DayDataUrl(Date date) {
     	SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
     	return _config.getString("net.d0data.url") + "d0_" + format.format(date) + ".js";
     }
-  
+
 	private boolean lastResultValid(Calendar cacheDate, int cacheTimeout) {
 		if (cacheDate == null)
 			return false;
