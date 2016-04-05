@@ -205,12 +205,10 @@ public class PvData {
 
 		try
 		{
-			Calendar cal = Calendar.getInstance();
-	        URLConnection urlConn = Helper.getUrlConnection(getDayDataUrl(cal.getTime()));
+	        URLConnection urlConn = Helper.getUrlConnection(getDayDataUrl(getDateNow()));
 		    if (urlConn == null) {
 		    	// Try yesterday
-		    	cal.add(Calendar.DAY_OF_MONTH,-1);
-		    	urlConn = Helper.getUrlConnection(getDayDataUrl(cal.getTime()));
+		    	urlConn = Helper.getUrlConnection(getDayDataUrl(getDateYesterday()));
 		    	if (urlConn == null)
 		    		throw new IOException("No PV data for today and yesterday :( giving up...");
 		    }
@@ -235,12 +233,10 @@ public class PvData {
 
 		try
 		{
-			Calendar cal = Calendar.getInstance();
-	        URLConnection urlConn = Helper.getUrlConnection(getD0DayDataUrl(cal.getTime()));
+	        URLConnection urlConn = Helper.getUrlConnection(getD0DayDataUrl(getDateNow()));
 		    if (urlConn == null) {
 		    	// Try yesterday
-		    	cal.add(Calendar.DAY_OF_MONTH,-1);
-		    	urlConn = Helper.getUrlConnection(getD0DayDataUrl(cal.getTime()));
+		    	urlConn = Helper.getUrlConnection(getD0DayDataUrl(getDateYesterday()));
 		    	if (urlConn == null)
 		    		throw new IOException("No d0 day data for today and yesterday :( giving up...");
 		    }
@@ -257,6 +253,16 @@ public class PvData {
 	    	exception.printStackTrace();
 	    }
 
+    }
+    
+    private Date getDateNow() {
+    	Calendar cal = Calendar.getInstance();
+    	cal.add(Calendar.DAY_OF_MONTH,-1);
+    	return cal.getTime();
+    }
+    
+    private Date getDateYesterday() {
+    	return  getDateNow();
     }
      
     private String getDayDataUrl(Date date) {
