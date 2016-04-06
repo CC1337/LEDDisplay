@@ -256,13 +256,13 @@ public class PvData {
     }
 
     private Date getDateNow() {
-    	Calendar cal = Calendar.getInstance();
-    	cal.add(Calendar.DAY_OF_MONTH,-1);
-    	return cal.getTime();
+    	return Calendar.getInstance().getTime();
     }
 
     private Date getDateYesterday() {
-    	return  getDateNow();
+    	Calendar cal = Calendar.getInstance();
+    	cal.add(Calendar.DAY_OF_MONTH,-1);
+    	return cal.getTime();
     }
 
     private String getDayDataUrl(Date date) {
