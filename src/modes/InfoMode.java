@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
 
-import net.PvData;
 import net.RssReader;
 
 import configuration.DisplayConfiguration;
@@ -19,7 +18,6 @@ import effects.info.PvDayChartEffect;
 import effects.shape.RectEffect;
 import effects.text.*;
 import helper.FpsController;
-import helper.Helper;
 import output.IDisplayAdaptor;
 import led.ILEDArray;
 
@@ -37,7 +35,6 @@ public class InfoMode implements IMode, Observer {
 	private boolean _aborted = false;
 	private boolean _end = false;
 	private IDisplayConfiguration _config;
-	private PvData _pvData = PvData.getInstance();
 	private ArrayList<RssReader> _rssReaders = new ArrayList<RssReader>();
 	private FpsController _fpsController = FpsController.getInstance();
 	
@@ -51,7 +48,7 @@ public class InfoMode implements IMode, Observer {
 	private IColorableEffect _bg = null;
 	private IPixelatedFont _font = new PixelatedFont(new FontDefault7px());
 	TextEffect _timeText = null;
-	TextEffect _pvText = null;
+	CurrentD0PacTextEffect _d0Text = null;
 	InfoTextEffect _infoText = null;
 	RectEffect _secondPixel = null;
 	PvDayChartEffect _pvDayChart = null;
@@ -103,7 +100,6 @@ public class InfoMode implements IMode, Observer {
 		TextType currentText = TextType.INFOTEXT;
 		
 		int lastInfoUpdate = 1337;
-		int lastPvUpdate = 1337;
 		int lastNewsUpdate = 1337;
 		if (_newsEnabled == 1)
 			_newsText.setText(getNews());
@@ -116,21 +112,10 @@ public class InfoMode implements IMode, Observer {
 			currentSecond = calendar.get(Calendar.SECOND);
 
 			_timeText.setText(currentTime);
-			if (_pvText.getText().isEmpty() || (currentMinute % 5 == 0 && currentMinute != lastPvUpdate)) {
-				String newPvText = getPvText();
-				if (newPvText.trim().startsWith("-")) {
-					newPvText = newPvText.replace("-", "");
-					_pvText.setColor(_pvTextColorNegative);
-				} else {
-					_pvText.setColor(_pvTextColorPositive);
-				}
-				_pvText.setText(newPvText);
-				lastPvUpdate = currentMinute;
-			}
 
 			_leds.applyEffect(_bg);
 			_leds.applyEffect(_timeText);
-			_leds.applyEffect(_pvText);
+			_leds.applyEffect(_d0Text);
 			
 			if (currentText == TextType.INFOTEXT) {
 				if (lastInfoUpdate != currentSecond && currentSecond % _infoChangeDelay == 0) {
@@ -202,7 +187,7 @@ public class InfoMode implements IMode, Observer {
 			if (_pvTextColorPositive == null || !newPvtextColorPositive.endsWith(_pvTextColorPositive.getClass().getCanonicalName())) {
 				_pvTextColorPositive = (IColor) Class.forName(newPvtextColorPositive).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "pvtextpositive.");
 				_pvTextColorNegative = (IColor) Class.forName(newPvtextColorNegative).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "pvtextnegative.");
-				_pvText = new TextEffect(_font, _pvTextColorPositive, "", 31, 0);
+				_d0Text = new CurrentD0PacTextEffect(_font, _pvTextColorPositive, _pvTextColorNegative, 31, 0);
 				_pvDayChart = new PvDayChartEffect(0, 8, 36, 7, _pvTextColorPositive);
 			}
 			if (_infoTextColor == null || !newInfotextColor.endsWith(_infoTextColor.getClass().getCanonicalName())) {
@@ -249,11 +234,6 @@ public class InfoMode implements IMode, Observer {
 			return "No News available :(";
 		System.out.println(result);
 		return result;
-	}
-
-	private String getPvText() {
-		int d0pac = _pvData.getCurrentD0Pac();
-		return Helper.getSpaces(4-String.valueOf(Math.abs(d0pac)).length())+d0pac+"W";
 	}
 
 	@Override
