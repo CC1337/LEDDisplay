@@ -41,7 +41,8 @@ public class InfoMode implements IMode {
 	
 	private IColor _bgColor = null;
 	private IColor _timeTextColor = null;
-	private IColor _pvTextColor = null;
+	private IColor _pvTextColorPositive = null;
+	private IColor _pvTextColorNegative = null;
 	private IColor _infoTextColor = null;
 	private IColor _newsTextColor = null;
 	private IColor _secondPixelColor = null;
@@ -101,7 +102,6 @@ public class InfoMode implements IMode {
 		int lastInfoUpdate = 1337;
 		int lastPvUpdate = 1337;
 		int lastNewsUpdate = 1337;
-		_pvText.setText(getPvText());
 		if (_newsEnabled == 1)
 			_newsText.setText(getNews());
 
@@ -115,9 +115,15 @@ public class InfoMode implements IMode {
 			currentSecond = calendar.get(Calendar.SECOND);
 
 			_timeText.setText(currentTime);
-			
-			if (currentMinute % 5 == 0 && currentMinute != lastPvUpdate) {
-				_pvText.setText(getPvText());
+			if (_pvText.getText().isEmpty() || (currentMinute % 5 == 0 && currentMinute != lastPvUpdate)) {
+				String newPvText = getPvText();
+				if (newPvText.trim().startsWith("-")) {
+					newPvText = newPvText.replace("-", "");
+					_pvText.setColor(_pvTextColorNegative);
+				} else {
+					_pvText.setColor(_pvTextColorPositive);
+				}
+				_pvText.setText(newPvText);
 				lastPvUpdate = currentMinute;
 			}
 
@@ -165,6 +171,7 @@ public class InfoMode implements IMode {
 	}
 	
 	private void reloadConfig() {
+		System.out.println("InfoMode config reload");
 		try {
 			_infoChangeDelay = _config.getInt("infoChangeDelay", 5);
 			_newsEnabled = _config.getInt("newsEnabled", 1);
@@ -173,11 +180,11 @@ public class InfoMode implements IMode {
 			_showSecondPixel = _config.getInt("showSecond", 1) == 1;
 			_newsScrollSpeed = _config.getInt("newsScrollSpeed", 1);
 			initRss();
-			System.out.println("cfg reload");
 			String newBgColor = _config.getString("bg.Coloring", "effects.coloring.ColoringSolid");
 			String newBgEffect = _config.getString("bg.Effect", "effects.background.SolidBackgroundEffect");
 			String newTimetextColor = _config.getString("timetext.Coloring", "effects.coloring.ColoringSolid");
-			String newPvtextColor = _config.getString("pvtext.Coloring", "effects.coloring.ColoringSolid");
+			String newPvtextColorPositive = _config.getString("pvtextpositive.Coloring", "effects.coloring.ColoringSolid");
+			String newPvtextColorNegative = _config.getString("pvtextnegative.Coloring", "effects.coloring.ColoringSolid");
 			String newInfotextColor = _config.getString("infotext.Coloring", "effects.coloring.ColoringSolid");
 			String newSecondPixelColor = _config.getString("second.Coloring", "effects.coloring.ColoringSolid");
 			String newNewstextColor = _config.getString("newstext.Coloring", "effects.coloring.ColoringSolid");
@@ -191,10 +198,11 @@ public class InfoMode implements IMode {
 				_timeTextColor = (IColor) Class.forName(newTimetextColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "timetext.");
 				_timeText = new TextEffect(_font, _timeTextColor, _timeText != null ? _timeText.getText() : "1337 ALTA!", 1, 0);
 			}
-			if (_pvTextColor == null || !newPvtextColor.endsWith(_pvTextColor.getClass().getCanonicalName())) {
-				_pvTextColor = (IColor) Class.forName(newPvtextColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "pvtext.");
-				_pvText = new TextEffect(_font, _pvTextColor, _pvText != null ? _pvText.getText() : "1337 ALTA!", 31, 0);
-				_pvDayChart = new PvDayChartEffect(0, 8, 36, 7, _pvTextColor);
+			if (_pvTextColorPositive == null || !newPvtextColorPositive.endsWith(_pvTextColorPositive.getClass().getCanonicalName())) {
+				_pvTextColorPositive = (IColor) Class.forName(newPvtextColorPositive).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "pvtextpositive.");
+				_pvTextColorNegative = (IColor) Class.forName(newPvtextColorNegative).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "pvtextnegative.");
+				_pvText = new TextEffect(_font, _pvTextColorPositive, "", 31, 0);
+				_pvDayChart = new PvDayChartEffect(0, 8, 36, 7, _pvTextColorPositive);
 			}
 			if (_infoTextColor == null || !newInfotextColor.endsWith(_infoTextColor.getClass().getCanonicalName())) {
 				_infoTextColor = (IColor) Class.forName(newInfotextColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "infotext.");
@@ -243,14 +251,8 @@ public class InfoMode implements IMode {
 	}
 
 	private String getPvText() {
-		int pac = _pvData.getCurrentPac();
 		int d0pac = _pvData.getCurrentD0Pac();
-		double kwh = _pvData.getKwhDay();
-		if (pac > 0)
-			return Helper.getSpaces(4-String.valueOf(pac).length())+pac+"W";
-		else 
-			//return String.format("%s%.1f", Helper.getSpaces(5-String.valueOf(kwh).length()) , (float)kwh);
-			return Helper.getSpaces(5-String.valueOf(d0pac).length())+d0pac+"W";
+		return Helper.getSpaces(4-String.valueOf(Math.abs(d0pac)).length())+d0pac+"W";
 	}
 
 }
