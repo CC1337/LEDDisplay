@@ -16,6 +16,8 @@ public class PixelatedFont implements IPixelatedFont {
 	}
 	
 	public byte[][] toPixels(String string) {
+		if (string.isEmpty())
+			return new byte[1][1];
 		byte[][] result = new byte[_font.charSizeX()*string.length() + (string.length()-1)*_charSpacing][_font.charSizeY()];
 		for(int i=0; i<string.length(); i++) {
 			byte[][] charPixels = toPixels(string.charAt(i));
