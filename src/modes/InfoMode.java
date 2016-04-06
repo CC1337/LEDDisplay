@@ -4,6 +4,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Observable;
+import java.util.Observer;
 
 import net.PvData;
 import net.RssReader;
@@ -22,7 +24,7 @@ import output.IDisplayAdaptor;
 import led.ILEDArray;
 
 
-public class InfoMode implements IMode {
+public class InfoMode implements IMode, Observer {
 
 	private enum TextType {
 		INFOTEXT,
@@ -67,6 +69,7 @@ public class InfoMode implements IMode {
 		_leds = leds;
 		_modeSelector = modeSelector;
 		_config = new DisplayConfiguration(modeName().toLowerCase() + ".properties", true);
+		((Observable) _config).addObserver(this);
 	}
 	
 	@Override
@@ -106,8 +109,6 @@ public class InfoMode implements IMode {
 			_newsText.setText(getNews());
 
 		while (!_aborted && !_end) {
-
-			//reloadConfig();
 
 			currentTime = new SimpleDateFormat("H:mm").format(new Date());
 			calendar = Calendar.getInstance();
@@ -171,7 +172,7 @@ public class InfoMode implements IMode {
 	}
 	
 	private void reloadConfig() {
-		System.out.println("InfoMode config reload");
+		System.out.println(modeName() + " config reload");
 		try {
 			_infoChangeDelay = _config.getInt("infoChangeDelay", 5);
 			_newsEnabled = _config.getInt("newsEnabled", 1);
@@ -253,6 +254,14 @@ public class InfoMode implements IMode {
 	private String getPvText() {
 		int d0pac = _pvData.getCurrentD0Pac();
 		return Helper.getSpaces(4-String.valueOf(Math.abs(d0pac)).length())+d0pac+"W";
+	}
+
+	@Override
+	public void update(Observable observable, Object arg1) {
+		if (observable instanceof IDisplayConfiguration) {
+			System.out.println(modeName() + " config updated");
+			reloadConfig();		
+		}
 	}
 
 }

@@ -3,6 +3,8 @@ package modes;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Observable;
+import java.util.Observer;
 
 import net.PvData;
 
@@ -18,7 +20,7 @@ import helper.Helper;
 import output.IDisplayAdaptor;
 import led.ILEDArray;
 
-public class ClockMode implements IMode {
+public class ClockMode implements IMode, Observer {
 
 	private IDisplayAdaptor _display;
 	private ILEDArray _leds;
@@ -47,6 +49,7 @@ public class ClockMode implements IMode {
 		_leds = leds;
 		_modeSelector = modeSelector;
 		_config = new DisplayConfiguration(modeName().toLowerCase() + ".properties", true);
+		((Observable) _config).addObserver(this);
 	}
 	
 	@Override
@@ -82,7 +85,6 @@ public class ClockMode implements IMode {
 		_pvText.setText(getPvText());
 		
 		while (!_aborted && !_end) {
-			reloadConfig();
 			
 			currentTime = new SimpleDateFormat("H:mm:ss").format(new Date());
 			calendar = Calendar.getInstance();
@@ -118,6 +120,7 @@ public class ClockMode implements IMode {
 	}
 	
 	private void reloadConfig() {
+		System.out.println(modeName() + " config reload");
 		try {
 			_displayDateEverySeconds = _config.getInt("displayDateEverySeconds", 30);
 			_displayDateForSeconds = _config.getInt("displayDateForSeconds", 5);
@@ -151,6 +154,14 @@ public class ClockMode implements IMode {
 		int pac = _pvData.getCurrentPac();
 		double kwh = _pvData.getKwhDay();
 		return String.format("%dW%s%.1f", pac, Helper.getSpaces(4-String.valueOf(pac).length() + 5-String.valueOf(kwh).length()) , (float)kwh).replace("0W", "  ");
+	}
+	
+	@Override
+	public void update(Observable observable, Object arg1) {
+		if (observable instanceof IDisplayConfiguration) {
+			System.out.println(modeName() + " config updated");
+			reloadConfig();		
+		}
 	}
 
 }
