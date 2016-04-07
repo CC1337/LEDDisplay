@@ -21,7 +21,7 @@ import led.ILEDArray;
 
 public class InfoMode implements IMode, Observer {
 
-	private enum TextType {
+	private enum InfoType {
 		INFOTEXT,
 		NEWSTEXT
 	}
@@ -88,7 +88,7 @@ public class InfoMode implements IMode, Observer {
 		String currentTime;
 		Calendar calendar;
 		int currentSecond;
-		TextType currentText = TextType.INFOTEXT;
+		InfoType currentInfo = InfoType.INFOTEXT;
 		
 		int lastInfoUpdate = 1337;
 
@@ -104,25 +104,25 @@ public class InfoMode implements IMode, Observer {
 			_leds.applyEffect(_timeText);
 			_leds.applyEffect(_d0Text);
 			
-			if (currentText == TextType.INFOTEXT) {
+			if (currentInfo == InfoType.INFOTEXT) {
 				if (lastInfoUpdate != currentSecond && currentSecond % _infoChangeDelay == 0) {
 					lastInfoUpdate = currentSecond;
 					_infoText.nextInfo();
 				}
 				if (_infoText.loopEnded()) {
-					currentText = TextType.NEWSTEXT;
+					currentInfo = InfoType.NEWSTEXT;
 					_infoText.toStart();
 				}
 			}
 			_leds.applyEffect(_infoText);
 
-			if (currentText == TextType.NEWSTEXT) {
+			if (currentInfo == InfoType.NEWSTEXT) {
 				if (_newsEnabled == 1) {
 					_leds.applyEffect(_newsText);
 					if (_newsText.shift())
-						currentText = TextType.INFOTEXT;
+						currentInfo = InfoType.INFOTEXT;
 				} else {
-					currentText = TextType.INFOTEXT;
+					currentInfo = InfoType.INFOTEXT;
 				}
 			}
 
