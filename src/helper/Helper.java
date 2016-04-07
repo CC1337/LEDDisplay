@@ -100,5 +100,12 @@ public final class Helper {
     	return getFileAsList(getUrlConnection(address));
     }
 
+    public static String printWithSpacePrefix(String text, int targetLength) {
+    	if (text == null)
+    		text= "";
+    	while (text.length() < targetLength)
+    		text = " " + text;
+		return text;
+	}
 
 }

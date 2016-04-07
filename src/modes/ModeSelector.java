@@ -31,9 +31,11 @@ public class ModeSelector implements IModeSelector {
 		IMode clockMode = new ClockMode(_display, _leds, this);
 		IMode sleepMode = new SleepMode(_display, _leds, this);
 		IMode infoMode = new InfoMode(_display, _leds, this);
+		IMode pvInfoMode = new PvInfoMode(_display, _leds, this);
 		_modes.put("ClockMode", clockMode);
 		_modes.put("SleepMode", sleepMode);
 		_modes.put("InfoMode", infoMode);
+		_modes.put("PvInfoMode", pvInfoMode);
 		
 		_config = new DisplayConfiguration("modeselector.properties", true);
 		
