@@ -1,13 +1,10 @@
 package modes;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
-
-import net.RssReader;
 
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
@@ -35,7 +32,6 @@ public class InfoMode implements IMode, Observer {
 	private boolean _aborted = false;
 	private boolean _end = false;
 	private IDisplayConfiguration _config;
-	private ArrayList<RssReader> _rssReaders = new ArrayList<RssReader>();
 	private FpsController _fpsController = FpsController.getInstance();
 	
 	private IColor _bgColor = null;
@@ -43,7 +39,6 @@ public class InfoMode implements IMode, Observer {
 	private IColor _pvTextColorPositive = null;
 	private IColor _pvTextColorNegative = null;
 	private IColor _infoTextColor = null;
-	private IColor _newsTextColor = null;
 	private IColor _secondPixelColor = null;
 	private IColorableEffect _bg = null;
 	private IPixelatedFont _font = new PixelatedFont(new FontDefault7px());
@@ -52,12 +47,9 @@ public class InfoMode implements IMode, Observer {
 	InfoTextEffect _infoText = null;
 	RectEffect _secondPixel = null;
 	PvDayChartEffect _pvDayChart = null;
-	MarqueeTextEffect _newsText = null;
-	int _infoChangeDelay = 5;
+	NewsMarqueeTextEffect _newsText = null;
 	int _newsEnabled = 1;
-	int _newsPerRssFeed = 3;
-	int _newsScrollSpeed = 1;
-	String _newsDelimiter;
+	int _infoChangeDelay = 5;
 	boolean _showSecondPixel = true;
 	
 	
@@ -95,20 +87,15 @@ public class InfoMode implements IMode, Observer {
 					
 		String currentTime;
 		Calendar calendar;
-		int currentMinute;
 		int currentSecond;
 		TextType currentText = TextType.INFOTEXT;
 		
 		int lastInfoUpdate = 1337;
-		int lastNewsUpdate = 1337;
-		if (_newsEnabled == 1)
-			_newsText.setText(getNews());
 
 		while (!_aborted && !_end) {
 
 			currentTime = new SimpleDateFormat("H:mm").format(new Date());
 			calendar = Calendar.getInstance();
-			currentMinute = calendar.get(Calendar.MINUTE);
 			currentSecond = calendar.get(Calendar.SECOND);
 
 			_timeText.setText(currentTime);
@@ -126,17 +113,13 @@ public class InfoMode implements IMode, Observer {
 					currentText = TextType.NEWSTEXT;
 					_infoText.toStart();
 				}
-				if (_newsEnabled == 1 && currentMinute % 5 == 0 && currentMinute != lastNewsUpdate) {
-					_newsText.setText(getNews());
-					lastNewsUpdate = currentMinute;
-				}
 			}
 			_leds.applyEffect(_infoText);
 
 			if (currentText == TextType.NEWSTEXT) {
 				if (_newsEnabled == 1) {
 					_leds.applyEffect(_newsText);
-					if (_newsText.shift(_newsScrollSpeed))
+					if (_newsText.shift())
 						currentText = TextType.INFOTEXT;
 				} else {
 					currentText = TextType.INFOTEXT;
@@ -161,11 +144,6 @@ public class InfoMode implements IMode, Observer {
 		try {
 			_infoChangeDelay = _config.getInt("infoChangeDelay", 5);
 			_newsEnabled = _config.getInt("newsEnabled", 1);
-			_newsPerRssFeed = _config.getInt("newsPerRssFeed", 3);
-			_newsDelimiter = _config.getString("newsDelimiter", " - ").replace("\"", "");
-			_showSecondPixel = _config.getInt("showSecond", 1) == 1;
-			_newsScrollSpeed = _config.getInt("newsScrollSpeed", 1);
-			initRss();
 			String newBgColor = _config.getString("bg.Coloring", "effects.coloring.ColoringSolid");
 			String newBgEffect = _config.getString("bg.Effect", "effects.background.SolidBackgroundEffect");
 			String newTimetextColor = _config.getString("timetext.Coloring", "effects.coloring.ColoringSolid");
@@ -173,7 +151,6 @@ public class InfoMode implements IMode, Observer {
 			String newPvtextColorNegative = _config.getString("pvtextnegative.Coloring", "effects.coloring.ColoringSolid");
 			String newInfotextColor = _config.getString("infotext.Coloring", "effects.coloring.ColoringSolid");
 			String newSecondPixelColor = _config.getString("second.Coloring", "effects.coloring.ColoringSolid");
-			String newNewstextColor = _config.getString("newstext.Coloring", "effects.coloring.ColoringSolid");
 
 			if (_bgColor == null || !newBgColor.endsWith(_bgColor.getClass().getCanonicalName()))
 				_bgColor = (IColor) Class.forName(newBgColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "bg.");
@@ -198,42 +175,13 @@ public class InfoMode implements IMode, Observer {
 				_secondPixelColor = (IColor) Class.forName(newSecondPixelColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "second.");
 				_secondPixel = new RectEffect(0, 7, 1, 1, _secondPixelColor);
 			}
-			if (_newsEnabled == 1 && (_newsTextColor == null || !newInfotextColor.endsWith(_newsTextColor.getClass().getCanonicalName()))) {
-				_newsTextColor = (IColor) Class.forName(newNewstextColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "newstext.");
-				_newsText = new MarqueeTextEffect(_font, _newsTextColor, getNews(), 1, 8, _leds.sizeX());
+			if (_newsEnabled == 1) {
+				_newsText = new NewsMarqueeTextEffect(_font, 1, 8, _leds.sizeX(), _config, "newstext.");
 			}
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-	
-	private void initRss() {
-		_rssReaders.clear();
-		String rssUrls = _config.getString("rssUrls");
-		if (rssUrls != null && rssUrls.length() > 10) {
-			String[] urls = rssUrls.split(" ");
-			for (String url : urls) {
-				_rssReaders.add(new RssReader(url));
-			}
-		}
-	}
-	
-	private String getNews() {
-		if (_newsEnabled == 0)
-			return "";
-		if (_rssReaders.size() == 0)
-			return "No RSS Feeds configured :(";
-		String result = "";
-		for (RssReader reader : _rssReaders) {
-			if (result != "")
-				result += _newsDelimiter;
-			result += reader.getLastMessages(3, _newsDelimiter);
-		}
-		if (result.isEmpty())
-			return "No News available :(";
-		System.out.println(result);
-		return result;
 	}
 
 	@Override
