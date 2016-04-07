@@ -1,6 +1,5 @@
 package led;
 
-import effects.IColor;
 import effects.IEffect;
 
 public class LEDArray implements ILEDArray{
@@ -33,14 +32,14 @@ public class LEDArray implements ILEDArray{
 	}
 		
 	public LED led(int x, int y) {
-		if (x >= sizeX || y >= sizeY) {
+		if (x >= sizeX || y >= sizeY || x < 0 || y < 0) {
 			return null;
 		}
 		return ledArray[x][y];
 	}
 	
 	public void setLed(int x, int y, int r, int g, int b) {
-		if (x >= sizeX || y >= sizeY) {
+		if (x >= sizeX || y >= sizeY || x < 0 || y < 0) {
 			return;
 		}
 		ledArray[x][y].r(r);
