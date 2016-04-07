@@ -23,6 +23,7 @@ public class InfoMode implements IMode, Observer {
 
 	private enum InfoType {
 		INFOTEXT,
+		PVDAYCHART,
 		NEWSTEXT
 	}
 	
@@ -110,11 +111,18 @@ public class InfoMode implements IMode, Observer {
 					_infoText.nextInfo();
 				}
 				if (_infoText.loopEnded()) {
-					currentInfo = InfoType.NEWSTEXT;
+					currentInfo = InfoType.PVDAYCHART;
 					_infoText.toStart();
 				}
 			}
 			_leds.applyEffect(_infoText);
+			
+			if (currentInfo == InfoType.PVDAYCHART) {
+				_leds.applyEffect(_pvDayChart);
+				if (lastInfoUpdate != currentSecond && currentSecond % (2*_infoChangeDelay) == 0) {
+					currentInfo = InfoType.NEWSTEXT;
+				}
+			}
 
 			if (currentInfo == InfoType.NEWSTEXT) {
 				if (_newsEnabled == 1) {
@@ -125,7 +133,7 @@ public class InfoMode implements IMode, Observer {
 					currentInfo = InfoType.INFOTEXT;
 				}
 			}
-
+			
 			if (_showSecondPixel) {
 				_secondPixel.setPosX(currentSecond);
 				_leds.applyEffect(_secondPixel);
@@ -165,7 +173,7 @@ public class InfoMode implements IMode, Observer {
 				_pvTextColorPositive = (IColor) Class.forName(newPvtextColorPositive).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "pvtextpositive.");
 				_pvTextColorNegative = (IColor) Class.forName(newPvtextColorNegative).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "pvtextnegative.");
 				_d0Text = new CurrentD0PacTextEffect(_font, _pvTextColorPositive, _pvTextColorNegative, 31, 0);
-				_pvDayChart = new PvDayChartEffect(0, 8, 36, 7, _pvTextColorPositive);
+				_pvDayChart = new PvDayChartEffect(-5, 7, 65, 9, _pvTextColorPositive);
 			}
 			if (_infoTextColor == null || !newInfotextColor.endsWith(_infoTextColor.getClass().getCanonicalName())) {
 				_infoTextColor = (IColor) Class.forName(newInfotextColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "infotext.");
