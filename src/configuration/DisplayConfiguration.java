@@ -97,9 +97,8 @@ public class DisplayConfiguration extends Observable implements JNotifyListener,
 	@Override
 	public void fileModified(int wd, String rootPath, String name) {
 		if (rootPath.endsWith(_filename)) {
-			System.out.print(_filename + " changed. Reloading...");
+			System.out.println(_filename + " changed. Reloading...");
 			reload();
-			System.out.println(" ok");
 		}
 	}
 
