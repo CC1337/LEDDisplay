@@ -22,6 +22,9 @@ public class ModeSelector implements IModeSelector {
 	private IDisplayConfiguration _config;
 	private boolean _modeEnded = false;
 	private boolean _modeCheckInProgress = false;
+	private Thread _currentModeThread;
+	private boolean _shouldShutdown = false;
+	private Timer _modeCheckTimer;
 	
 	private ModeSelector(IDisplayAdaptor display, ILEDArray leds) {
 		System.out.println("ModeSelector Init");
@@ -66,6 +69,12 @@ public class ModeSelector implements IModeSelector {
 			}
 
 			_currentMode.abort();
+			if (_currentModeThread != null)
+				try {
+					_currentModeThread.join(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			//_currentMode.notify();
 
 			startMode(configuredMode);
@@ -88,8 +97,11 @@ public class ModeSelector implements IModeSelector {
 	}
 	
 	private void autoTriggerModeCheck() {
-		new Timer(true).schedule(new TimerTask() {
+		_modeCheckTimer = new Timer(true);
+		_modeCheckTimer.schedule(new TimerTask() {
 			public void run() {
+				if (_shouldShutdown)
+					return;
 				modeCheck();
 				autoTriggerModeCheck();
 			}
@@ -99,10 +111,11 @@ public class ModeSelector implements IModeSelector {
 	private void startMode(IMode mode) {
 		System.out.println("Starting Mode: " + mode.getClass().getName()); 
 		_currentMode = mode;
+		
+
 		new Thread(_currentMode).start();
 	}
-	
-	
+
 	private IMode getModeFromConfig() {
 		String modeCurrent = _config.getString("mode.current");
 		//System.out.println("get mode, currently "+ modeCurrent);
@@ -111,6 +124,22 @@ public class ModeSelector implements IModeSelector {
 		} else {
 			return _defaultMode;
 		}
+	}
+
+	@Override
+	public void shutdown() {
+		System.out.println("ModeSelector Shutdown start");
+		_shouldShutdown = true;
+		_modeCheckTimer.cancel();
+		if (_currentMode != null)
+			_currentMode.abort();
+		if (_currentModeThread != null)
+			try {
+				_currentModeThread.join(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		System.out.println("ModeSelector Shutdown complete");
 	}
 
 }

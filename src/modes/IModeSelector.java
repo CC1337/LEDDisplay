@@ -7,4 +7,7 @@ public interface IModeSelector extends Runnable {
 	
 	/** Called by active mode if nothing to display -> requests mode selector to start another **/
 	void modeEnded();
+	
+	/** End all modes and don't start any new one, terminate ModeSelector **/
+	void shutdown();
 }

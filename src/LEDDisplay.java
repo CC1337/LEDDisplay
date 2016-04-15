@@ -29,10 +29,7 @@ public class LEDDisplay implements Runnable {
 		
 		serial.openSerialPort();
 		ILEDArray leds = new LEDArray(60, 16);
-		
-		Thread shutdownHook = new ShutdownHook(serial, display, leds);
-		Runtime.getRuntime().addShutdownHook(shutdownHook);
-		
+			
 		//ColoringSolid bgColor = new ColoringSolid(5, 5, 30);
 		ColoringSolid bgColor = new ColoringSolid(255, 255, 255);
 		SolidBackgroundEffect bg = new SolidBackgroundEffect(bgColor); 
@@ -111,7 +108,11 @@ public class LEDDisplay implements Runnable {
 		*/
 		
 		IModeSelector modeSelector = ModeSelector.getInstance(display, leds);
-		new Thread(modeSelector).start();
+		Thread modeSelectorThread = new Thread(modeSelector);
+		modeSelectorThread.start();
+
+		Thread shutdownHook = new ShutdownHook(serial, display, leds, modeSelector);
+		Runtime.getRuntime().addShutdownHook(shutdownHook);
 		
 		//serial.closeSerialPort();
 		
