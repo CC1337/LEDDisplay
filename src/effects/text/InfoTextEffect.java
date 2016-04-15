@@ -4,6 +4,7 @@ import net.NetIO1OG;
 import net.PvData;
 import led.ILEDArray;
 import effects.*;
+import helper.Helper;
 
 public class InfoTextEffect implements IColorableEffect {
 	
@@ -102,7 +103,7 @@ public class InfoTextEffect implements IColorableEffect {
 				_nextStateData = _font.toPixels("Au: " + _netIO1OGData.getTempAussenKueche() + "\u00BA");
 			}
 			if (_stateProgress == 5) {
-				_nextStateData = _font.toPixels(printOptionalSpace(_netIO1OGData.getTempAussenKuecheMin(), 4) + _netIO1OGData.getTempAussenKuecheMin() + "-" + _netIO1OGData.getTempAussenKuecheMax() + "\u00BA");
+				_nextStateData = _font.toPixels(Helper.printWithSpacePrefix(_netIO1OGData.getTempAussenKuecheMin(), 4) + "-" + _netIO1OGData.getTempAussenKuecheMax() + "\u00BA");
 			}
 			_stateProgress = ++_stateProgress % 7;
 			if (_stateProgress == 0) {
@@ -137,14 +138,14 @@ public class InfoTextEffect implements IColorableEffect {
 				_nextStateData = _font.toPixels("Max W:" + _pvData.getMaxPacDay());
 			}
 			if (_stateProgress == 2) {
-				_nextStateData = _font.toPixels("Prod:" + printOptionalSpace(kwhDay, 10) + String.format("%.1f", kwhDay));
+				_nextStateData = _font.toPixels("Prod: " + Helper.printWithSpacePrefix(String.format("%.1f", kwhDay), 4));
 			}
 			if (_stateProgress == 3) {
 				
-				_nextStateData = _font.toPixels("Soll" + printOptionalSpace(dayDiff, 10) + (dayDiff >= 0 ? "+" : "") + String.format("%.1f", dayDiff));
+				_nextStateData = _font.toPixels("Soll " + (dayDiff >= 0 ? "+" : "") + String.format("%.1f", dayDiff));
 			}
 			if (_stateProgress == 4) {
-				_nextStateData = _font.toPixels("\u2195:" + currentD0Pac + "W");
+				_nextStateData = _font.toPixels("\u2195: " + currentD0Pac + "W");
 			}
 			if (_stateProgress == 5) {
 				if (currentSelfConsumption > 0)
@@ -152,17 +153,17 @@ public class InfoTextEffect implements IColorableEffect {
 				else _stateProgress++;
 			}
 			if (_stateProgress == 6) {
-				_nextStateData = _font.toPixels("EV:" + printOptionalSpace(selfConsumedKwhDayInt, 10) + selfConsumedKwhDayInt + " " + selfConsumptionRatioDay + "%");
+				_nextStateData = _font.toPixels("EV: " + Helper.printWithSpacePrefix(selfConsumedKwhDayInt, 2) + " " + selfConsumptionRatioDay + "%");
 			}
 			if (_stateProgress == 7) {
-				_nextStateData = _font.toPixels("VB:" + currentOverallConsumption + "W");
+				_nextStateData = _font.toPixels("VB: " + currentOverallConsumption + "W");
 			}
 			if (_stateProgress == 8) {
-				_nextStateData = _font.toPixels("VB \u2211:" + printOptionalSpace(overallConsumedKwhDay, 10) + String.format("%.1f", overallConsumedKwhDay));
+				_nextStateData = _font.toPixels("VB \u2211: " + Helper.printWithSpacePrefix(String.format("%.1f", overallConsumedKwhDay), 4));
 			}
 			if (_stateProgress == 9) {
-				_nextStateData = _font.toPixels("\u2191" + printOptionalSpace(suppliedKwh, 10) + String.format("%.1f", suppliedKwh) + 
-						"\u2193" + printOptionalSpace(drawnKwh, 10) + String.format("%.1f", drawnKwh));
+				_nextStateData = _font.toPixels("\u2191" + Helper.printWithSpacePrefix(String.format("%.1f", suppliedKwh), 4) + 
+						"\u2193" + Helper.printWithSpacePrefix(String.format("%.1f", drawnKwh), 4));
 			}
 			_stateProgress = ++_stateProgress % 11;
 			if (_stateProgress == 0) {
@@ -198,14 +199,6 @@ public class InfoTextEffect implements IColorableEffect {
 			_animationState = ++_animationState % 8;
 		}
 		
-	}
-	
-	private String printOptionalSpace(double val, int thresholdVal) {
-		return Math.abs(val) >= thresholdVal ? "" : " ";
-	}
-	
-	private String printOptionalSpace(String val, int thresholdLength) {
-		return val.length() >= thresholdLength ? "" : " ";
 	}
 	
 	public int getPosX() {

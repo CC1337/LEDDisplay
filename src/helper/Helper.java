@@ -107,5 +107,12 @@ public final class Helper {
     		text = " " + text;
 		return text;
 	}
+    
+    public static String printWithSpacePrefix(double value, int targetLength) {
+    	return printWithSpacePrefix(String.valueOf(value), targetLength);
+    }
 
+    public static String printWithSpacePrefix(int value, int targetLength) {
+    	return printWithSpacePrefix(String.valueOf(value), targetLength);
+    }
 }
