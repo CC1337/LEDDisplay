@@ -21,6 +21,8 @@ public class PvData {
 	private String[] _lastDayData;
 	private Calendar _lastD0DayDataUpdate;
 	private String[] _lastD0DayData;
+	private String[] _yesterdayD0DayData = new String[0];
+	private int _yesterdayD0DayDataFromDayOfWeek = -1;
 	 
     public static PvData getInstance() {
         if (_instance == null) {
@@ -53,7 +55,7 @@ public class PvData {
 		}
     	return result;
     }
-    
+ 
     public int getCurrentD0Pac() {
     	updateD0DayData();
     	
@@ -63,6 +65,38 @@ public class PvData {
 			}
 		}
     	return 0;
+    }
+    
+    /**
+     * Returns todays and yesterdays d0 PAC Values up to current dataset, starting at oldest dataset.
+     * @return int array of d0 pac values
+     */
+    public int[] getD0Values() {
+    	updateD0DayData();
+   
+    	int[] yesterdayData = new int[0];
+    	for (String line : _yesterdayD0DayData) {
+			if (line.contains("d0_pac_vals=[")) {
+				yesterdayData = getIntValueArrayFromLine(line);
+				break;
+			}
+		}
+
+    	int[] todayData = new int[0];
+    	for (String line : _lastD0DayData) {
+			if (line.contains("d0_pac_vals=[")) {
+				todayData = getIntValueArrayFromLine(line);
+				break;
+			}
+		}
+
+    	int[] result = new int[yesterdayData.length + todayData.length];
+    	for (int i = 0; i < yesterdayData.length; i++)
+    		result[i] = yesterdayData[i];
+    	for (int i = yesterdayData.length; i < yesterdayData.length + todayData.length; i++)
+    		result[i] = yesterdayData[i - yesterdayData.length];
+    	
+    	return result;
     }
     
     public int getCurrentSelfConsumption() {
@@ -235,7 +269,8 @@ public class PvData {
 		{
 	        URLConnection urlConn = Helper.getUrlConnection(getD0DayDataUrl(getDateNow()));
 		    if (urlConn == null) {
-		    	// Try yesterday
+		    	// Try yesterday and reset yesterday data
+		    	_yesterdayD0DayData = new String[0];
 		    	urlConn = Helper.getUrlConnection(getD0DayDataUrl(getDateYesterday()));
 		    	if (urlConn == null)
 		    		throw new IOException("No d0 day data for today and yesterday :( giving up...");
@@ -252,9 +287,38 @@ public class PvData {
 	    catch (IOException exception) {
 	    	exception.printStackTrace();
 	    }
+		updateYesterdayD0DayData();
+    }
+    
+    private void updateYesterdayD0DayData() {
+    	if (_yesterdayD0DayData != null && _yesterdayD0DayData.length > 0 && getCurrentDayOfWeek() != _yesterdayD0DayDataFromDayOfWeek)
+    		return;
+
+		try
+		{
+	        URLConnection urlConn = Helper.getUrlConnection(getD0DayDataUrl(getDateYesterday()));
+	    	if (urlConn == null)
+	    		throw new IOException("No d0 day data for yesterday :(");
+
+		    List<String> resultList = Helper.getFileAsList(urlConn);
+
+		    if (resultList != null && resultList.size() > 0) {
+		    	_yesterdayD0DayData = resultList.toArray(new String[0]); 
+			    _yesterdayD0DayDataFromDayOfWeek = getCurrentDayOfWeek();
+		    } else {
+		    	_yesterdayD0DayData = new String[0];
+		    }
+		}
+	    catch (IOException exception) {
+	    	exception.printStackTrace();
+	    }
 
     }
 
+    private int getCurrentDayOfWeek() {
+    	return Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
+    }
+    
     private Date getDateNow() {
     	return Calendar.getInstance().getTime();
     }
