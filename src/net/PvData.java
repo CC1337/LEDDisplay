@@ -114,14 +114,13 @@ public class PvData {
     }
     
     public int getMaxPacDay() {
-    	updateDayData();
+    	int maxValue = 0;
     	
-    	for (String line : _lastDayData) {
-			if (line.contains("var wr_pac_max=[")) {
-				return Integer.parseInt(line.substring(line.indexOf('[') + 1, line.indexOf(',')));
-			}
-		}
-    	return 0;
+    	for (int value : getPacValuesDay())
+    		if (value > maxValue)
+    			maxValue = value;
+    	
+    	return maxValue;
     }
     
     public double getKwhDay() {
