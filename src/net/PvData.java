@@ -191,12 +191,28 @@ public class PvData {
     	return (int) Math.round((getKwhDay()/getOverallConsumedKwhDay())*100);
     }
     
-    public Date getLastUpdateTime() {
+    public Date getLastPvUpdateTime() {
     	updateDayData();
     	
-    	for (String line : _lastDayData) {
-			if (line.contains("var Zeit='")) {
-				String date = line.replace("var Zeit='", "").replace("';", "");
+    	return getLastUpdateTimeFromData(_lastDayData, "Zeit"); 	
+    }
+    
+    public Date getLastD0TodayUpdateTime() {
+    	updateDayData();
+    	
+    	return getLastUpdateTimeFromData(_lastD0DayData, "d0_Zeit");
+    }
+  
+    public Date getLastD0YesterdayUpdateTime() {
+    	updateDayData();
+    	
+    	return getLastUpdateTimeFromData(_yesterdayD0DayData, "d0_Zeit");
+    }
+    
+    private Date getLastUpdateTimeFromData(String[] data, String prefix) {
+    	for (String line : data) {
+			if (line.contains("var "+ prefix +"='")) {
+				String date = line.replace("var "+ prefix +"='", "").replace("';", "");
 				DateFormat df = new SimpleDateFormat("dd.mm.yyyy hh:mm:ss");
 				try {
 					return df.parse(date);
@@ -205,9 +221,9 @@ public class PvData {
 				}
 			}
 		}
-    	return null;   	
+    	return null;
     }
-  
+    
     public int getMaxPossiblePac() {
     	return _config.getInt("net.pvdata.maxPossiblePac", 8000);
     }
