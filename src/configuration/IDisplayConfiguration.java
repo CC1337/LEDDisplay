@@ -23,6 +23,8 @@ public interface IDisplayConfiguration {
 	
 	public String getString(String key, String defaultValue);
 	
+	public String[] getStringArray(String key);
+	
 	public int getInt(String key);
 	
 	public int getInt(String key, int defaultValue);

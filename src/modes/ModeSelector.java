@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.commons.configuration.ConfigurationException;
+
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
 import helper.Helper;
@@ -31,21 +33,38 @@ public class ModeSelector implements IModeSelector {
 		_display = display;
 		_leds = leds;
 		
-		IMode clockMode = new ClockMode(_display, _leds, this);
-		IMode sleepMode = new SleepMode(_display, _leds, this);
-		IMode infoMode = new InfoMode(_display, _leds, this);
-		IMode pvInfoMode = new PvInfoMode(_display, _leds, this);
-		IMode d0InfoMode = new D0InfoMode(_display, _leds, this);
-		_modes.put("ClockMode", clockMode);
-		_modes.put("SleepMode", sleepMode);
-		_modes.put("InfoMode", infoMode);
-		_modes.put("PvInfoMode", pvInfoMode);
-		_modes.put("D0InfoMode", d0InfoMode);
-		
 		_config = new DisplayConfiguration("modeselector.properties", true);
-		
-		_defaultMode = clockMode;	
+
+		try {
+			initConfiguredModes();
+		} catch (ConfigurationException e) {
+			e.printStackTrace();
+		}
+
 		_lastConfiguredMode = getModeFromConfig();
+	}
+	
+	private void initConfiguredModes() throws ConfigurationException {
+		String[] availableModesConfigured = _config.getStringArray("mode.available");
+		
+		if (availableModesConfigured.length == 0) {
+			throw new ConfigurationException("no mode.available configured in modeselector.properties! Can't launch. Please specify at least one full class name, e.g. modes.MyMode. Separate by ','.");
+		}
+		
+		for (String modeName : availableModesConfigured) {
+			try {
+				modeName = modeName.trim();
+				IMode newMode = (IMode) Class.forName(modeName).getConstructor(IDisplayAdaptor.class, ILEDArray.class, IModeSelector.class).newInstance(_display, _leds, this);
+				_modes.put(modeName, newMode);
+				
+				if (_defaultMode == null)
+					_defaultMode = newMode;
+				
+				System.out.println("Successfully registered mode: '" + newMode.modeName() + "'");
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			} 
+		}
 	}
 	
 	public static ModeSelector getInstance(IDisplayAdaptor display, ILEDArray leds) {

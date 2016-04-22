@@ -40,6 +40,7 @@ public class DisplayConfiguration extends Observable implements JNotifyListener,
 			e.printStackTrace();
 			System.err.println("Error reading config from " + _filename);
 		}
+		_configuration.setListDelimiter(',');
 		setChanged();
 		notifyObservers();
 		_configHasChanged = false;
@@ -59,14 +60,17 @@ public class DisplayConfiguration extends Observable implements JNotifyListener,
 			}
 		}
 	}
-		
-	
+
 	public String getString(String key) {
 		return _configuration.getString(key);
 	}
 	
 	public String getString(String key, String defaultValue) {
 		return _configuration.getString(key, defaultValue);
+	}
+	
+	public String[] getStringArray(String key) {
+		return _configuration.getStringArray(key);
 	}
 	
 	public int getInt(String key) {
@@ -76,7 +80,7 @@ public class DisplayConfiguration extends Observable implements JNotifyListener,
 	public int getInt(String key, int defaultValue) {
 		return _configuration.getInt(key, defaultValue);
 	}
-	
+
 	public double getDouble(String key) {
 		return _configuration.getDouble(key);
 	}
