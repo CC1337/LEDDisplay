@@ -72,11 +72,39 @@ public class PvData {
      * @return int array of d0 pac values
      */
     public int[] getD0Values() {
+    	return getValuesFromD0Data("d0_pac_vals=[");
+    }
+    
+    /**
+     * Returns todays and yesterdays self consumption pac Values up to current dataset, starting at oldest dataset.
+     * @return int array of self consumption pac values
+     */
+    public int[] getSelfConsumptionValues() {
+    	return getValuesFromD0Data("d0_ev_pac_vals=[");
+    }
+    
+    /**
+     * Returns todays and yesterdays overall consumption pac Values up to current dataset, starting at oldest dataset.
+     * @return int array of overall consumption pac values
+     */
+    public int[] getOverallConsumptionValues() {
+    	int[] d0Values = getD0Values();
+    	int[] selfConsumptionValues = getSelfConsumptionValues();
+    	int[] result = new int[d0Values.length];
+    	
+    	for (int i=0; i< d0Values.length; i++) {
+    		result[i] = selfConsumptionValues[i] - d0Values[i];
+    	}
+    	
+    	return result;
+    }
+    
+    private int[] getValuesFromD0Data(String linePrefix) {
     	updateD0DayData();
-   
+    	   
     	int[] yesterdayData = new int[0];
     	for (String line : _yesterdayD0DayData) {
-			if (line.contains("d0_pac_vals=[")) {
+			if (line.contains(linePrefix)) {
 				yesterdayData = getIntValueArrayFromLine(line);
 				break;
 			}
@@ -84,7 +112,7 @@ public class PvData {
 
     	int[] todayData = new int[0];
     	for (String line : _lastD0DayData) {
-			if (line.contains("d0_pac_vals=[")) {
+			if (line.contains(linePrefix)) {
 				todayData = getIntValueArrayFromLine(line);
 				break;
 			}
@@ -100,7 +128,9 @@ public class PvData {
     }
     
     public int getCurrentSelfConsumption() {
-    	for (String line : _lastDayData) {
+    	updateD0DayData();
+    	
+    	for (String line : _lastD0DayData) {
 			if (line.contains("var d0_ev_pac_vals=[")) {
 				int[] data = getIntValueArrayFromLine(line);
 				return data[data.length-1];

@@ -10,7 +10,7 @@ import configuration.IDisplayConfiguration;
 
 import effects.IColor;
 import effects.IColorableEffect;
-import effects.info.PvDayChartEffect;
+import effects.info.PvChartEffect;
 import effects.text.*;
 import helper.FpsController;
 import helper.Helper;
@@ -36,7 +36,7 @@ public class PvInfoMode implements IMode, Observer {
 	private IColor _kwhTextColor = null;
 	private IColorableEffect _bg = null;
 	private IPixelatedFont _font = new PixelatedFont(new FontDefault7px());
-	PvDayChartEffect _pvDayChart = null;
+	PvChartEffect _pvDayChart = null;
 	TextEffect _pacText = null;
 	TextEffect _kwhText = null;
 	Date _lastUpdate = null;
@@ -139,7 +139,7 @@ public class PvInfoMode implements IMode, Observer {
 			}
 			if (_pvDayChartColor == null || !newPvDayChartColor.endsWith(_pvDayChartColor.getClass().getCanonicalName())) {
 				_pvDayChartColor = (IColor) Class.forName(newPvDayChartColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "pvdaychart.");
-				_pvDayChart = new PvDayChartEffect(-5, 0, 65, 16, _pvDayChartColor);
+				_pvDayChart = new PvChartEffect(-5, 0, 65, 16, _pvDayChartColor, PvChartEffect.RenderData.PRODUCTION);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

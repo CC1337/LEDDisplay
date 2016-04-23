@@ -10,7 +10,7 @@ import configuration.IDisplayConfiguration;
 
 import effects.IColor;
 import effects.IColorableEffect;
-import effects.info.PvDayChartEffect;
+import effects.info.PvChartEffect;
 import effects.text.*;
 import helper.FpsController;
 import helper.Helper;
@@ -37,8 +37,8 @@ public class D0InfoMode implements IMode, Observer {
 	private IColor _kwhTextColor = null;
 	private IColorableEffect _bg = null;
 	private IPixelatedFont _font = new PixelatedFont(new FontDefault7px());
-	PvDayChartEffect _d0Chart = null; //TODO use d0 data
-	PvDayChartEffect _evChart = null; //TODO use ev data
+	PvChartEffect _d0Chart = null; //TODO use d0 data
+	PvChartEffect _evChart = null; //TODO use ev data
 	TextEffect _pacText = null;
 	TextEffect _kwhText = null;
 	Date _lastUpdate = null;
@@ -114,11 +114,11 @@ public class D0InfoMode implements IMode, Observer {
 	}
 
 	private void updateKwhText() {
-		_kwhText.setText(Helper.printWithSpacePrefix(String.valueOf(_pvData.getKwhDay()), 4));
+		_kwhText.setText(Helper.printWithSpacePrefix(String.valueOf(_pvData.getOverallConsumedKwhDay()), 4));
 	}
 
 	private void updatePacText() {
-		_pacText.setText(_pvData.getCurrentPac() + "W");
+		_pacText.setText(_pvData.getCurrentOverallConsumption() + "W");
 	}
 
 	private void reloadConfig() {
@@ -148,11 +148,11 @@ public class D0InfoMode implements IMode, Observer {
 			}
 			if (_d0ChartColor == null || !newD0ChartColor.endsWith(_d0ChartColor.getClass().getCanonicalName())) {
 				_d0ChartColor = (IColor) Class.forName(newD0ChartColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "d0chart.");
-				_d0Chart = new PvDayChartEffect(-5, 0, 65, 16, _d0ChartColor);
+				_d0Chart = new PvChartEffect(0, 0, 60, 16, _d0ChartColor, PvChartEffect.RenderData.CONSUMPTION, 60, 0);
 			}
 			if (_evChartColor == null || !newEvChartColor.endsWith(_evChartColor.getClass().getCanonicalName())) {
 				_evChartColor = (IColor) Class.forName(newEvChartColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "evchart.");
-				_evChart = new PvDayChartEffect(-5, 0, 65, 16, _evChartColor);
+				_evChart = new PvChartEffect(0, 0, 60, 16, _evChartColor, PvChartEffect.RenderData.SELFCONSUMPTION, 60, 0);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

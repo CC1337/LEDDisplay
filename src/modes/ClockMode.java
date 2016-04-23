@@ -13,7 +13,7 @@ import configuration.IDisplayConfiguration;
 
 import effects.IColor;
 import effects.IColorableEffect;
-import effects.info.PvDayChartEffect;
+import effects.info.PvChartEffect;
 import effects.text.*;
 import helper.FpsController;
 import helper.Helper;
@@ -39,7 +39,7 @@ public class ClockMode implements IMode, Observer {
 	TextEffect _timeText = null;
 	TextEffect _dateText = null;
 	TextEffect _pvText = null;
-	PvDayChartEffect _pvDayChart = null;
+	PvChartEffect _pvDayChart = null;
 	int _displayDateEverySeconds = 30;
 	int _displayDateForSeconds = 5;
 	
@@ -143,7 +143,7 @@ public class ClockMode implements IMode, Observer {
 			if (_pvTextColor == null || !newPvtextColor.endsWith(_pvTextColor.getClass().getCanonicalName())) {
 				_pvTextColor = (IColor) Class.forName(newPvtextColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "pvtext.");
 				_pvText = new TextEffect(_font, _pvTextColor, _pvText != null ? _pvText.getText() : "1337 ALTA!", 1, 8);
-				_pvDayChart = new PvDayChartEffect(0, 8, 36, 7, _pvTextColor);
+				_pvDayChart = new PvChartEffect(0, 8, 36, 7, _pvTextColor, PvChartEffect.RenderData.PRODUCTION);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

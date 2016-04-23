@@ -11,7 +11,7 @@ import configuration.IDisplayConfiguration;
 
 import effects.IColor;
 import effects.IColorableEffect;
-import effects.info.PvDayChartEffect;
+import effects.info.PvChartEffect;
 import effects.shape.RectEffect;
 import effects.text.*;
 import helper.FpsController;
@@ -47,7 +47,7 @@ public class InfoMode implements IMode, Observer {
 	CurrentD0PacTextEffect _d0Text = null;
 	InfoTextEffect _infoText = null;
 	RectEffect _secondPixel = null;
-	PvDayChartEffect _pvDayChart = null;
+	PvChartEffect _pvDayChart = null;
 	NewsMarqueeTextEffect _newsText = null;
 	int _newsEnabled = 1;
 	int _infoChangeDelay = 5;
@@ -173,7 +173,7 @@ public class InfoMode implements IMode, Observer {
 				_pvTextColorPositive = (IColor) Class.forName(newPvtextColorPositive).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "pvtextpositive.");
 				_pvTextColorNegative = (IColor) Class.forName(newPvtextColorNegative).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "pvtextnegative.");
 				_d0Text = new CurrentD0PacTextEffect(_font, _pvTextColorPositive, _pvTextColorNegative, 31, 0);
-				_pvDayChart = new PvDayChartEffect(-5, 7, 65, 9, _pvTextColorPositive);
+				_pvDayChart = new PvChartEffect(-5, 7, 65, 9, _pvTextColorPositive, PvChartEffect.RenderData.PRODUCTION);
 			}
 			if (_infoTextColor == null || !newInfotextColor.endsWith(_infoTextColor.getClass().getCanonicalName())) {
 				_infoTextColor = (IColor) Class.forName(newInfotextColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "infotext.");
