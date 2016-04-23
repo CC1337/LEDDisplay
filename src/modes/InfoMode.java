@@ -95,7 +95,7 @@ public class InfoMode implements IMode, Observer {
 
 		while (!_aborted && !_end) {
 
-			currentTime = new SimpleDateFormat("H:mm").format(new Date());
+			currentTime = new SimpleDateFormat("HH:mm").format(new Date());
 			calendar = Calendar.getInstance();
 			currentSecond = calendar.get(Calendar.SECOND);
 

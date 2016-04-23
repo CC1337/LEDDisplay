@@ -86,7 +86,7 @@ public class ClockMode implements IMode, Observer {
 		
 		while (!_aborted && !_end) {
 			
-			currentTime = new SimpleDateFormat("H:mm:ss").format(new Date());
+			currentTime = new SimpleDateFormat("HH:mm:ss").format(new Date());
 			calendar = Calendar.getInstance();
 			currentMinute = calendar.get(Calendar.MINUTE);
 			currentSecond = calendar.get(Calendar.SECOND);
