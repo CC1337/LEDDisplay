@@ -173,7 +173,7 @@ public class InfoMode implements IMode, Observer {
 				_pvTextColorPositive = (IColor) Class.forName(newPvtextColorPositive).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "pvtextpositive.");
 				_pvTextColorNegative = (IColor) Class.forName(newPvtextColorNegative).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "pvtextnegative.");
 				_d0Text = new CurrentD0PacTextEffect(_font, _pvTextColorPositive, _pvTextColorNegative, 31, 0);
-				_pvDayChart = new PvChartEffect(-5, 7, 65, 9, _pvTextColorPositive, PvChartEffect.RenderData.PRODUCTION);
+				_pvDayChart = new PvChartEffect(-5, 7, 65, 9, _pvTextColorPositive, PvChartEffect.RenderData.PRODUCTION, true);
 			}
 			if (_infoTextColor == null || !newInfotextColor.endsWith(_infoTextColor.getClass().getCanonicalName())) {
 				_infoTextColor = (IColor) Class.forName(newInfotextColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "infotext.");

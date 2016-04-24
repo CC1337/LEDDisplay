@@ -157,15 +157,15 @@ public class D0InfoMode implements IMode, Observer {
 			}
 			if (_d0ChartColor == null || !newD0ChartColor.endsWith(_d0ChartColor.getClass().getCanonicalName())) {
 				_d0ChartColor = (IColor) Class.forName(newD0ChartColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "d0chart.");
-				_d0Chart = new PvChartEffect(0, 0, 60, 16, _d0ChartColor, PvChartEffect.RenderData.CONSUMPTION, 60, 0);
+				_d0Chart = new PvChartEffect(0, 0, 60, 16, _d0ChartColor, PvChartEffect.RenderData.CONSUMPTION, 60);
 			}
 			if (_evChartColor == null || !newEvChartColor.endsWith(_evChartColor.getClass().getCanonicalName())) {
 				_evChartColor = (IColor) Class.forName(newEvChartColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "evchart.");
-				_evChart = new PvChartEffect(0, 0, 60, 16, _evChartColor, PvChartEffect.RenderData.SELFCONSUMPTION, 60, 0);
+				_evChart = new PvChartEffect(0, 0, 60, 16, _evChartColor, PvChartEffect.RenderData.SELFCONSUMPTION, 60);
 			}
 			if (_pvChartColor == null || !newPvChartColor.endsWith(_pvChartColor.getClass().getCanonicalName())) {
 				_pvChartColor = (IColor) Class.forName(newEvChartColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "pvchart.");
-				_pvChart = new PvChartEffect(0, 0, 60, 16, _pvChartColor, PvChartEffect.RenderData.PRODUCTION, 60, 0);
+				_pvChart = new PvChartEffect(0, 0, 60, 16, _pvChartColor, PvChartEffect.RenderData.PRODUCTION, 60);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

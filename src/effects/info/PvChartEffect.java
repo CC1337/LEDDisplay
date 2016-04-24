@@ -17,42 +17,58 @@ public class PvChartEffect extends ColorableEffectBase {
 		CONSUMPTION
 	}
 
+	private boolean _initialized = false;
 	private int _width;
 	private int _height;
 	private RenderData _renderData;
 	private int _renderLastNumDataset;
-	private int _dataSetOffset;
+	private boolean _showOnlyPvActiveTime = false;
+	private int _skipDatasetsAtStart;
+	private int _addDatasetsAtEnd;
+	private int _skipDatasetsAtEnd;
 	PvData _pvData = PvData.getInstance();
 	
 	/**
-	 * Renders last "renderLastNumDataset" data items (or the maximum available if lower) skipping the last num 'dataSetOffset' to a chart with given dimensions
+	 * Renders data items covering for the time Pv is active to a chart with given dimensions
 	 */
-	public PvChartEffect(int posX, int posY, int width, int height, IColor color, RenderData renderData, int renderLastNumDataset, int dataSetOffset) {
-		_posX = posX;
-		_posY = posY;
-		_width = width;
-		_height = height;
-		_color = color;
-		_renderData = renderData;
-		_renderLastNumDataset = renderLastNumDataset;
-		_dataSetOffset = dataSetOffset;
-		updateData();
+	public PvChartEffect(int posX, int posY, int width, int height, IColor color, RenderData renderData, boolean showOnlyPvActiveTime) {
+		this(posX, posY, width, height, color, renderData);
+		_showOnlyPvActiveTime = showOnlyPvActiveTime;
+	}
+	
+	/**
+	 * Renders last "renderLastNumDataset" data items (or the maximum available if lower) to a chart with given dimensions
+	 */
+	public PvChartEffect(int posX, int posY, int width, int height, IColor color, RenderData renderData, int renderLastNumDatasets) {
+		this(posX, posY, width, height, color, renderData);
+		_renderLastNumDataset = renderLastNumDatasets;
 	}
 	
 	/**
 	 * Renders all available data to a chart with given dimensions
 	 */
 	public PvChartEffect(int posX, int posY, int width, int height, IColor color, RenderData renderData) {
-		this(posX, posY, width, height, color, renderData, 0, 0);
+		_posX = posX;
+		_posY = posY;
+		_width = width;
+		_height = height;
+		_color = color;
+		_renderData = renderData;
 	}
 	
 	@Override
 	public void apply(ILEDArray leds) {
+		if (!_initialized)
+			updateData();
 		_color.apply(leds, this);
 	}
 	
 	public void updateData() {
+		_initialized = true;
+		
+		updateOffsetsForPvTimes();
 		int[] bars = getBars();
+		
 		if (_data == null)
 			_data = new byte[_width][_height];
 		for (int x=0; x<_width; x++) {
@@ -63,6 +79,14 @@ public class PvChartEffect extends ColorableEffectBase {
 					_data[x][y] = 0;
 			}
 		}
+	}
+	
+	private void updateOffsetsForPvTimes() {
+		if (!_showOnlyPvActiveTime)
+			return;
+		_skipDatasetsAtStart = _pvData.getD0ToPvDatasetsStartOffset();
+		_addDatasetsAtEnd = _pvData.getNowToPvEndTimeDatasetsOffset();
+		_skipDatasetsAtEnd = _pvData.getD0ToPvDatasetsEndOffset();
 	}
 
 	private int[] getBars() {
@@ -81,13 +105,13 @@ public class PvChartEffect extends ColorableEffectBase {
 		int[] data = getDataForCurrentRenderMode();
 		List<Integer> values = new ArrayList<Integer>();
 
-		int endDataset = data.length - _dataSetOffset;
-		int startDataset = 0;
+		int endDataset = data.length + _addDatasetsAtEnd - _skipDatasetsAtEnd;
+		int startDataset = _skipDatasetsAtStart;
 		if (_renderLastNumDataset != 0)
 			startDataset = Math.max(0, endDataset - _renderLastNumDataset);
 
 		for (int i=startDataset; i<endDataset; i++) {
-			values.add(data[i]);
+			values.add(i < data.length ? data[i] : 0);
 		}
 
 		return values;

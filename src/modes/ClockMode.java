@@ -143,7 +143,7 @@ public class ClockMode implements IMode, Observer {
 			if (_pvTextColor == null || !newPvtextColor.endsWith(_pvTextColor.getClass().getCanonicalName())) {
 				_pvTextColor = (IColor) Class.forName(newPvtextColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "pvtext.");
 				_pvText = new TextEffect(_font, _pvTextColor, _pvText != null ? _pvText.getText() : "1337 ALTA!", 1, 8);
-				_pvDayChart = new PvChartEffect(0, 8, 36, 7, _pvTextColor, PvChartEffect.RenderData.PRODUCTION);
+				_pvDayChart = new PvChartEffect(0, 8, 36, 7, _pvTextColor, PvChartEffect.RenderData.PRODUCTION, true);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

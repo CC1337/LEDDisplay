@@ -46,13 +46,27 @@ public class PvData {
     public int[] getPacValuesDay() {
     	updateDayData();
     	
-    	int[] result = new int[0];
+    	int[] pacValues = new int[0];
     	for (String line : _lastDayData) {
 			if (line.contains("wr0_pac_vals=[")) {
-				result = getIntValueArrayFromLine(line);
+				pacValues = getIntValueArrayFromLine(line);
 				break;
 			}
 		}
+    	
+    	int startOffset = getD0ToPvDatasetsStartOffset();
+    	int endOffset = getD0ToPvDatasetsEndOffset();
+    	int[] result = new int[pacValues.length + startOffset + endOffset];
+    	
+    	for (int i=0; i<startOffset; i++)
+    		result[i] = 0;
+    	
+    	for (int i=startOffset; i<startOffset+pacValues.length; i++)
+    		result[i] = pacValues[i-startOffset];
+    	
+    	for (int i=startOffset+pacValues.length; i<result.length; i++)
+    		result[i] = 0;
+    	
     	return result;
     }
  
@@ -221,16 +235,52 @@ public class PvData {
     	return getLastUpdateTimeFromData(_lastDayData, "Zeit"); 	
     }
     
-    public Date getLastD0TodayUpdateTime() {
+    public Date getPvStartTime() {
     	updateDayData();
+    	
+    	return getStartStopTimeFromData(_lastDayData, "t_start");
+    }
+    
+    public Date getPvEndTime() {
+    	updateDayData();
+    	
+    	return getStartStopTimeFromData(_lastDayData, "t_start");
+    }
+    
+    public Date getLastD0TodayUpdateTime() {
+    	updateD0DayData();
     	
     	return getLastUpdateTimeFromData(_lastD0DayData, "d0_Zeit");
     }
   
     public Date getLastD0YesterdayUpdateTime() {
-    	updateDayData();
+    	updateD0DayData();
     	
     	return getLastUpdateTimeFromData(_yesterdayD0DayData, "d0_Zeit");
+    }
+    
+    public int getD0ToPvDatasetsEndOffset() {
+    	long offsetTime = getLastD0TodayUpdateTime().getTime() - getLastPvUpdateTime().getTime();
+    	
+    	return getNumDatasetsForTimeframe(offsetTime);
+    }
+    
+    public int getD0ToPvDatasetsStartOffset() {
+    	long offsetTime = getPvStartTime().getTime() - getDateNow().getTime();
+    	    	
+    	return getNumDatasetsForTimeframe(offsetTime);
+    }
+    
+    public int getNowToPvEndTimeDatasetsOffset() {
+    	long offsetTime = getPvEndTime().getTime() - getDateNow().getTime();
+    	    	
+    	return getNumDatasetsForTimeframe(offsetTime);
+    }
+    
+    private int getNumDatasetsForTimeframe(long milliseconds) {
+    	if (milliseconds < 0)
+    		return 0;
+    	return Math.round(milliseconds / (1000 * 60 * 5));
     }
     
     private Date getLastUpdateTimeFromData(String[] data, String prefix) {
@@ -238,6 +288,22 @@ public class PvData {
 			if (line.contains("var "+ prefix +"='")) {
 				String date = line.replace("var "+ prefix +"='", "").replace("';", "");
 				DateFormat df = new SimpleDateFormat("dd.mm.yyyy hh:mm:ss");
+				try {
+					return df.parse(date);
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+    	return null;
+    }
+    
+    private Date getStartStopTimeFromData(String[] data, String prefix) {
+    	for (String line : data) {
+			if (line.contains("var "+ prefix +"='")) {
+				String date = line.replace("var "+ prefix +"='", "").replace("';", "");
+				date = getFormattedDatafileDate(getDateNow()) + " " + date;
+				DateFormat df = new SimpleDateFormat("yyyyMMdd hh:mm");
 				try {
 					return df.parse(date);
 				} catch (ParseException e) {
@@ -369,13 +435,16 @@ public class PvData {
     }
 
     private String getDayDataUrl(Date date) {
-    	SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-    	return _config.getString("net.pvdata.url") + format.format(date) + ".js";
+    	return _config.getString("net.pvdata.url") + getFormattedDatafileDate(date) + ".js";
     }
 
     private String getD0DayDataUrl(Date date) {
+    	return _config.getString("net.d0data.url") + "d0_" + getFormattedDatafileDate(date) + ".js";
+    }
+    
+    private String getFormattedDatafileDate(Date date) {
     	SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-    	return _config.getString("net.d0data.url") + "d0_" + format.format(date) + ".js";
+    	return format.format(date);
     }
 
 	private boolean lastResultValid(Calendar cacheDate, int cacheTimeout) {

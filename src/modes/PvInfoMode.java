@@ -139,7 +139,7 @@ public class PvInfoMode implements IMode, Observer {
 			}
 			if (_pvDayChartColor == null || !newPvDayChartColor.endsWith(_pvDayChartColor.getClass().getCanonicalName())) {
 				_pvDayChartColor = (IColor) Class.forName(newPvDayChartColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "pvdaychart.");
-				_pvDayChart = new PvChartEffect(-5, 0, 65, 16, _pvDayChartColor, PvChartEffect.RenderData.PRODUCTION);
+				_pvDayChart = new PvChartEffect(0, 0, 60, 16, _pvDayChartColor, PvChartEffect.RenderData.PRODUCTION, true);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
