@@ -37,8 +37,8 @@ public class D0InfoMode implements IMode, Observer {
 	private IColor _kwhTextColor = null;
 	private IColorableEffect _bg = null;
 	private IPixelatedFont _font = new PixelatedFont(new FontDefault7px());
-	PvChartEffect _d0Chart = null; //TODO use d0 data
-	PvChartEffect _evChart = null; //TODO use ev data
+	PvChartEffect _d0Chart = null;
+	PvChartEffect _evChart = null;
 	TextEffect _pacText = null;
 	TextEffect _kwhText = null;
 	Date _lastUpdate = null;

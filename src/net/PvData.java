@@ -93,7 +93,7 @@ public class PvData {
     	int[] result = new int[d0Values.length];
     	
     	for (int i=0; i< d0Values.length; i++) {
-    		result[i] = selfConsumptionValues[i] - d0Values[i];
+    		result[i] = selfConsumptionValues[i] - (d0Values[i] < 0 ? d0Values[i] : 0);
     	}
     	
     	return result;
@@ -128,19 +128,12 @@ public class PvData {
     }
     
     public int getCurrentSelfConsumption() {
-    	updateD0DayData();
-    	
-    	for (String line : _lastD0DayData) {
-			if (line.contains("var d0_ev_pac_vals=[")) {
-				int[] data = getIntValueArrayFromLine(line);
-				return data[data.length-1];
-			}
-		}
-    	return 0;
+		int[] data = getSelfConsumptionValues();
+		return data[data.length-1];
     }
     
     public int getCurrentOverallConsumption() {
-    	return getCurrentSelfConsumption() - getCurrentD0Pac();
+    	return getCurrentSelfConsumption() - (getCurrentD0Pac() < 0 ? getCurrentD0Pac() : 0);
     }
     
     public int getMaxPacDay() {
