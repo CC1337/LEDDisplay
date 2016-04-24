@@ -33,12 +33,14 @@ public class D0InfoMode implements IMode, Observer {
 	private IColor _bgColor = null;
 	private IColor _d0ChartColor = null;
 	private IColor _evChartColor = null;
+	private IColor _pvChartColor = null;
 	private IColor _pacTextColor = null;
 	private IColor _kwhTextColor = null;
 	private IColorableEffect _bg = null;
 	private IPixelatedFont _font = new PixelatedFont(new FontDefault7px());
 	PvChartEffect _d0Chart = null;
 	PvChartEffect _evChart = null;
+	PvChartEffect _pvChart = null;
 	TextEffect _pacText = null;
 	TextEffect _kwhText = null;
 	Date _lastUpdate = null;
@@ -80,11 +82,12 @@ public class D0InfoMode implements IMode, Observer {
 		while (!_aborted && !_end) {
 			updateData();
 
-			_leds.applyEffect(_bg);
-			_leds.applyEffect(_pacText);
-			_leds.applyEffect(_kwhText);
+			_leds.applyEffect(_bg);			
+			_leds.applyEffect(_pvChart);
 			_leds.applyEffect(_d0Chart);
 			_leds.applyEffect(_evChart);
+			_leds.applyEffect(_pacText);
+			_leds.applyEffect(_kwhText);
 			
 			_display.show(_leds);
 
@@ -102,6 +105,7 @@ public class D0InfoMode implements IMode, Observer {
 		updateKwhText();
 		updateD0Chart();
 		updateEvChart();
+		updatePvChart();
 		_lastUpdate = currentTime;
 	}
 	
@@ -111,6 +115,10 @@ public class D0InfoMode implements IMode, Observer {
 	
 	private void updateEvChart() {
 		_evChart.updateData();
+	}
+	
+	private void updatePvChart() {
+		_pvChart.updateData();
 	}
 
 	private void updateKwhText() {
@@ -130,6 +138,7 @@ public class D0InfoMode implements IMode, Observer {
 			String newBgEffect = _config.getString("bg.Effect", "effects.background.SolidBackgroundEffect");
 			String newD0ChartColor = _config.getString("d0chart.Coloring", "effects.coloring.ColoringSolid");
 			String newEvChartColor = _config.getString("evchart.Coloring", "effects.coloring.ColoringSolid");
+			String newPvChartColor = _config.getString("pvchart.Coloring", "effects.coloring.ColoringSolid");
 			String newPacTextColor = _config.getString("pactext.Coloring", "effects.coloring.ColoringSolid");
 			String newKwhTextColor = _config.getString("kwhtext.Coloring", "effects.coloring.ColoringSolid");
 
@@ -153,6 +162,10 @@ public class D0InfoMode implements IMode, Observer {
 			if (_evChartColor == null || !newEvChartColor.endsWith(_evChartColor.getClass().getCanonicalName())) {
 				_evChartColor = (IColor) Class.forName(newEvChartColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "evchart.");
 				_evChart = new PvChartEffect(0, 0, 60, 16, _evChartColor, PvChartEffect.RenderData.SELFCONSUMPTION, 60, 0);
+			}
+			if (_pvChartColor == null || !newPvChartColor.endsWith(_pvChartColor.getClass().getCanonicalName())) {
+				_pvChartColor = (IColor) Class.forName(newEvChartColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "pvchart.");
+				_pvChart = new PvChartEffect(0, 0, 60, 16, _pvChartColor, PvChartEffect.RenderData.PRODUCTION, 60, 0);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

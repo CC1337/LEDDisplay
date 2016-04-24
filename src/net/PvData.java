@@ -66,7 +66,7 @@ public class PvData {
 		}
     	return 0;
     }
-    
+
     /**
      * Returns todays and yesterdays d0 PAC Values up to current dataset, starting at oldest dataset.
      * @return int array of d0 pac values
@@ -91,9 +91,10 @@ public class PvData {
     	int[] d0Values = getD0Values();
     	int[] selfConsumptionValues = getSelfConsumptionValues();
     	int[] result = new int[d0Values.length];
-    	
+
     	for (int i=0; i< d0Values.length; i++) {
     		result[i] = selfConsumptionValues[i] - (d0Values[i] < 0 ? d0Values[i] : 0);
+    		//System.out.println("overall " + i + ": " + result[i] + "  d0: " + d0Values[i] + "  self: " + selfConsumptionValues[i]);
     	}
     	
     	return result;
@@ -122,7 +123,7 @@ public class PvData {
     	for (int i = 0; i < yesterdayData.length; i++)
     		result[i] = yesterdayData[i];
     	for (int i = yesterdayData.length; i < yesterdayData.length + todayData.length; i++)
-    		result[i] = yesterdayData[i - yesterdayData.length];
+    		result[i] = todayData[i - yesterdayData.length];
     	
     	return result;
     }
