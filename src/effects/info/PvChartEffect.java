@@ -71,8 +71,8 @@ public class PvChartEffect extends ColorableEffectBase {
 		int slotsPerBar = (int) Math.floor(values.size() / _width);
 		for (int i=0; i<_width; i++) {
 			int dataSlot = (int) Math.floor(((double)values.size() / (double)_width) * (double)i);
-			result[i] = (int) (Math.floor((getMeanValue(values, dataSlot, slotsPerBar) / (double)_pvData.getMaxPossiblePac()) * (_height)));
-			//System.out.println("i: " + i + "  slot: " + dataSlot + "   val: "+ values.get(dataSlot) + "  res: " + result[i] + "   perbar: " + slotsPerBar);
+			result[i] = (int) (Math.ceil((getMeanValue(values, dataSlot, slotsPerBar) / (double)_pvData.getMaxPossiblePac()) * (_height)));
+			//System.out.println("i: " + i + "  slot: " + dataSlot + "   val: "+ values.get(dataSlot) + "  mean:"  + getMeanValue(values, dataSlot, slotsPerBar) + "  divided " + (getMeanValue(values, dataSlot, slotsPerBar) / (double)_pvData.getMaxPossiblePac()) + "  result pre-round " + (getMeanValue(values, dataSlot, slotsPerBar) / (double)_pvData.getMaxPossiblePac()) * (_height) + "  res: " + result[i] + "   perbar: " + slotsPerBar);
 		}
 		return result;
 	}
