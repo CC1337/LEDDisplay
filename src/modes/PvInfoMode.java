@@ -32,11 +32,13 @@ public class PvInfoMode implements IMode, Observer {
 	
 	private IColor _bgColor = null;
 	private IColor _pvDayChartColor = null;
+	private IColor _evDayChartColor = null;
 	private IColor _pacTextColor = null;
 	private IColor _kwhTextColor = null;
 	private IColorableEffect _bg = null;
 	private IPixelatedFont _font = new PixelatedFont(new FontDefault7px());
 	PvChartEffect _pvDayChart = null;
+	PvChartEffect _evDayChart = null;
 	TextEffect _pacText = null;
 	TextEffect _kwhText = null;
 	Date _lastUpdate = null;
@@ -82,6 +84,7 @@ public class PvInfoMode implements IMode, Observer {
 			_leds.applyEffect(_pacText);
 			_leds.applyEffect(_kwhText);
 			_leds.applyEffect(_pvDayChart);
+			_leds.applyEffect(_evDayChart);
 			
 			_display.show(_leds);
 
@@ -98,11 +101,16 @@ public class PvInfoMode implements IMode, Observer {
 		updatePacText();
 		updateKwhText();
 		updatePvDayChart();
+		updateEvDayChart();
 		_lastUpdate = currentTime;
 	}
 	
 	private void updatePvDayChart() {
 		_pvDayChart.updateData();
+	}
+	
+	private void updateEvDayChart() {
+		_evDayChart.updateData();
 	}
 
 	private void updateKwhText() {
@@ -121,6 +129,7 @@ public class PvInfoMode implements IMode, Observer {
 			String newBgColor = _config.getString("bg.Coloring", "effects.coloring.ColoringSolid");
 			String newBgEffect = _config.getString("bg.Effect", "effects.background.SolidBackgroundEffect");
 			String newPvDayChartColor = _config.getString("pvdaychart.Coloring", "effects.coloring.ColoringSolid");
+			String newEvDayChartColor = _config.getString("evdaychart.Coloring", "effects.coloring.ColoringSolid");
 			String newPacTextColor = _config.getString("pactext.Coloring", "effects.coloring.ColoringSolid");
 			String newKwhTextColor = _config.getString("kwhtext.Coloring", "effects.coloring.ColoringSolid");
 
@@ -140,6 +149,10 @@ public class PvInfoMode implements IMode, Observer {
 			if (_pvDayChartColor == null || !newPvDayChartColor.endsWith(_pvDayChartColor.getClass().getCanonicalName())) {
 				_pvDayChartColor = (IColor) Class.forName(newPvDayChartColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "pvdaychart.");
 				_pvDayChart = new PvChartEffect(0, 0, 60, 16, _pvDayChartColor, PvChartEffect.RenderData.PRODUCTION, true);
+			}
+			if (_evDayChartColor == null || !newEvDayChartColor.endsWith(_evDayChartColor.getClass().getCanonicalName())) {
+				_evDayChartColor = (IColor) Class.forName(newEvDayChartColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "evdaychart.");
+				_evDayChart = new PvChartEffect(0, 0, 60, 16, _evDayChartColor, PvChartEffect.RenderData.SELFCONSUMPTION, true);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

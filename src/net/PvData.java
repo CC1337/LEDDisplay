@@ -259,6 +259,10 @@ public class PvData {
     	return getLastUpdateTimeFromData(_yesterdayD0DayData, "d0_Zeit");
     }
     
+    public int getD0TodayDatasetsCount() {
+    	return getNumDatasetsForTimeframe(Helper.getMillisecondsSinceMidnight());
+    }
+    
     public int getD0ToPvDatasetsEndOffset() {
     	long offsetTime = getLastD0TodayUpdateTime().getTime() - getLastPvUpdateTime().getTime();
     	
@@ -266,7 +270,10 @@ public class PvData {
     }
     
     public int getD0ToPvDatasetsStartOffset() {
-    	long offsetTime = getPvStartTime().getTime() - getDateNow().getTime();
+    	long offsetTime = Math.min(
+    			Helper.getMillisecondsSinceMidnight(getPvStartTime().getTime()), 
+    			Helper.getMillisecondsSinceMidnight(getDateNow().getTime())
+    			);
     	    	
     	return getNumDatasetsForTimeframe(offsetTime);
     }

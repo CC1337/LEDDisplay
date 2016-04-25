@@ -9,6 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public final class Helper {
@@ -115,4 +116,17 @@ public final class Helper {
     public static String printWithSpacePrefix(int value, int targetLength) {
     	return printWithSpacePrefix(String.valueOf(value), targetLength);
     }
+
+	public static long getMillisecondsSinceMidnight() {
+		return getMillisecondsSinceMidnight(Calendar.getInstance().getTimeInMillis());
+	}
+	
+	public static long getMillisecondsSinceMidnight(long TimeInMilliseconds) {
+		Calendar rightNow = Calendar.getInstance();
+
+		// offset to add since we're not UTC
+		long offset = rightNow.get(Calendar.ZONE_OFFSET) +
+		    rightNow.get(Calendar.DST_OFFSET);
+		return (TimeInMilliseconds + offset) % (24 * 60 * 60 * 1000);
+	}
 }
