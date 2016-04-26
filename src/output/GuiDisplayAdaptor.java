@@ -31,6 +31,7 @@ public class GuiDisplayAdaptor implements IDisplayAdaptor {
 		frame.getContentPane().add(textLabel, BorderLayout.CENTER); 
 		frame.setLocationRelativeTo(null);
 		frame.pack();
+		frame.setAutoRequestFocus(false);
 		frame.setVisible(true); 
 	}
 	
