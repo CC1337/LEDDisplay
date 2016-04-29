@@ -56,8 +56,12 @@ public class ColoringPlasma implements IColor {
 		byte[][] effectData = effect.getEffectData();
 		for(int x=0; x<effectData.length; x++) {
 			for(int y=0; y<effectData[0].length; y++) {
-				if (effectData[x][y] == 1 && x < _cols && x >= 0 && y < _rows && y >= 0)
-					leds.setLed(x+effect.getPosX(), y+effect.getPosY(), applyBrightness(_r[x][y]), applyBrightness(_g[x][y]), applyBrightness(_b[x][y]));
+				if (x < _cols && x >= 0 && y < _rows && y >= 0) {
+					if(effectData[x][y] == 1)
+						leds.setLed(x+effect.getPosX(), y+effect.getPosY(), applyBrightness(_r[x][y]), applyBrightness(_g[x][y]), applyBrightness(_b[x][y]));
+					else
+						leds.setLed(x+effect.getPosX(), y+effect.getPosY(),	0, 0, 0);
+				}
 			}
 		}		
 	}
