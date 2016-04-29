@@ -29,7 +29,7 @@ public class YayMode implements IMode, Observer {
 	private IColor _bgColor = null;
 	private IColor _timeTextColor = null;
 	private IColorableEffect _bg = null;
-	private IPixelatedFont _font = new PixelatedFont(new FontDefault7px());
+	private IPixelatedFont _font = new PixelatedFont(new FontBold10px(), 3);
 	TextEffect _timeText = null;
 	
 	public YayMode(IDisplayAdaptor display, ILEDArray leds, IModeSelector modeSelector) {
@@ -96,7 +96,7 @@ public class YayMode implements IMode, Observer {
 				_bg = (IColorableEffect) Class.forName(newBgEffect).getConstructor(IColor.class).newInstance(_bgColor); 
 			if (_timeTextColor == null || !newTimeTextColor.endsWith(_timeTextColor.getClass().getCanonicalName())) {
 				_timeTextColor = (IColor) Class.forName(newTimeTextColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "timetext.");
-				_timeText = new TextEffect(_font, _timeTextColor, _timeText != null ? _timeText.getText() : "", 16, 4);
+				_timeText = new TextEffect(_font, _timeTextColor, _timeText != null ? _timeText.getText() : "", 6, 3);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

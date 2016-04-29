@@ -9,7 +9,11 @@ public class PixelatedFont implements IPixelatedFont {
 	public PixelatedFont(IFont font) {
 		_font = font;
 	}
-
+	
+	public PixelatedFont(IFont font, int charSpacing) {
+		this(font);
+		setCharSpacing(charSpacing);
+	}
 	
 	public byte[][] toPixels(char character) {
 		return convertSingleChar(""+character);
