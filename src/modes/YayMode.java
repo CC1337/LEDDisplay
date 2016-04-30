@@ -67,6 +67,7 @@ public class YayMode implements IMode, Observer {
 		while (!_aborted && !_end) {
 			updateData();			
 			
+			_leds.reset();
 			_leds.applyEffect(_bg);			
 			_leds.applyEffect(_timeText);
 			
