@@ -33,8 +33,6 @@ public class ColoringSolid implements IColor {
 			for(int y=0; y<effectData[0].length; y++) {
 				if (effectData[x][y] == 1)
 					leds.setLed(x+effect.getPosX(), y+effect.getPosY(), _r, _g, _b);
-				else
-					leds.setLed(x+effect.getPosX(), y+effect.getPosY(), 0, 0, 0);
 			}
 		}		
 	}
