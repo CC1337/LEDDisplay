@@ -41,6 +41,7 @@ public class DisplayConfiguration extends Observable implements JNotifyListener,
 			System.err.println("Error reading config from " + _filename);
 		}
 		_configuration.setListDelimiter(',');
+		_configuration.setAutoSave(true);
 		setChanged();
 		notifyObservers();
 		_configHasChanged = false;
@@ -108,6 +109,11 @@ public class DisplayConfiguration extends Observable implements JNotifyListener,
 
 	@Override
 	public void fileRenamed(int wd, String rootPath, String oldName, String newName) {
+	}
+
+	@Override
+	public void setString(String key, String newValue) {
+		_configuration.setProperty(key, newValue);
 	}
 	
 }

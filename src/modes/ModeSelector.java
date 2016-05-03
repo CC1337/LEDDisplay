@@ -1,10 +1,21 @@
 package modes;
 
+import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Callable;
 
 import org.apache.commons.configuration.ConfigurationException;
+
+import com.pi4j.io.gpio.GpioController;
+import com.pi4j.io.gpio.GpioFactory;
+import com.pi4j.io.gpio.GpioPinDigitalInput;
+import com.pi4j.io.gpio.PinPullResistance;
+import com.pi4j.io.gpio.PinState;
+import com.pi4j.io.gpio.RaspiPin;
+import com.pi4j.io.gpio.trigger.GpioCallbackTrigger;
 
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
@@ -17,7 +28,7 @@ public class ModeSelector implements IModeSelector {
 	private static ModeSelector __instance = null;
 	private IDisplayAdaptor _display;
 	private ILEDArray _leds;
-	private HashMap<String, IMode> _modes = new HashMap<String, IMode>();
+	private LinkedHashMap<String, IMode> _modes = new LinkedHashMap<String, IMode>();
 	private IMode _defaultMode;
 	private IMode _currentMode;
 	private IMode _lastConfiguredMode;
@@ -42,6 +53,37 @@ public class ModeSelector implements IModeSelector {
 		}
 
 		_lastConfiguredMode = getModeFromConfig();
+		
+		doGpioStuff();
+	}
+	
+	// TODO own dependency injected class
+	private void doGpioStuff() {
+        final GpioController gpio = GpioFactory.getInstance();
+        final GpioPinDigitalInput myButton = gpio.provisionDigitalInputPin(RaspiPin.GPIO_02, PinPullResistance.PULL_UP);
+        
+        myButton.setDebounce(100);
+        
+        myButton.addTrigger(new GpioCallbackTrigger(PinState.LOW, new Callable<Void>() {
+        	public Void call() throws Exception {
+        		System.out.println("odrueckt is!");
+        		nextMode();
+        		return null;
+        	}
+        }));
+	}
+	
+	public static ModeSelector getInstance(IDisplayAdaptor display, ILEDArray leds) {
+		if (__instance == null)
+			__instance = new ModeSelector(display, leds);
+		return __instance;
+	}
+	
+	@Override
+	public void run() {
+		System.out.println("ModeSelector Start");
+		startMode(getModeFromConfig());
+		autoTriggerModeCheck();
 	}
 	
 	private void initConfiguredModes() throws ConfigurationException {
@@ -67,16 +109,10 @@ public class ModeSelector implements IModeSelector {
 		}
 	}
 	
-	public static ModeSelector getInstance(IDisplayAdaptor display, ILEDArray leds) {
-		if (__instance == null)
-			__instance = new ModeSelector(display, leds);
-		return __instance;
-	}
-
 	public void modeCheck() {
 		if (_modeCheckInProgress)
 			return;
-		
+
 		_modeCheckInProgress = true;
 		
 		IMode configuredMode = getModeFromConfig();
@@ -109,14 +145,7 @@ public class ModeSelector implements IModeSelector {
 		_modeEnded = true;
 		modeCheck();
 	}
-	
-	@Override
-	public void run() {
-		System.out.println("ModeSelector Start");
-		startMode(getModeFromConfig());
-		autoTriggerModeCheck();
-	}
-	
+
 	private void autoTriggerModeCheck() {
 		_modeCheckTimer = new Timer(true);
 		_modeCheckTimer.schedule(new TimerTask() {
@@ -135,6 +164,20 @@ public class ModeSelector implements IModeSelector {
 		
 
 		new Thread(_currentMode).start();
+	}
+	
+	public void nextMode() {
+		String[] cycleModesConfigured = _config.getStringArray("mode.cycle");
+		String newMode = _currentMode.getClass().getName();
+		
+		for (int i=0; i<cycleModesConfigured.length; i++) {
+			if (cycleModesConfigured[i].equals(_currentMode.getClass().getName())) {
+				newMode = cycleModesConfigured[(i+1)%cycleModesConfigured.length];
+				break;
+			}
+		}
+		
+		_config.setString("mode.current", newMode);
 	}
 
 	private IMode getModeFromConfig() {

@@ -32,4 +32,6 @@ public interface IDisplayConfiguration {
 	public double getDouble(String key);
 	
 	public double getDouble(String key, double defaultValue);
+
+	public void setString(String key, String newValue);
 }
