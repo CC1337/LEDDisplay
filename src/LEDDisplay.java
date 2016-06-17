@@ -10,6 +10,7 @@ import input.IButtonListener;
 import output.*;
 import led.*;
 import modes.IModeSelector;
+import modes.LightMode;
 import modes.ModeSelector;
 import modes.YayMode;
 
@@ -114,6 +115,7 @@ public class LEDDisplay implements Runnable {
 		*/
 		
 		// Quickfix to compile it
+		LightMode.class.getName();
 		YayMode.class.getName();
 		FontBold10px.class.getName();
 		RandomDotEffect.class.getName();
