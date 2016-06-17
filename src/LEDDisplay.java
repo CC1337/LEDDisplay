@@ -1,18 +1,24 @@
+import java.util.concurrent.Callable;
+
+import effects.animation.RandomDotEffect;
 import effects.background.*;
 import effects.coloring.*;
 import effects.text.*;
 import helper.Helper;
+import input.ButtonListener;
+import input.IButtonListener;
 import output.*;
 import led.*;
 import modes.IModeSelector;
 import modes.ModeSelector;
+import modes.YayMode;
 
 public class LEDDisplay implements Runnable {
 
 	public LEDDisplay() {
-		
+
 	}
-	
+
 	@Override
 	public void run() {
 		
@@ -107,9 +113,28 @@ public class LEDDisplay implements Runnable {
 		display.show(leds);
 		*/
 		
-		IModeSelector modeSelector = ModeSelector.getInstance(display, leds);
+		// Quickfix to compile it
+		YayMode.class.getName();
+		FontBold10px.class.getName();
+		RandomDotEffect.class.getName();
+		ButtonListener.class.getName();
+		IButtonListener.class.getName();
+
+		
+		final IModeSelector modeSelector = ModeSelector.getInstance(display, leds);
 		Thread modeSelectorThread = new Thread(modeSelector);
 		modeSelectorThread.start();
+		
+		if (!Helper.isWindows()) {
+			IButtonListener nextModeButton = new ButtonListener("2");
+			nextModeButton.setSingleTriggerCallback(new Callable<Void>() {
+	        	public Void call() throws Exception {
+	        		System.out.println("odrueckt is!");
+	        		modeSelector.nextMode();
+	        		return null;
+	        	}
+	        });
+		}
 
 		Thread shutdownHook = new ShutdownHook(serial, display, leds, modeSelector);
 		Runtime.getRuntime().addShutdownHook(shutdownHook);
@@ -121,9 +146,8 @@ public class LEDDisplay implements Runnable {
 		}
 		
 	}
-	
-	public static void main(String[] args)
-	{
+
+	public static void main(String[] args) {
 		Runnable runnable = new LEDDisplay();
 		new Thread(runnable).start();
 		System.out.println("LEDDisplay starting...");

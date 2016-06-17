@@ -1,8 +1,8 @@
 package effects.animation;
 
 import configuration.IDisplayConfiguration;
-import effects.*;
 import led.ILEDArray;
+import effects.*;
 
 public class RandomDotEffect implements IColorableEffect {
 	
@@ -87,5 +87,4 @@ public class RandomDotEffect implements IColorableEffect {
 		return _configPrefix + this.getClass().getName() + "." + param;
 	}
 
-	
 }

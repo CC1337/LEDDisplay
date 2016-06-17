@@ -3,17 +3,8 @@ package modes;
 import java.util.LinkedHashMap;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.Callable;
 
 import org.apache.commons.configuration.ConfigurationException;
-
-import com.pi4j.io.gpio.GpioController;
-import com.pi4j.io.gpio.GpioFactory;
-import com.pi4j.io.gpio.GpioPinDigitalInput;
-import com.pi4j.io.gpio.PinPullResistance;
-import com.pi4j.io.gpio.PinState;
-import com.pi4j.io.gpio.RaspiPin;
-import com.pi4j.io.gpio.trigger.GpioCallbackTrigger;
 
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
@@ -51,25 +42,8 @@ public class ModeSelector implements IModeSelector {
 		}
 
 		_lastConfiguredMode = getModeFromConfig();
-		
-		doGpioStuff();
 	}
-	
-	// TODO own dependency injected class
-	private void doGpioStuff() {
-        final GpioController gpio = GpioFactory.getInstance();
-        final GpioPinDigitalInput myButton = gpio.provisionDigitalInputPin(RaspiPin.GPIO_02, PinPullResistance.PULL_UP);
-        
-        myButton.setDebounce(100);
-        
-        myButton.addTrigger(new GpioCallbackTrigger(PinState.LOW, new Callable<Void>() {
-        	public Void call() throws Exception {
-        		System.out.println("odrueckt is!");
-        		nextMode();
-        		return null;
-        	}
-        }));
-	}
+
 	
 	public static ModeSelector getInstance(IDisplayAdaptor display, ILEDArray leds) {
 		if (__instance == null)
