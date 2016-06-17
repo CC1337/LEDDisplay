@@ -13,7 +13,7 @@ import helper.Helper;
 
 public class GpioLdrReader implements IBrightnessSensorReader {
 
-	final GpioController gpio = GpioFactory.getInstance();
+	final GpioController _gpio = GpioFactory.getInstance();
 	private GpioPinDigitalMultipurpose _ldrPin;
 	private int _lastValue = 0;
 	private int _maxCapacitorUnloadNs;
@@ -21,7 +21,7 @@ public class GpioLdrReader implements IBrightnessSensorReader {
 	public GpioLdrReader(String pinNumber, int maxCapacitorUnloadNs) {
 		String pinName = "GPIO " + pinNumber;
 		System.out.println("Using Pin " + pinName + " for LDR");
-		_ldrPin = gpio.provisionDigitalMultipurposePin(RaspiPin.getPinByName(pinName), "LDR", PinMode.DIGITAL_OUTPUT);
+		_ldrPin = _gpio.provisionDigitalMultipurposePin(RaspiPin.getPinByName(pinName), "LDR", PinMode.DIGITAL_OUTPUT);
 		_maxCapacitorUnloadNs = maxCapacitorUnloadNs;
 	}
 	
