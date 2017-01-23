@@ -28,7 +28,7 @@ public class ModeSelector implements IModeSelector {
 	private boolean _modeCheckInProgress = false;
 	private Thread _currentModeThread;
 	private boolean _shouldShutdown = false;
-	private Timer _modeCheckTimer;
+	private Timer _modeCheckTimer = new Timer(true);
 	private boolean krassesFlag = true;
 	
 	private ModeSelector(IDisplayAdaptor display, ILEDArray leds) {
@@ -131,7 +131,6 @@ public class ModeSelector implements IModeSelector {
 	}
 
 	private void autoTriggerModeCheck() {
-		_modeCheckTimer = new Timer(true);
 		_modeCheckTimer.schedule(new TimerTask() {
 			public void run() {
 				if (_shouldShutdown)
