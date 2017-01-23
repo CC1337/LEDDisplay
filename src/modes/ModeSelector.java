@@ -1,5 +1,7 @@
 package modes;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -27,6 +29,7 @@ public class ModeSelector implements IModeSelector {
 	private Thread _currentModeThread;
 	private boolean _shouldShutdown = false;
 	private Timer _modeCheckTimer;
+	private boolean krassesFlag = true;
 	
 	private ModeSelector(IDisplayAdaptor display, ILEDArray leds) {
 		System.out.println("ModeSelector Init");
@@ -87,6 +90,15 @@ public class ModeSelector implements IModeSelector {
 
 		_modeCheckInProgress = true;
 		
+		// Hacky BDayMode switch - TODO make clean
+		String currentTime = new SimpleDateFormat("dd.MM.yyyy HH:mm").format(new Date());
+		if (currentTime.equals("19.06.2016 00:00") && krassesFlag) {
+			krassesFlag = false;
+			_currentMode.abort();
+			_config.setString("mode.current", "modes.BDayMode");
+			startMode(_modes.get("modes.BDayMode"));
+		}
+		
 		IMode configuredMode = getModeFromConfig();
 		if (configuredMode.getClass() != _lastConfiguredMode.getClass()) {
 			_currentMode.end();
@@ -127,7 +139,7 @@ public class ModeSelector implements IModeSelector {
 				modeCheck();
 				autoTriggerModeCheck();
 			}
-		}, 3000);
+		}, 1000);
 	}
 	
 	private void startMode(IMode mode) {
