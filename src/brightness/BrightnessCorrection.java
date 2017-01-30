@@ -29,7 +29,7 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 		_config.addObserver(this);
 		reloadConfig();
 		_currentBrightness = _configuredBrightness;
-		_newBrightness = _configuredBrightness;
+		_newBrightness = _configuredBrightness == 0 ? _configuredAutoBrightnessMinimalValue : _configuredBrightness;
 		System.out.println("Initial brightness: " + _currentBrightness);
 		initBrightnessSensorReader();
 	}
