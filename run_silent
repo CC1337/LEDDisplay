@@ -1,0 +1,3 @@
+cd /home/display/LEDDisplay
+nohup ./run > /dev/null &
+
