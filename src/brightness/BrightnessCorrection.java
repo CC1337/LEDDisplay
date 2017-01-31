@@ -2,10 +2,13 @@ package brightness;
 
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.Callable;
 
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
 import helper.Helper;
+import input.ButtonListener;
+import input.IButtonListener;
 
 
 public class BrightnessCorrection implements IBrightnessCorrection, Observer {
@@ -23,6 +26,8 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 	private int _configuredAutoBrightnessMinimalValue;
 	private int _configuredAutoBrightnessNumValuesForAverage;
 	private int _configuredAutoBrightnessCapacitorUnloadNs;
+	private String _configuredBrightnessCycleButtonPin;
+	private String[] _configuredBrightnessCycleValues;
 	
 	private BrightnessCorrection () {
 		_config = new DisplayConfiguration("brightness.properties", true);
@@ -32,6 +37,7 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 		_newBrightness = _configuredBrightness == 0 ? _configuredAutoBrightnessMinimalValue : _configuredBrightness;
 		System.out.println("Initial brightness: " + _currentBrightness);
 		initBrightnessSensorReader();
+		initCycleBrightnessButton();
 	}
 	
 	public static IBrightnessCorrection getInstance() {
@@ -57,6 +63,46 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 		_brightnessReaderThread.addObserver(this);
 		
 		new Thread(_brightnessReaderThread).start();
+	}
+	
+	private void initCycleBrightnessButton() {
+		
+		if (_configuredBrightnessCycleButtonPin.isEmpty()) {
+			System.err.println("No valid \"cycle brightness\" button configured, set Brightness.Button.GpioPinNumber in brightness.properties and restart the application in order to switch modes by a button.");
+			return;
+		}
+		
+		System.out.println("Cycle Brightness button init on Pin GPIO " + _configuredBrightnessCycleButtonPin);
+		IButtonListener nextModeButton = new ButtonListener(_configuredBrightnessCycleButtonPin);
+		nextModeButton.setSingleTriggerCallback(new Callable<Void>() {
+			public Void call() throws Exception {
+				System.out.println("Cycle brightness button pressed");
+				nextCycleBrightnessValue();
+				return null;
+			}
+		});
+	}
+	
+	private void nextCycleBrightnessValue() {
+		if (_configuredBrightnessCycleValues.length == 0) {
+			System.err.println("Next brightness cycle value requested but nothing configured in brightness.properties at Brightness.Button.CycleValues");
+			return;
+		}
+		
+		int nextValueIndex = 0;
+		for (int i = 0; i < _configuredBrightnessCycleValues.length; i++) {
+			try {
+				if (Integer.parseInt(_configuredBrightnessCycleValues[i]) == _configuredBrightness) {
+					nextValueIndex = (i+1) % _configuredBrightnessCycleValues.length;
+					break;
+				}
+			} catch (NumberFormatException e) {
+				System.err.println("Invalid cycle brightness value in brightness.properties at Brightness.Button.CycleValues: " + _configuredBrightnessCycleValues[i]);
+				continue;
+			}
+		}
+
+		_config.setString("Brightness.Value", _configuredBrightnessCycleValues[nextValueIndex]);
 	}
 
 	public int getBrightnessPercentage() {
@@ -94,6 +140,12 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 		if (_configuredAutoBrightnessPin != null && !_configuredAutoBrightnessPin.equals(newPin))
 			System.out.println("Warning: You changed LDR Pin. You have to restart the application that changes take effect.");
 		_configuredAutoBrightnessPin = newPin;	
+		
+		newPin = _config.getString("Brightness.Button.GpioPinNumber");
+		if (_configuredBrightnessCycleButtonPin != null && !_configuredBrightnessCycleButtonPin.equals(newPin))
+			System.out.println("Warning: You changed Brightness cycle button Pin. You have to restart the application that changes take effect.");
+		_configuredBrightnessCycleButtonPin = newPin;	
+		_configuredBrightnessCycleValues = _config.getStringArray("Brightness.Button.CycleValues");
 		
 		int newCapacitorUnloadNs = _config.getInt("Brightness.AutoBrightness.MaxCapacitorUnloadNanoseconds");
 		if (_configuredAutoBrightnessCapacitorUnloadNs != 0 && _configuredAutoBrightnessCapacitorUnloadNs != newCapacitorUnloadNs)
