@@ -13,6 +13,11 @@ import input.IButtonListener;
 
 public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 	
+	private static final String BRIGHTNESS_PROEPRTIES = "brightness.properties";
+	private static final String BRIGHTNESS_BUTTON_CYCLEVALUES = "Brightness.Button.CycleValues";
+	private static final String BRIGHTNESS_BUTTON_GPIOPINNUMBER = "Brightness.Button.GpioPinNumber";
+	private static final String BRIGHTNESS_AUTOBRIGHTNESS_LDRGPIOPINNUMBER = "Brightness.AutoBrightness.LdrGpioPinNumber";
+	
 	private static IBrightnessCorrection _instance;
 	private DisplayConfiguration _config;
 	private int _currentBrightness;
@@ -30,7 +35,7 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 	private String[] _configuredBrightnessCycleValues;
 	
 	private BrightnessCorrection () {
-		_config = new DisplayConfiguration("brightness.properties", true);
+		_config = new DisplayConfiguration(BRIGHTNESS_PROEPRTIES, true);
 		_config.addObserver(this);
 		reloadConfig();
 		_currentBrightness = _configuredBrightness;
@@ -54,7 +59,7 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 		if (Helper.isWindows() || _configuredAutoBrightnessPin == null) {
 			_brightnessSensorReader = new DummyBrightnessSensorReader(100);
 			if (_configuredAutoBrightnessPin == null)
-				System.out.println("Warning: brightness.properties Brightness.AutoBrightness.LdrPinName invalid, falling back to dummy auto-brightness");
+				System.out.println("Warning: " + BRIGHTNESS_PROEPRTIES + " " + BRIGHTNESS_AUTOBRIGHTNESS_LDRGPIOPINNUMBER + " invalid, falling back to dummy auto-brightness");
 		} else {
 			_brightnessSensorReader = new GpioLdrReader(_configuredAutoBrightnessPin, _configuredAutoBrightnessCapacitorUnloadNs);
 		}
@@ -68,7 +73,7 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 	private void initCycleBrightnessButton() {
 		
 		if (_configuredBrightnessCycleButtonPin.isEmpty()) {
-			System.err.println("No valid \"cycle brightness\" button configured, set Brightness.Button.GpioPinNumber in brightness.properties and restart the application in order to switch modes by a button.");
+			System.err.println("No valid \"cycle brightness\" button configured, set " + BRIGHTNESS_BUTTON_GPIOPINNUMBER + " in " + BRIGHTNESS_PROEPRTIES + " and restart the application in order to switch modes by a button.");
 			return;
 		}
 		
@@ -85,7 +90,7 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 	
 	private void nextCycleBrightnessValue() {
 		if (_configuredBrightnessCycleValues.length == 0) {
-			System.err.println("Next brightness cycle value requested but nothing configured in brightness.properties at Brightness.Button.CycleValues");
+			System.err.println("Next brightness cycle value requested but nothing configured in " + BRIGHTNESS_PROEPRTIES + " at " + BRIGHTNESS_BUTTON_CYCLEVALUES);
 			return;
 		}
 		
@@ -97,7 +102,7 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 					break;
 				}
 			} catch (NumberFormatException e) {
-				System.err.println("Invalid cycle brightness value in brightness.properties at Brightness.Button.CycleValues: " + _configuredBrightnessCycleValues[i]);
+				System.err.println("Invalid cycle brightness value in " + BRIGHTNESS_PROEPRTIES + " at " + BRIGHTNESS_BUTTON_CYCLEVALUES + ": " + _configuredBrightnessCycleValues[i]);
 				continue;
 			}
 		}
@@ -136,16 +141,16 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 		_configuredAutoBrightnessMinimalValue = _config.getInt("Brightness.AutoBrightness.MinimalValue", 0);
 		_configuredAutoBrightnessNumValuesForAverage = _config.getInt("Brightness.AutoBrightness.NumValuesForAverage", 0);
 				
-		String newPin = _config.getString("Brightness.AutoBrightness.LdrGpioPinNumber");
+		String newPin = _config.getString(BRIGHTNESS_AUTOBRIGHTNESS_LDRGPIOPINNUMBER);
 		if (_configuredAutoBrightnessPin != null && !_configuredAutoBrightnessPin.equals(newPin))
 			System.out.println("Warning: You changed LDR Pin. You have to restart the application that changes take effect.");
 		_configuredAutoBrightnessPin = newPin;	
 		
-		newPin = _config.getString("Brightness.Button.GpioPinNumber");
+		newPin = _config.getString(BRIGHTNESS_BUTTON_GPIOPINNUMBER);
 		if (_configuredBrightnessCycleButtonPin != null && !_configuredBrightnessCycleButtonPin.equals(newPin))
 			System.out.println("Warning: You changed Brightness cycle button Pin. You have to restart the application that changes take effect.");
 		_configuredBrightnessCycleButtonPin = newPin;	
-		_configuredBrightnessCycleValues = _config.getStringArray("Brightness.Button.CycleValues");
+		_configuredBrightnessCycleValues = _config.getStringArray(BRIGHTNESS_BUTTON_CYCLEVALUES);
 		
 		int newCapacitorUnloadNs = _config.getInt("Brightness.AutoBrightness.MaxCapacitorUnloadNanoseconds");
 		if (_configuredAutoBrightnessCapacitorUnloadNs != 0 && _configuredAutoBrightnessCapacitorUnloadNs != newCapacitorUnloadNs)
