@@ -5,12 +5,15 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Callable;
 
 import org.apache.commons.configuration.ConfigurationException;
 
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
 import helper.Helper;
+import input.ButtonListener;
+import input.IButtonListener;
 import led.ILEDArray;
 import output.IDisplayAdaptor;
 
@@ -45,8 +48,31 @@ public class ModeSelector implements IModeSelector {
 		}
 
 		_lastConfiguredMode = getModeFromConfig();
+		initNextModeButton();
 	}
 
+	
+	private void initNextModeButton() {
+		if (Helper.isWindows())
+			return;
+		
+		String gpioPinNumber = _config.getString("mode.next.buttonGpioPinNumber", "");
+		
+		if (gpioPinNumber.isEmpty()) {
+			System.err.println("No valid \"next mode\" button configured, set mode.next.buttonGpioPinNumber in modeselector.properties and restart the application in order to switch modes by a button.");
+			return;
+		}
+		
+		System.out.println("Next Mode button init on Pin GPIO " + gpioPinNumber);
+		IButtonListener nextModeButton = new ButtonListener(gpioPinNumber);
+		nextModeButton.setSingleTriggerCallback(new Callable<Void>() {
+			public Void call() throws Exception {
+				System.out.println("Next mode button pressed");
+				nextMode();
+				return null;
+			}
+		});
+	}
 	
 	public static ModeSelector getInstance(IDisplayAdaptor display, ILEDArray leds) {
 		if (__instance == null)

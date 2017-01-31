@@ -1,5 +1,3 @@
-import java.util.concurrent.Callable;
-
 import effects.animation.RandomDotEffect;
 import effects.background.*;
 import effects.coloring.*;
@@ -126,17 +124,6 @@ public class LEDDisplay implements Runnable {
 		final IModeSelector modeSelector = ModeSelector.getInstance(display, leds);
 		Thread modeSelectorThread = new Thread(modeSelector);
 		modeSelectorThread.start();
-		
-		if (!Helper.isWindows()) {
-			IButtonListener nextModeButton = new ButtonListener("2");
-			nextModeButton.setSingleTriggerCallback(new Callable<Void>() {
-	        	public Void call() throws Exception {
-	        		System.out.println("odrueckt is!");
-	        		modeSelector.nextMode();
-	        		return null;
-	        	}
-	        });
-		}
 
 		Thread shutdownHook = new ShutdownHook(serial, display, leds, modeSelector);
 		Runtime.getRuntime().addShutdownHook(shutdownHook);
