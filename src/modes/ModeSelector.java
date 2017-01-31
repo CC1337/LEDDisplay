@@ -51,7 +51,20 @@ public class ModeSelector implements IModeSelector {
 		initNextModeButton();
 	}
 
+
+	public static ModeSelector getInstance(IDisplayAdaptor display, ILEDArray leds) {
+		if (__instance == null)
+			__instance = new ModeSelector(display, leds);
+		return __instance;
+	}
 	
+	@Override
+	public void run() {
+		System.out.println("ModeSelector Start");
+		startMode(getModeFromConfig());
+		autoTriggerModeCheck();
+	}
+
 	private void initNextModeButton() {
 		String gpioPinNumber = _config.getString("mode.next.buttonGpioPinNumber", "");
 		
@@ -69,19 +82,6 @@ public class ModeSelector implements IModeSelector {
 				return null;
 			}
 		});
-	}
-	
-	public static ModeSelector getInstance(IDisplayAdaptor display, ILEDArray leds) {
-		if (__instance == null)
-			__instance = new ModeSelector(display, leds);
-		return __instance;
-	}
-	
-	@Override
-	public void run() {
-		System.out.println("ModeSelector Start");
-		startMode(getModeFromConfig());
-		autoTriggerModeCheck();
 	}
 	
 	private void initConfiguredModes() throws ConfigurationException {
