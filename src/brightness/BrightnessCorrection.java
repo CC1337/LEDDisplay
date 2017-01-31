@@ -90,10 +90,10 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 		_configuredAutoBrightnessMinimalValue = _config.getInt("Brightness.AutoBrightness.MinimalValue", 0);
 		_configuredAutoBrightnessNumValuesForAverage = _config.getInt("Brightness.AutoBrightness.NumValuesForAverage", 0);
 				
-		String newPin = _config.getString("Brightness.AutoBrightness.LdrPinName");
+		String newPin = _config.getString("Brightness.AutoBrightness.LdrGpioPinNumber");
 		if (_configuredAutoBrightnessPin != null && !_configuredAutoBrightnessPin.equals(newPin))
 			System.out.println("Warning: You changed LDR Pin. You have to restart the application that changes take effect.");
-		_configuredAutoBrightnessPin = _config.getString("Brightness.AutoBrightness.LdrGpioPinNumber");	
+		_configuredAutoBrightnessPin = newPin;	
 		
 		int newCapacitorUnloadNs = _config.getInt("Brightness.AutoBrightness.MaxCapacitorUnloadNanoseconds");
 		if (_configuredAutoBrightnessCapacitorUnloadNs != 0 && _configuredAutoBrightnessCapacitorUnloadNs != newCapacitorUnloadNs)
