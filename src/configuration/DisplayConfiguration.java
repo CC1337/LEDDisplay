@@ -5,6 +5,8 @@ import net.contentobjects.jnotify.JNotifyException;
 import net.contentobjects.jnotify.JNotifyListener;
 
 import java.util.Observable;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -17,6 +19,7 @@ public class DisplayConfiguration extends Observable implements JNotifyListener,
 	private boolean _configHasChanged = false;
 	private PropertiesConfiguration _configuration;
 	private int _fileWatchId = -1;
+	private Timer debouncedFileModifiedTimer = new Timer(true);
 
 	public DisplayConfiguration(String filename, boolean enableAutoReload) {
 		_filename = filename;
@@ -102,10 +105,25 @@ public class DisplayConfiguration extends Observable implements JNotifyListener,
 	@Override
 	public void fileModified(int wd, String rootPath, String name) {
 		if (rootPath.endsWith(_filename)) {
-			System.out.println(_filename + " changed. Reloading...");
-			reload();
+			debouncedFileModified();
 		}
 	}
+	
+	private void debouncedFileModified() {
+		try {
+			debouncedFileModifiedTimer.cancel();
+			debouncedFileModifiedTimer = new Timer(true);
+			debouncedFileModifiedTimer.schedule(new TimerTask() {
+				public void run() {
+					System.out.println(_filename + " changed. Reloading...");
+					reload();	
+					debouncedFileModifiedTimer.cancel();
+				}
+			}, 50);
+		} 
+		catch (java.lang.IllegalStateException e) {}
+	}
+	
 
 	@Override
 	public void fileRenamed(int wd, String rootPath, String oldName, String newName) {
