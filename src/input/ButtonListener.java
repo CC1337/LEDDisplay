@@ -10,20 +10,30 @@ import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.gpio.trigger.GpioCallbackTrigger;
 
+import helper.Helper;
+
 public class ButtonListener implements IButtonListener {
 
-	final GpioController _gpio = GpioFactory.getInstance();
+	final GpioController _gpio = Helper.isWindows() ? null : GpioFactory.getInstance();
 	final GpioPinDigitalInput _button;
 	
 	public ButtonListener(String pinNumber) {
 		String pinName = "GPIO " + pinNumber;
-		System.out.println("Using Pin " + pinName + " for ButtonListener");
-        _button = _gpio.provisionDigitalInputPin(RaspiPin.getPinByName(pinName), PinPullResistance.PULL_UP);
-        _button.setDebounce(100);
+		
+		if (_gpio == null) {
+			System.out.println("NOT using Pin " + pinName + " for ButtonListener because running on Windows w/o pi4j");
+			_button = null;
+		} else {
+			System.out.println("Using Pin " + pinName + " for ButtonListener");
+	        _button = _gpio.provisionDigitalInputPin(RaspiPin.getPinByName(pinName), PinPullResistance.PULL_UP);
+	        _button.setDebounce(100);
+		}
 	}
 
 	@Override
 	public void setSingleTriggerCallback(Callable<Void> callback) {
+		if (_button == null)
+			return;
 		_button.addTrigger(new GpioCallbackTrigger(PinState.LOW, callback));
 	}
 }

@@ -53,9 +53,6 @@ public class ModeSelector implements IModeSelector {
 
 	
 	private void initNextModeButton() {
-		if (Helper.isWindows())
-			return;
-		
 		String gpioPinNumber = _config.getString("mode.next.buttonGpioPinNumber", "");
 		
 		if (gpioPinNumber.isEmpty()) {
