@@ -59,4 +59,7 @@ public class SleepMode implements IMode {
 		System.out.println(modeName() + " exit");
 	}
 
+	@Override
+	public void nextConfig() {
+	}
 }

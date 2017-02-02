@@ -19,6 +19,10 @@ import output.IDisplayAdaptor;
 
 public class ModeSelector implements IModeSelector {
 
+	private static final String MODELESECTOR_PROPERTIES = "modeselector.properties";
+	private static final String MODE_NEXT_GPIOPINNUMBER = "mode.next.buttonGpioPinNumber";
+	private static final String MODE_CYCLECONFIG_GPIOPINNUMBER = "mode.cycleConfig.GpioPinNumber";
+	
 	private static ModeSelector __instance = null;
 	private IDisplayAdaptor _display;
 	private ILEDArray _leds;
@@ -39,7 +43,7 @@ public class ModeSelector implements IModeSelector {
 		_display = display;
 		_leds = leds;
 		
-		_config = new DisplayConfiguration("modeselector.properties", true);
+		_config = new DisplayConfiguration(MODELESECTOR_PROPERTIES, true);
 
 		try {
 			initConfiguredModes();
@@ -49,6 +53,7 @@ public class ModeSelector implements IModeSelector {
 
 		_lastConfiguredMode = getModeFromConfig();
 		initNextModeButton();
+		initCycleModeConfigurationButton();
 	}
 
 
@@ -66,10 +71,10 @@ public class ModeSelector implements IModeSelector {
 	}
 
 	private void initNextModeButton() {
-		String gpioPinNumber = _config.getString("mode.next.buttonGpioPinNumber", "");
+		String gpioPinNumber = _config.getString(MODE_NEXT_GPIOPINNUMBER, "");
 		
 		if (gpioPinNumber.isEmpty()) {
-			System.err.println("No valid \"next mode\" button configured, set mode.next.buttonGpioPinNumber in modeselector.properties and restart the application in order to switch modes by a button.");
+			System.err.println("No valid \"next mode\" button configured, set " + MODE_NEXT_GPIOPINNUMBER + " in " + MODELESECTOR_PROPERTIES + " and restart the application in order to switch modes by a button.");
 			return;
 		}
 		
@@ -79,6 +84,26 @@ public class ModeSelector implements IModeSelector {
 			public Void call() throws Exception {
 				System.out.println("Next mode button pressed");
 				nextMode();
+				return null;
+			}
+		});
+	}
+	
+	private void initCycleModeConfigurationButton() {
+		String gpioPinNumber = _config.getString(MODE_CYCLECONFIG_GPIOPINNUMBER, "");
+		
+		if (gpioPinNumber.isEmpty()) {
+			System.err.println("No valid \"cycle mode configuration\" button configured, set " + MODE_CYCLECONFIG_GPIOPINNUMBER + " in " + MODELESECTOR_PROPERTIES + " and restart the application in order to switch mode config by a button.");
+			return;
+		}
+		
+		System.out.println("Cycle Mode Configuration button init on Pin GPIO " + gpioPinNumber);
+		IButtonListener nextModeConfigButton = new ButtonListener(gpioPinNumber);
+		nextModeConfigButton.setSingleTriggerCallback(new Callable<Void>() {
+			public Void call() throws Exception {
+				System.out.println("Cycle mode configuration button pressed");
+				System.out.println(_currentMode.getClass());
+				_currentMode.nextConfig();
 				return null;
 			}
 		});

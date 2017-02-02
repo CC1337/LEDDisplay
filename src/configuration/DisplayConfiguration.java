@@ -27,15 +27,31 @@ public class DisplayConfiguration extends Observable implements JNotifyListener,
 		
 		System.loadLibrary("jnotify");
 		reload();
-		if (_enableAutoReload) {
-			try {
-				_fileWatchId = JNotify.addWatch(_configuration.getPath(), JNotify.FILE_MODIFIED, false, this);
-			} catch (JNotifyException e) {
-				e.printStackTrace();
-			}
+		addFileWatch();
+	}
+	
+	
+	private void addFileWatch() {
+		if (!_enableAutoReload || _fileWatchId >= 0)
+			return;
+		try {
+			_fileWatchId = JNotify.addWatch(_configuration.getPath(), JNotify.FILE_MODIFIED, false, this);
+		} catch (JNotifyException e) {
+			e.printStackTrace();
 		}
 	}
 	
+	private void removeFileWatch() {
+		if (!_enableAutoReload || _fileWatchId <= 0)
+			return;
+		try {
+			JNotify.removeWatch(_fileWatchId);
+			_fileWatchId = -1;
+		} catch (JNotifyException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void reload() {
 		try {
 			_configuration = new PropertiesConfiguration(_filename);
@@ -49,7 +65,14 @@ public class DisplayConfiguration extends Observable implements JNotifyListener,
 		notifyObservers();
 		_configHasChanged = false;
 	}
-	
+
+	public void changeConfigFile(String newFileName) {
+		removeFileWatch();
+		_filename = newFileName;
+		reload();
+		addFileWatch();
+	}
+
 	public boolean hasChanged() {
 		return _configHasChanged;
 	}

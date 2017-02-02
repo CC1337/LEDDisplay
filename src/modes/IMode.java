@@ -7,5 +7,7 @@ public interface IMode extends Runnable {
 	public void abort();
 	
 	public void end();
+	
+	public void nextConfig();
 		
 }
