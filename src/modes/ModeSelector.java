@@ -192,9 +192,8 @@ public class ModeSelector implements IModeSelector {
 	private void startMode(IMode mode) {
 		System.out.println("Starting Mode: " + mode.getClass().getName()); 
 		_currentMode = mode;
-		
-
-		new Thread(_currentMode).start();
+		_currentModeThread = new Thread(_currentMode);
+		_currentModeThread.start();
 	}
 	
 	public void nextMode() {
