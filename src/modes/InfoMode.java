@@ -7,7 +7,6 @@ import java.util.Observable;
 import java.util.Observer;
 
 import configuration.CycleableModeConfiguration;
-import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
 
 import effects.IColor;
