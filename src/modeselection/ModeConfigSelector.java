@@ -85,6 +85,7 @@ public class ModeConfigSelector extends Observable implements IModeConfigSelecto
 	public void update(Observable observable, Object arg1) {
 		if (observable instanceof IDisplayConfiguration) {
 			System.out.println(MODECONFIGSELECTOR_PROPERTIES + " updated");
+			setChanged();
 			notifyObservers();
 		}
 	}

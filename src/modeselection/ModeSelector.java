@@ -213,7 +213,7 @@ public class ModeSelector implements IModeSelector, Observer {
 	@Override
 	public void update(Observable observable, Object arg1) {
 		if (observable instanceof IModeConfigSelector) {
-			System.out.println("triggering config change for currenbt mode: " + _currentMode.modeName());
+			System.out.println("Triggering config change for current mode: " + _currentMode.modeName());
 			tryUpdateCurrentModeConfig();
 		}
 	}
