@@ -11,6 +11,9 @@ public interface IModeSelector extends Runnable {
 	/** Call to force end current and start next mode configured in mode.cycle **/
 	void nextMode();
 	
+	/** Call to force next config (modename.<int>.properties) for the current active mode */
+	void nextModeConfig();
+	
 	/** End all modes and don't start any new one, terminate ModeSelector **/
 	void shutdown();
 }

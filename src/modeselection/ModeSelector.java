@@ -8,24 +8,21 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.Callable;
 
 import org.apache.commons.configuration.ConfigurationException;
 
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
 import helper.Helper;
-import input.ButtonListener;
-import input.IButtonListener;
 import led.ILEDArray;
 import modes.IMode;
 import output.IDisplayAdaptor;
 
 public class ModeSelector implements IModeSelector, Observer {
 
-	private static final String MODELESECTOR_PROPERTIES = "modeselector.properties";
-	private static final String MODE_NEXT_GPIOPINNUMBER = "mode.next.buttonGpioPinNumber";
-	private static final String MODE_CYCLECONFIG_GPIOPINNUMBER = "mode.cycleConfig.GpioPinNumber";
+	protected static final String MODELESECTOR_PROPERTIES = "modeselector.properties";
+	protected static final String MODE_NEXT_GPIOPINNUMBER = "mode.next.buttonGpioPinNumber";
+	protected static final String MODE_CYCLECONFIG_GPIOPINNUMBER = "mode.cycleConfig.GpioPinNumber";
 	
 	private static ModeSelector __instance = null;
 	private IDisplayAdaptor _display;
@@ -36,6 +33,7 @@ public class ModeSelector implements IModeSelector, Observer {
 	private IMode _currentMode;
 	private IMode _lastConfiguredMode;
 	private IDisplayConfiguration _config;
+	private ModeSelectorButtons _modeSelectorButtons;
 	private boolean _modeEnded = false;
 	private boolean _modeCheckInProgress = false;
 	private Thread _currentModeThread;
@@ -59,8 +57,10 @@ public class ModeSelector implements IModeSelector, Observer {
 		}
 
 		_lastConfiguredMode = getModeFromConfig();
-		initNextModeButton();
-		initCycleModeConfigurationButton();
+		
+		_modeSelectorButtons = new ModeSelectorButtons(this, _config);
+		_modeSelectorButtons.initNextModeButton();
+		_modeSelectorButtons.initCycleModeConfigurationButton();
 	}
 
 
@@ -77,45 +77,6 @@ public class ModeSelector implements IModeSelector, Observer {
 		autoTriggerModeCheck();
 	}
 
-	private void initNextModeButton() {
-		String gpioPinNumber = _config.getString(MODE_NEXT_GPIOPINNUMBER, "");
-		
-		if (gpioPinNumber.isEmpty()) {
-			System.err.println("No valid \"next mode\" button configured, set " + MODE_NEXT_GPIOPINNUMBER + " in " + MODELESECTOR_PROPERTIES + " and restart the application in order to switch modes by a button.");
-			return;
-		}
-		
-		System.out.println("Next Mode button init on Pin GPIO " + gpioPinNumber);
-		IButtonListener nextModeButton = new ButtonListener(gpioPinNumber);
-		nextModeButton.setSingleTriggerCallback(new Callable<Void>() {
-			public Void call() throws Exception {
-				System.out.println("Next mode button pressed");
-				nextMode();
-				return null;
-			}
-		});
-	}
-	
-	private void initCycleModeConfigurationButton() {
-		String gpioPinNumber = _config.getString(MODE_CYCLECONFIG_GPIOPINNUMBER, "");
-		
-		if (gpioPinNumber.isEmpty()) {
-			System.err.println("No valid \"cycle mode configuration\" button configured, set " + MODE_CYCLECONFIG_GPIOPINNUMBER + " in " + MODELESECTOR_PROPERTIES + " and restart the application in order to switch mode config by a button.");
-			return;
-		}
-		
-		System.out.println("Cycle Mode Configuration button init on Pin GPIO " + gpioPinNumber);
-		IButtonListener nextModeConfigButton = new ButtonListener(gpioPinNumber);
-		nextModeConfigButton.setSingleTriggerCallback(new Callable<Void>() {
-			public Void call() throws Exception {
-				System.out.println("Cycle mode configuration button pressed");
-				_configSelector.nextConfig(_currentMode.modeName());
-				tryUpdateCurrentModeConfig();
-				return null;
-			}
-		});
-	}
-	
 	private void initConfiguredModes() throws ConfigurationException {
 		String[] availableModesConfigured = _config.getStringArray("mode.available");
 		
@@ -181,11 +142,15 @@ public class ModeSelector implements IModeSelector, Observer {
 		}
 		_modeCheckInProgress = false;
 	}
-
-	@Override
-	public void modeEnded() {
-		_modeEnded = true;
-		modeCheck();
+	
+	private IMode getModeFromConfig() {
+		String modeCurrent = _config.getString("mode.current");
+		//System.out.println("get mode, currently "+ modeCurrent);
+		if (modeCurrent != null && _modes.containsKey(modeCurrent)) {
+			return _modes.get(modeCurrent);
+		} else {
+			return _defaultMode;
+		}
 	}
 
 	private void autoTriggerModeCheck() {
@@ -206,6 +171,13 @@ public class ModeSelector implements IModeSelector, Observer {
 		_currentModeThread.start();
 	}
 	
+	@Override
+	public void modeEnded() {
+		_modeEnded = true;
+		modeCheck();
+	}
+	
+	@Override
 	public void nextMode() {
 		String[] cycleModesConfigured = _config.getStringArray("mode.cycle");
 		String newMode = _currentMode.getClass().getName();
@@ -219,31 +191,11 @@ public class ModeSelector implements IModeSelector, Observer {
 		
 		_config.setString("mode.current", newMode);
 	}
-
-	private IMode getModeFromConfig() {
-		String modeCurrent = _config.getString("mode.current");
-		//System.out.println("get mode, currently "+ modeCurrent);
-		if (modeCurrent != null && _modes.containsKey(modeCurrent)) {
-			return _modes.get(modeCurrent);
-		} else {
-			return _defaultMode;
-		}
-	}
-
+	
 	@Override
-	public void shutdown() {
-		System.out.println("ModeSelector Shutdown start");
-		_shouldShutdown = true;
-		_modeCheckTimer.cancel();
-		if (_currentMode != null)
-			_currentMode.abort();
-		if (_currentModeThread != null)
-			try {
-				_currentModeThread.join(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		System.out.println("ModeSelector Shutdown complete");
+	public void nextModeConfig() {
+		_configSelector.nextConfig(_currentMode.modeName());
+		tryUpdateCurrentModeConfig();
 	}
 	
 	private void tryUpdateCurrentModeConfig() {
@@ -266,4 +218,19 @@ public class ModeSelector implements IModeSelector, Observer {
 		}
 	}
 
+	@Override
+	public void shutdown() {
+		System.out.println("ModeSelector Shutdown start");
+		_shouldShutdown = true;
+		_modeCheckTimer.cancel();
+		if (_currentMode != null)
+			_currentMode.abort();
+		if (_currentModeThread != null)
+			try {
+				_currentModeThread.join(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		System.out.println("ModeSelector Shutdown complete");
+	}
 }

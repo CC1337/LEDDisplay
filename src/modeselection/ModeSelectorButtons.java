@@ -1,0 +1,57 @@
+package modeselection;
+
+import java.util.concurrent.Callable;
+
+import configuration.IDisplayConfiguration;
+import input.ButtonListener;
+import input.IButtonListener;
+
+public class ModeSelectorButtons {
+
+	private IDisplayConfiguration _config;
+	private ModeSelector _modeSelector;
+
+	protected ModeSelectorButtons(ModeSelector modeSelector, IDisplayConfiguration config) {
+		_config = config;
+		_modeSelector = modeSelector;
+	}
+	
+	public void initNextModeButton() {
+		String gpioPinNumber = _config.getString(ModeSelector.MODE_NEXT_GPIOPINNUMBER, "");
+		
+		if (gpioPinNumber.isEmpty()) {
+			System.err.println("No valid \"next mode\" button configured, set " + ModeSelector.MODE_NEXT_GPIOPINNUMBER + " in " + ModeSelector.MODELESECTOR_PROPERTIES + " and restart the application in order to switch modes by a button.");
+			return;
+		}
+		
+		System.out.println("Next Mode button init on Pin GPIO " + gpioPinNumber);
+		IButtonListener nextModeButton = new ButtonListener(gpioPinNumber);
+		nextModeButton.setSingleTriggerCallback(new Callable<Void>() {
+			public Void call() throws Exception {
+				System.out.println("Next mode button pressed");
+				_modeSelector.nextMode();
+				return null;
+			}
+		});
+	}
+	
+	public void initCycleModeConfigurationButton() {
+		String gpioPinNumber = _config.getString(ModeSelector.MODE_CYCLECONFIG_GPIOPINNUMBER, "");
+		
+		if (gpioPinNumber.isEmpty()) {
+			System.err.println("No valid \"cycle mode configuration\" button configured, set " + ModeSelector.MODE_CYCLECONFIG_GPIOPINNUMBER + " in " + ModeSelector.MODELESECTOR_PROPERTIES + " and restart the application in order to switch mode config by a button.");
+			return;
+		}
+		
+		System.out.println("Cycle Mode Configuration button init on Pin GPIO " + gpioPinNumber);
+		IButtonListener nextModeConfigButton = new ButtonListener(gpioPinNumber);
+		nextModeConfigButton.setSingleTriggerCallback(new Callable<Void>() {
+			public Void call() throws Exception {
+				System.out.println("Cycle mode configuration button pressed");
+				_modeSelector.nextModeConfig();
+				return null;
+			}
+		});
+	}
+	
+}
