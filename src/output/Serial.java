@@ -24,11 +24,15 @@ public class Serial implements ISerial {
 	int stopBits = SerialPort.STOPBITS_1;
 	int parity = SerialPort.PARITY_NONE;
 	String portName;
+	private String secondPortName;
+	private String firstPortName;
 	
-	public Serial(int baudrate, String portName)
+	public Serial(int baudrate, String firstPortName, String secondPortName)
 	{
 		this.baudrate = baudrate;
-		this.portName = portName;
+		this.portName = firstPortName;
+		this.firstPortName = firstPortName;
+		this.secondPortName = secondPortName;
 	}
 	
 	public boolean openSerialPort()
@@ -85,17 +89,38 @@ public class Serial implements ISerial {
 		}
 	}
 	
+	private void delayedSwapSerialPort() {
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		swapSerialPort();
+	}
+	
+	private void swapSerialPort() {
+		closeSerialPort();
+		if (portName.equals(firstPortName))
+			portName = secondPortName;
+		else
+			portName = firstPortName;
+		openSerialPort();
+	}
+	
 	public void send(byte[] bytes)
 	{
-		if (serialPortOpen != true) {
-			System.out.println("ERROR: Serial port not opened.");
-			return;
+		if (!serialPortOpen) {
+			System.err.println("ERROR: Serial port " + portName + " not opened. Retry alternate port after 1 second.");
+			delayedSwapSerialPort();
+			if (!serialPortOpen)
+				return;
 		}
 		try {
 			outputStream.write(bytes);
 		} catch (IOException e) {
-			System.out.println("Error while sending.");
 			e.printStackTrace();
+			System.out.println("Error while sending on serial port " + portName + ". Trying alternate port in 1 second.");
+			delayedSwapSerialPort();
 		}
 	}
 }

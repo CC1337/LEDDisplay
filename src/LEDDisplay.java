@@ -30,7 +30,7 @@ public class LEDDisplay implements Runnable {
 			serial = new SerialFake();
 			display = new GuiDisplayAdaptor(new OctoWS2811DisplayAdaptor(serial));
 		} else {
-			serial = new Serial(115200, "/dev/ttyACM0");
+			serial = new Serial(115200, "/dev/ttyACM0", "/dev/ttyACM1");
 			display = new OctoWS2811DisplayAdaptor(serial, 2);
 		}
 		
