@@ -8,6 +8,6 @@ public interface IMode extends Runnable {
 	
 	public void end();
 	
-	public void nextConfig();
+	public void changeConfig(String newConfigFileName);
 		
 }

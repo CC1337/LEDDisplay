@@ -67,6 +67,8 @@ public class DisplayConfiguration extends Observable implements JNotifyListener,
 	}
 
 	public void changeConfigFile(String newFileName) {
+		if (_filename.equals(newFileName))
+			return;
 		removeFileWatch();
 		_filename = newFileName;
 		reload();

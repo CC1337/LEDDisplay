@@ -1,8 +1,11 @@
 package modeselection;
 
+import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Callable;
@@ -18,7 +21,7 @@ import led.ILEDArray;
 import modes.IMode;
 import output.IDisplayAdaptor;
 
-public class ModeSelector implements IModeSelector {
+public class ModeSelector implements IModeSelector, Observer {
 
 	private static final String MODELESECTOR_PROPERTIES = "modeselector.properties";
 	private static final String MODE_NEXT_GPIOPINNUMBER = "mode.next.buttonGpioPinNumber";
@@ -27,6 +30,7 @@ public class ModeSelector implements IModeSelector {
 	private static ModeSelector __instance = null;
 	private IDisplayAdaptor _display;
 	private ILEDArray _leds;
+	private IModeConfigSelector _configSelector;
 	private LinkedHashMap<String, IMode> _modes = new LinkedHashMap<String, IMode>();
 	private IMode _defaultMode;
 	private IMode _currentMode;
@@ -39,10 +43,12 @@ public class ModeSelector implements IModeSelector {
 	private Timer _modeCheckTimer = new Timer(true);
 	private boolean krassesFlag = true;
 	
-	private ModeSelector(IDisplayAdaptor display, ILEDArray leds) {
+	private ModeSelector(IDisplayAdaptor display, ILEDArray leds, IModeConfigSelector configSelector) {
 		System.out.println("ModeSelector Init");
 		_display = display;
 		_leds = leds;
+		_configSelector = configSelector;
+		_configSelector.addObserver(this);
 		
 		_config = new DisplayConfiguration(MODELESECTOR_PROPERTIES, true);
 
@@ -58,9 +64,9 @@ public class ModeSelector implements IModeSelector {
 	}
 
 
-	public static ModeSelector getInstance(IDisplayAdaptor display, ILEDArray leds) {
+	public static ModeSelector getInstance(IDisplayAdaptor display, ILEDArray leds, IModeConfigSelector configSelector) {
 		if (__instance == null)
-			__instance = new ModeSelector(display, leds);
+			__instance = new ModeSelector(display, leds, configSelector);
 		return __instance;
 	}
 	
@@ -103,8 +109,8 @@ public class ModeSelector implements IModeSelector {
 		nextModeConfigButton.setSingleTriggerCallback(new Callable<Void>() {
 			public Void call() throws Exception {
 				System.out.println("Cycle mode configuration button pressed");
-				System.out.println(_currentMode.getClass());
-				_currentMode.nextConfig();
+				_configSelector.nextConfig(_currentMode.modeName());
+				tryUpdateCurrentModeConfig();
 				return null;
 			}
 		});
@@ -120,7 +126,10 @@ public class ModeSelector implements IModeSelector {
 		for (String modeName : availableModesConfigured) {
 			try {
 				modeName = modeName.trim();
-				IMode newMode = (IMode) Class.forName(modeName).getConstructor(IDisplayAdaptor.class, ILEDArray.class, IModeSelector.class).newInstance(_display, _leds, this);
+				Class<?> newModeClass = Class.forName(modeName);
+				IMode newMode = (IMode) newModeClass
+						.getConstructor(IDisplayAdaptor.class, ILEDArray.class, IModeSelector.class, String.class)
+						.newInstance(_display, _leds, this, _configSelector.getCurrentConfigFileName(newModeClass));
 				_modes.put(modeName, newMode);
 				
 				if (_defaultMode == null)
@@ -235,6 +244,26 @@ public class ModeSelector implements IModeSelector {
 				e.printStackTrace();
 			}
 		System.out.println("ModeSelector Shutdown complete");
+	}
+	
+	private void tryUpdateCurrentModeConfig() {
+		try {
+			_currentMode.changeConfig(_configSelector.getCurrentConfigFileName(_currentMode.modeName()));
+		} catch (FileNotFoundException e) {
+			System.err.println("Failed switching config for " + _currentMode.modeName() + " because no valid config file found.");
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Triggered if modeconfigselector config changed externally
+	 */
+	@Override
+	public void update(Observable observable, Object arg1) {
+		if (observable instanceof IModeConfigSelector) {
+			System.out.println("triggering config change for currenbt mode: " + _currentMode.modeName());
+			tryUpdateCurrentModeConfig();
+		}
 	}
 
 }

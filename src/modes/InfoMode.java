@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
 
-import configuration.CycleableModeConfiguration;
+import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
 
 import effects.IColor;
@@ -33,7 +33,7 @@ public class InfoMode implements IMode, Observer {
 	private IModeSelector _modeSelector;
 	private boolean _aborted = false;
 	private boolean _end = false;
-	private CycleableModeConfiguration _config;
+	private IDisplayConfiguration _config;
 	private FpsController _fpsController = FpsController.getInstance();
 	
 	private IColor _bgColor = null;
@@ -55,11 +55,11 @@ public class InfoMode implements IMode, Observer {
 	boolean _showSecondPixel = true;
 	
 	
-	public InfoMode(IDisplayAdaptor display, ILEDArray leds, IModeSelector modeSelector) {
+	public InfoMode(IDisplayAdaptor display, ILEDArray leds, IModeSelector modeSelector, String configFileName) {
 		_display = display;
 		_leds = leds;
 		_modeSelector = modeSelector;
-		_config = new CycleableModeConfiguration(modeName().toLowerCase(), true);
+		_config = new DisplayConfiguration(configFileName, true);
 		((Observable) _config).addObserver(this);
 	}
 	
@@ -202,7 +202,7 @@ public class InfoMode implements IMode, Observer {
 	}
 
 	@Override
-	public void nextConfig() {
-		_config.nextConfiguration();
+	public void changeConfig(String newConfigFileName) {
+		_config.changeConfigFile(newConfigFileName);
 	}
 }

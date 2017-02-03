@@ -9,7 +9,9 @@ import output.*;
 import led.*;
 import modes.LightMode;
 import modes.YayMode;
+import modeselection.IModeConfigSelector;
 import modeselection.IModeSelector;
+import modeselection.ModeConfigSelector;
 import modeselection.ModeSelector;
 
 public class LEDDisplay implements Runnable {
@@ -120,8 +122,9 @@ public class LEDDisplay implements Runnable {
 		ButtonListener.class.getName();
 		IButtonListener.class.getName();
 
-		
-		final IModeSelector modeSelector = ModeSelector.getInstance(display, leds);
+
+		IModeConfigSelector configSelector = ModeConfigSelector.getInstance();
+		final IModeSelector modeSelector = ModeSelector.getInstance(display, leds, configSelector);
 		Thread modeSelectorThread = new Thread(modeSelector);
 		modeSelectorThread.start();
 

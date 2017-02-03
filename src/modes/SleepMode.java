@@ -16,7 +16,7 @@ public class SleepMode implements IMode {
 	private boolean _end = false;
 	private FpsController _fpsController = FpsController.getInstance();
 	
-	public SleepMode(IDisplayAdaptor display, ILEDArray leds, IModeSelector modeSelector) {
+	public SleepMode(IDisplayAdaptor display, ILEDArray leds, IModeSelector modeSelector, String configFileName) {
 		_display = display;
 		_leds = leds;
 		_modeSelector = modeSelector;
@@ -61,6 +61,6 @@ public class SleepMode implements IMode {
 	}
 
 	@Override
-	public void nextConfig() {
+	public void changeConfig(String newConfigFileName) {
 	}
 }

@@ -7,7 +7,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import net.PvData;
-import configuration.CycleableModeConfiguration;
+import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
 
 import effects.IColor;
@@ -27,7 +27,7 @@ public class ClockMode implements IMode, Observer {
 	private IModeSelector _modeSelector;
 	private boolean _aborted = false;
 	private boolean _end = false;
-	private CycleableModeConfiguration _config;
+	private IDisplayConfiguration _config;
 	private PvData _pvData = PvData.getInstance();
 	private FpsController _fpsController = FpsController.getInstance();
 	
@@ -44,11 +44,11 @@ public class ClockMode implements IMode, Observer {
 	int _displayDateForSeconds = 5;
 	
 	
-	public ClockMode(IDisplayAdaptor display, ILEDArray leds, IModeSelector modeSelector) {
+	public ClockMode(IDisplayAdaptor display, ILEDArray leds, IModeSelector modeSelector, String configFileName) {
 		_display = display;
 		_leds = leds;
 		_modeSelector = modeSelector;
-		_config = new CycleableModeConfiguration(modeName().toLowerCase(), true);
+		_config = new DisplayConfiguration(configFileName, true);
 		((Observable) _config).addObserver(this);
 	}
 	
@@ -165,7 +165,7 @@ public class ClockMode implements IMode, Observer {
 	}
 
 	@Override
-	public void nextConfig() {
-		_config.nextConfiguration();
+	public void changeConfig(String newConfigFileName) {
+		_config.changeConfigFile(newConfigFileName);
 	}
 }
