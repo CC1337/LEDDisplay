@@ -3,7 +3,7 @@ import com.pi4j.io.gpio.GpioFactory;
 
 import helper.Helper;
 import led.ILEDArray;
-import modes.IModeSelector;
+import modeselection.IModeSelector;
 import output.IDisplayAdaptor;
 import output.ISerial;
 

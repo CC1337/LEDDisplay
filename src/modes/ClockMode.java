@@ -18,6 +18,7 @@ import helper.FpsController;
 import helper.Helper;
 import output.IDisplayAdaptor;
 import led.ILEDArray;
+import modeselection.IModeSelector;
 
 public class ClockMode implements IMode, Observer {
 

@@ -5,6 +5,7 @@ import effects.coloring.*;
 import helper.FpsController;
 import output.IDisplayAdaptor;
 import led.ILEDArray;
+import modeselection.IModeSelector;
 
 public class SleepMode implements IMode {
 

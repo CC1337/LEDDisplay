@@ -7,10 +7,10 @@ import input.ButtonListener;
 import input.IButtonListener;
 import output.*;
 import led.*;
-import modes.IModeSelector;
 import modes.LightMode;
-import modes.ModeSelector;
 import modes.YayMode;
+import modeselection.IModeSelector;
+import modeselection.ModeSelector;
 
 public class LEDDisplay implements Runnable {
 

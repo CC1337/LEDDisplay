@@ -1,4 +1,4 @@
-package modes;
+package modeselection;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -15,6 +15,7 @@ import helper.Helper;
 import input.ButtonListener;
 import input.IButtonListener;
 import led.ILEDArray;
+import modes.IMode;
 import output.IDisplayAdaptor;
 
 public class ModeSelector implements IModeSelector {

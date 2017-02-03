@@ -17,6 +17,7 @@ import effects.text.*;
 import helper.FpsController;
 import output.IDisplayAdaptor;
 import led.ILEDArray;
+import modeselection.IModeSelector;
 
 
 public class InfoMode implements IMode, Observer {

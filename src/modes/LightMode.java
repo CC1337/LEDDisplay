@@ -11,6 +11,7 @@ import effects.IColorableEffect;
 import helper.FpsController;
 import output.IDisplayAdaptor;
 import led.ILEDArray;
+import modeselection.IModeSelector;
 
 
 public class LightMode implements IMode, Observer {

@@ -1,4 +1,4 @@
-package modes;
+package modeselection;
 
 public interface IModeSelector extends Runnable {
 	
