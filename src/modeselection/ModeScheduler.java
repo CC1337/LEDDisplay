@@ -8,18 +8,25 @@ import it.sauronsoftware.cron4j.Scheduler;
 
 public class ModeScheduler {
 
+	private static ModeScheduler __instance;
 	private Scheduler _scheduler;
 	private File _config;
 	private String _configFileName = "modeschedule.txt";
 
-	public ModeScheduler (IModeSelector modeSelector) {
+	private ModeScheduler () {
 		try {
 			createScheduler();
-			startScheduler();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
+	
+	public static ModeScheduler getInstance(IModeSelector modeSelector) {
+		if (__instance == null)
+			__instance = new ModeScheduler();
+		return __instance;
+	}
+	
 	
 	private void createScheduler() throws FileNotFoundException {
 		if (_scheduler != null)
@@ -32,8 +39,11 @@ public class ModeScheduler {
 		_scheduler.scheduleFile(_config);
 	}
 	
-	private void startScheduler() {
+	public void start() {
 		_scheduler.start();
 	}
 	
+	public void stop() {
+		_scheduler.start();
+	}
 }

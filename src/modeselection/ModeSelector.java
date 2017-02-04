@@ -40,6 +40,7 @@ public class ModeSelector implements IModeSelector, Observer {
 	private boolean _shouldShutdown = false;
 	private Timer _modeCheckTimer = new Timer(true);
 	private boolean krassesFlag = true;
+	private ModeScheduler _modeScheduler;
 	
 	private ModeSelector(IDisplayAdaptor display, ILEDArray leds, IModeConfigSelector configSelector) {
 		System.out.println("ModeSelector Init");
@@ -61,6 +62,9 @@ public class ModeSelector implements IModeSelector, Observer {
 		_modeSelectorButtons = new ModeSelectorButtons(this, _config);
 		_modeSelectorButtons.initNextModeButton();
 		_modeSelectorButtons.initCycleModeConfigurationButton();
+		
+		_modeScheduler = ModeScheduler.getInstance(this);
+		_modeScheduler.start();
 	}
 
 
@@ -223,6 +227,7 @@ public class ModeSelector implements IModeSelector, Observer {
 		System.out.println("ModeSelector Shutdown start");
 		_shouldShutdown = true;
 		_modeCheckTimer.cancel();
+		_modeScheduler.stop();
 		if (_currentMode != null)
 			_currentMode.abort();
 		if (_currentModeThread != null)
