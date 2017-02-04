@@ -107,6 +107,12 @@ public class ModeSelector implements IModeSelector, Observer {
 		}
 	}
 	
+	@Override
+	public String getCurrentMode() {
+		return _currentMode.getClass().toString();
+	}
+	
+	@Override
 	public void modeCheck() {
 		if (_modeCheckInProgress)
 			return;
@@ -179,6 +185,18 @@ public class ModeSelector implements IModeSelector, Observer {
 	public void modeEnded() {
 		_modeEnded = true;
 		modeCheck();
+	}
+	
+	@Override
+	public boolean modeExists(String fullModeName) {
+		return _modes.containsKey(fullModeName);
+	}
+
+	@Override
+	public void startMode(String fullModeName) {
+		if (!modeExists(fullModeName))
+			System.err.println("Cannot switch to new mode because it does not exist: " + fullModeName);
+		_config.setString("mode.current", fullModeName);
 	}
 	
 	@Override

@@ -1,0 +1,2 @@
+37 	13	*	*	*	java:modeselection.ModeScheduler#setMode modes.YayMode true
+38	13	*	*	*	java:modeselection.ModeScheduler#restorePreviousMode
