@@ -15,6 +15,7 @@ public class ModeScheduler {
 
 	private ModeScheduler () {
 		try {
+			System.out.println("Creating ModeScheduler using config file " + _configFileName);
 			createScheduler();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -41,9 +42,11 @@ public class ModeScheduler {
 	
 	public void start() {
 		_scheduler.start();
+		System.out.println("ModeScheduler started");
 	}
 	
 	public void stop() {
 		_scheduler.stop();
+		System.out.println("ModeScheduler stopped");
 	}
 }
