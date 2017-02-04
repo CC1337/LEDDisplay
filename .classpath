@@ -24,5 +24,6 @@
 	<classpathentry kind="lib" path="src/libs/pi4j-1.0/lib/pi4j-service-javadoc.jar"/>
 	<classpathentry kind="lib" path="src/libs/pi4j-1.0/lib/pi4j-service-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="src/libs/pi4j-1.0/lib/pi4j-service.jar"/>
+	<classpathentry exported="true" kind="lib" path="src/libs/cron4j-2.2.5/cron4j-2.2.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
