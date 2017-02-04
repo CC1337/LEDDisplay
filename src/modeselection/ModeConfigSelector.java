@@ -1,12 +1,12 @@
 package modeselection;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Observable;
 import java.util.Observer;
 
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
+import helper.Helper;
 
 
 public class ModeConfigSelector extends Observable implements IModeConfigSelector, Observer {
@@ -39,7 +39,7 @@ public class ModeConfigSelector extends Observable implements IModeConfigSelecto
 
 	private String getCurrentConfigFileName(String modeName, boolean secondTry) throws FileNotFoundException {
 		String fileName = getFileName(modeName, getCurrentCycleValueFromConfig(modeName));
-		if (!fileExists(fileName)) {
+		if (!Helper.fileExists(fileName)) {
 			if (secondTry)
 				throw new FileNotFoundException("No valid config found for " + modeName + ", last Try was: " + fileName);
 			System.err.println("Configuration file " + fileName + " does not exist! Trying another cycle value...");
@@ -52,11 +52,11 @@ public class ModeConfigSelector extends Observable implements IModeConfigSelecto
 	public void nextConfig(String modeName) {
 		int nextCycleValue = getCurrentCycleValueFromConfig(modeName) + 1;
 		String nextFileName = getFileName(modeName, nextCycleValue);
-		if (!fileExists(nextFileName)) {
+		if (!Helper.fileExists(nextFileName)) {
 			nextCycleValue = 0;
 			nextFileName = getFileName(modeName, nextCycleValue);
 		}
-		if (!fileExists(nextFileName)) {
+		if (!Helper.fileExists(nextFileName)) {
 			System.err.println("Configuration file " + nextFileName + " MUST exist! Please create.");
 			System.out.println("Additional files for cycling with the naming pattern <modeName>.<int>.properties are optional. <int> has to start at 1 and should not contain gaps.");
 			return;
@@ -76,11 +76,6 @@ public class ModeConfigSelector extends Observable implements IModeConfigSelecto
 		return _modeConfigSelectorConfig.getInt(getCycleValueConfigKey(modeName), 0);
 	}
 	
-	private boolean fileExists(String fileName) {
-		File f = new File(fileName);
-		return f.exists() && !f.isDirectory();
-	}
-
 	@Override
 	public void update(Observable observable, Object arg1) {
 		if (observable instanceof IDisplayConfiguration) {

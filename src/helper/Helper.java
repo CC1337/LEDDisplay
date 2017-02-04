@@ -1,6 +1,7 @@
 package helper;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -128,5 +129,10 @@ public final class Helper {
 		long offset = rightNow.get(Calendar.ZONE_OFFSET) +
 		    rightNow.get(Calendar.DST_OFFSET);
 		return (TimeInMilliseconds + offset) % (24 * 60 * 60 * 1000);
+	}
+	
+	public static boolean fileExists(String fileName) {
+		File f = new File(fileName);
+		return f.exists() && !f.isDirectory();
 	}
 }
