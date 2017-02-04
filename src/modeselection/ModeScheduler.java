@@ -44,6 +44,6 @@ public class ModeScheduler {
 	}
 	
 	public void stop() {
-		_scheduler.start();
+		_scheduler.stop();
 	}
 }
