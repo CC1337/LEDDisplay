@@ -2,6 +2,8 @@ package modeselection;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import helper.Helper;
 import it.sauronsoftware.cron4j.Scheduler;
@@ -9,16 +11,16 @@ import it.sauronsoftware.cron4j.Scheduler;
 public class ModeScheduler {
 
 	private static ModeScheduler __instance;
+	private static String __configFileName = "modeschedule.txt";
+	private static String __lastMode = null;
 	private IModeSelector _modeSelector;
 	private Scheduler _scheduler;
 	private File _config;
-	private String _configFileName = "modeschedule.txt";
-	private static String __lastMode = null;
 
 	private ModeScheduler (IModeSelector modeSelector) {
 		_modeSelector = modeSelector;
 		try {
-			System.out.println("Creating ModeScheduler using config file " + _configFileName);
+			System.out.println("Creating ModeScheduler using config file " + __configFileName);
 			System.out.println(this.getClass().getName());
 			createScheduler();
 		} catch (Exception e) {
@@ -36,8 +38,8 @@ public class ModeScheduler {
 	private void createScheduler() throws FileNotFoundException {
 		if (_scheduler != null)
 			return;
-		if (!Helper.fileExists(_configFileName))
-			throw new FileNotFoundException("ModeScheduler init aborted, config file not found: " + _configFileName);
+		if (!Helper.fileExists(__configFileName))
+			throw new FileNotFoundException("ModeScheduler init aborted, config file not found: " + __configFileName);
 		_config = new File("modeschedule.txt");
 		_scheduler = new Scheduler();
 		_scheduler.setDaemon(true);
@@ -57,6 +59,7 @@ public class ModeScheduler {
 	public static void setMode(String[] args) {
 		String nextMode = null;
 		boolean saveCurrentMode = true;
+		int secondsDelay = 0;
 		
 		if (args.length >= 1)
 			nextMode = args[0];
@@ -64,17 +67,24 @@ public class ModeScheduler {
 		if (args.length >= 2)
 			saveCurrentMode = Boolean.valueOf(args[1]);
 		
+		if (args.length >= 3)
+			secondsDelay = parseDelay(args[2]);
+		
 		if (!isValidMode(nextMode)) {
 			System.err.println("ModeScheduler can't start new mode because it's not valid: " + nextMode);
 			System.err.println("Please specify full class name like modes.SampleMode in correct casing.");
 		}
 		
-		String currentMode = getCurrentMode();
-		if (saveCurrentMode && currentMode != null)
-			__lastMode = currentMode;
+		System.out.println("ModeScheduler Task: setMode " + nextMode + " / save current mode: " + saveCurrentMode + " / delay: " + secondsDelay + " seconds");
 		
-		System.out.println("ModeScheduler Task: setMode " + nextMode + " / save current mode: " + saveCurrentMode);
-		startModeAtModeSelector(nextMode);
+		delayedSetMode(nextMode, saveCurrentMode, secondsDelay);
+	}
+	
+	private static void delayedSetMode(String nextMode, boolean saveCurrentMode, int secondsDelay) {
+		try {
+			new Timer(true).schedule(__instance.new ModeSchedulerSetModeTimerTask(nextMode, saveCurrentMode), secondsDelay * 1000);
+		} 
+		catch (java.lang.IllegalStateException e) {}
 	}
 	
 	public static void restorePreviousMode(String[] args) {
@@ -100,5 +110,36 @@ public class ModeScheduler {
 		if (__instance == null)
 			return;
 		__instance._modeSelector.startMode(modeName);
+	}
+	
+	private static int parseDelay(String delay) {
+		int secondsDelay = 0;
+		try {
+			secondsDelay = Integer.valueOf(delay);
+		} catch (NumberFormatException e) {
+			System.err.println("Invalid delay (must be int) in " + __configFileName + ": " + delay);
+			secondsDelay = 0;
+		}
+		return secondsDelay;
+	}
+	
+	public class ModeSchedulerSetModeTimerTask extends TimerTask {
+
+		private String _nextMode;
+		private boolean _saveCurrentMode;
+
+		public ModeSchedulerSetModeTimerTask(String nextMode, boolean saveCurrentMode) {
+			_nextMode = nextMode;
+			_saveCurrentMode = saveCurrentMode;
+		}
+		
+		@Override
+		public void run() {
+			String currentMode = getCurrentMode();
+			if (_saveCurrentMode && currentMode != null)
+				__lastMode = currentMode;
+			
+			startModeAtModeSelector(_nextMode);
+		}
 	}
 }
