@@ -73,7 +73,7 @@ public class ModeScheduler {
 		if (saveCurrentMode && currentMode != null)
 			__lastMode = currentMode;
 		
-		System.out.println("ModeSchduler Task: setMode " + nextMode + " / save current mode: " + saveCurrentMode);
+		System.out.println("ModeScheduler Task: setMode " + nextMode + " / save current mode: " + saveCurrentMode);
 		startModeAtModeSelector(nextMode);
 	}
 	
