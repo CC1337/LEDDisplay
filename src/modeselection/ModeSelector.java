@@ -1,8 +1,6 @@
 package modeselection;
 
 import java.io.FileNotFoundException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Observable;
 import java.util.Observer;
@@ -39,7 +37,6 @@ public class ModeSelector implements IModeSelector, Observer {
 	private Thread _currentModeThread;
 	private boolean _shouldShutdown = false;
 	private Timer _modeCheckTimer = new Timer(true);
-	private boolean krassesFlag = true;
 	private ModeScheduler _modeScheduler;
 	
 	private ModeSelector(IDisplayAdaptor display, ILEDArray leds, IModeConfigSelector configSelector) {
@@ -118,16 +115,7 @@ public class ModeSelector implements IModeSelector, Observer {
 			return;
 
 		_modeCheckInProgress = true;
-		
-		// Hacky BDayMode switch - TODO make clean
-		String currentTime = new SimpleDateFormat("dd.MM.yyyy HH:mm").format(new Date());
-		if (currentTime.equals("19.06.2016 00:00") && krassesFlag) {
-			krassesFlag = false;
-			_currentMode.abort();
-			_config.setString("mode.current", "modes.BDayMode");
-			startMode(_modes.get("modes.BDayMode"));
-		}
-		
+
 		IMode configuredMode = getModeFromConfig();
 		if (configuredMode.getClass() != _lastConfiguredMode.getClass()) {
 			_currentMode.end();
