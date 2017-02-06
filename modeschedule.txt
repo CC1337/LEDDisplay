@@ -1,16 +1,16 @@
 # This file contains the ModeScheduler crontab for switching modes, it uses cron4j.
 # cron4j settings / syntax manual see http://www.sauronsoftware.it/projects/cron4j/manual.php
-# possible commands: java:modeselection.ModeScheduler#setMode <modeNameInclPackage> <bool:savePreviousModeToRestoreItLater>
-#		     java:modeselection.ModeScheduler#restorePreviousMode 
-# sample for switching mode everyday 13:37: 
-# 37      13      *       *       *       java:modeselection.ModeScheduler#setMode modes.YayMode true
+# possible commands: java:modeselection.ModeScheduler#setMode <modeNameInclPackage> <bool:default=true:savePreviousModeToRestoreItLater> <int:default=0:additionalDelayInSeconds>
+#		     java:modeselection.ModeScheduler#restorePreviousMode <int:default=0:additionalDelayInSeconds>
+# sample for switching mode everyday 13:37:42: 
+# 37      13      *       *       *       java:modeselection.ModeScheduler#setMode modes.YayMode true 42
 #
 # Min 	Hour	DayOfM	Month	DayOfW	Command: java:modeselection.ModeScheduler#setMode <modes.SampleMode> <true/false> OR java:modeselection.ModeScheduler#restorePreviousMode
 
-0	0	19	6	*	java:modeselection.ModeScheduler#setMode modes.BDayModeMode true
+0	0	19	6	*	java:modeselection.ModeScheduler#setMode modes.BDayMode true
 0	0	20	6	*	java:modeselection.ModeScheduler#restorePreviousMode
 37 	13	*	*	*	java:modeselection.ModeScheduler#setMode modes.YayMode true
 38	13	*	*	*	java:modeselection.ModeScheduler#restorePreviousMode
-*/10	*	*	*	*	java:modeselection.ModeScheduler#setMode modes.D0InfoMode true
-1-51/10 *	*       *       *       java:modeselection.ModeScheduler#restorePreviousMode
-
+*/5	*	*	*	*	java:modeselection.ModeScheduler#setMode modes.D0InfoMode true 
+*/5     7-20    *       *       *       java:modeselection.ModeScheduler#setMode modes.PvInfoMode false 15
+*/5    	*       *       *       *       java:modeselection.ModeScheduler#restorePreviousMode 30
