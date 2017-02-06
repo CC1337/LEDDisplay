@@ -46,16 +46,26 @@ public class ModeScheduler {
 		_scheduler.scheduleFile(_config);
 	}
 	
+	/**
+	 * Starts the scheduler, should be called once at app start
+	 */
 	public void start() {
 		_scheduler.start();
 		System.out.println("ModeScheduler started");
 	}
 	
+	/**
+	 * Stops the scheduler, should be called once at app unload
+	 */
 	public void stop() {
 		_scheduler.stop();
 		System.out.println("ModeScheduler stopped");
 	}
 	
+	/**
+	 * called from cron config file commands, sets specified mode after specified delay conditionally saving current mode for later restore.
+	 * @param String[] args, all optional, some must be convertable to another data type: <String>modeName, <boolean>savePreviousState(default true), <int>delaySeconds(default 0)
+	 */
 	public static void setMode(String[] args) {
 		String nextMode = null;
 		boolean saveCurrentMode = true;
@@ -80,20 +90,35 @@ public class ModeScheduler {
 		delayedSetMode(nextMode, saveCurrentMode, secondsDelay);
 	}
 	
+	/**
+	 * called from cron config file commands, restores previously saved mode if it exists.
+	 * @param String[] args, optional, only one convertable to int supported: <int>delaySeconds(default 0)
+	 */
+	public static void restorePreviousMode(String[] args) {
+		int secondsDelay = 0;
+		
+		if (args.length >= 1)
+			secondsDelay = parseDelay(args[0]);
+			
+		System.out.println("ModeScheduler Task: restorePreviousMode / delay: " + secondsDelay + " seconds");
+		
+		delayedRestoreLastMode(secondsDelay);
+	}
+	
 	private static void delayedSetMode(String nextMode, boolean saveCurrentMode, int secondsDelay) {
+		int delay = secondsDelay <= 0 ? 1 : secondsDelay * 1000;
 		try {
-			new Timer(true).schedule(__instance.new ModeSchedulerSetModeTimerTask(nextMode, saveCurrentMode), secondsDelay * 1000);
+			new Timer(true).schedule(__instance.new ModeSchedulerSetModeTimerTask(nextMode, saveCurrentMode), delay);
 		} 
 		catch (java.lang.IllegalStateException e) {}
 	}
 	
-	public static void restorePreviousMode(String[] args) {
-		System.out.println("ModeScheduler Task: restorePreviousMode");
-		if (__lastMode != null) {
-			startModeAtModeSelector(__lastMode);
-			__lastMode = null;
-		} else
-			System.out.println("ModeScheduler skipped restorePreviousMode because there is no previous mode saved or it has been restored already.");
+	private static void delayedRestoreLastMode(int secondsDelay) {
+		int delay = secondsDelay <= 0 ? 1 : secondsDelay * 1000;
+		try {
+			new Timer(true).schedule(__instance.new ModeSchedulerRestorePreviousModeTimerTask(), delay);
+		} 
+		catch (java.lang.IllegalStateException e) {}
 	}
 	
 	private static boolean isValidMode(String modeName) {
@@ -135,11 +160,25 @@ public class ModeScheduler {
 		
 		@Override
 		public void run() {
+			
 			String currentMode = getCurrentMode();
 			if (_saveCurrentMode && currentMode != null)
 				__lastMode = currentMode;
-			
 			startModeAtModeSelector(_nextMode);
+		}
+	}
+	
+	public class ModeSchedulerRestorePreviousModeTimerTask extends TimerTask {
+	
+		@Override
+		public void run() {
+			if (__lastMode == null) {
+				System.out.println("ModeScheduler skipped restorePreviousMode because there is no previous mode saved or it has been restored already.");
+				return;
+			}
+
+			startModeAtModeSelector(__lastMode);
+			__lastMode = null;
 		}
 	}
 }
