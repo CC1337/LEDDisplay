@@ -1,5 +1,9 @@
 package modes;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -32,6 +36,7 @@ public class BDayMode implements IMode, Observer {
 	private IColorableEffect _bg = null;
 	private IPixelatedFont _font = new PixelatedFont(new FontBold10px(), 3);
 	TextEffect _ageText = null;
+	String _configuredBirthDate = null;
 	
 	public BDayMode(IDisplayAdaptor display, ILEDArray leds, IModeSelector modeSelector, String configFileName) {
 		_display = display;
@@ -92,15 +97,38 @@ public class BDayMode implements IMode, Observer {
 	}
 	
 	private void updateData() {
-		_ageText.setText("30"); // TODO dynamic
+		Date bDay = new Date();
+		try {
+			bDay = new SimpleDateFormat("dd.MM.yyyy").parse(_configuredBirthDate);
+		} catch (ParseException e) {
+			System.err.println("Invalid birthday date in BDayMode config: " + _configuredBirthDate + " - format must be: DD.MM.YYYY");
+			e.printStackTrace();
+		}
+		_ageText.setText(String.valueOf(yearsSince(bDay)));
 	}
 	
+	private int yearsSince(Date pastDate) {
+	    Calendar present = Calendar.getInstance();
+	    Calendar past = Calendar.getInstance();
+	    past.setTime(pastDate);
+
+	    int years = 0;
+
+	    while (past.before(present)) {
+	        past.add(Calendar.YEAR, 1);
+	        if (past.before(present)) {
+	            years++;
+	        }
+	    } return years;
+	}
+
 	private void reloadConfig() {
 		System.out.println(modeName() + " config reload");
 		try {
 			String newBgColor = _config.getString("bg.Coloring", "effects.coloring.ColoringSolid");
 			String newBgEffect = _config.getString("bg.Effect", "effects.background.SolidBackgroundEffect");
 			String newTimeTextColor = _config.getString("timetext.Coloring", "effects.coloring.ColoringSolid");
+			_configuredBirthDate = _config.getString("birthday");
 
 			if (_bgColor == null || !newBgColor.endsWith(_bgColor.getClass().getCanonicalName()))
 				_bgColor = (IColor) Class.forName(newBgColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "bg.");
