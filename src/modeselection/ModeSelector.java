@@ -109,7 +109,7 @@ public class ModeSelector implements IModeSelector, Observer {
 	
 	@Override
 	public String getCurrentMode() {
-		return _currentMode.getClass().toString();
+		return _currentMode.getClass().getName().toString();
 	}
 	
 	@Override
