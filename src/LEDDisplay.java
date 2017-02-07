@@ -1,12 +1,13 @@
 import effects.animation.RandomDotEffect;
-import effects.background.*;
-import effects.coloring.*;
+
 import effects.text.*;
 import helper.Helper;
 import input.ButtonListener;
 import input.IButtonListener;
 import output.*;
 import led.*;
+import logging.LoggingConfigurer;
+
 import modes.LightMode;
 import modes.YayMode;
 import modeselection.IModeConfigSelector;
@@ -23,6 +24,8 @@ public class LEDDisplay implements Runnable {
 	@Override
 	public void run() {
 		
+		new LoggingConfigurer().readConfigFile("logging.properties");
+		
 		IDisplayAdaptor display;
 		ISerial serial = null;
 				
@@ -38,8 +41,8 @@ public class LEDDisplay implements Runnable {
 		ILEDArray leds = new LEDArray(60, 16);
 			
 		//ColoringSolid bgColor = new ColoringSolid(5, 5, 30);
-		ColoringSolid bgColor = new ColoringSolid(255, 255, 255);
-		SolidBackgroundEffect bg = new SolidBackgroundEffect(bgColor); 
+		//ColoringSolid bgColor = new ColoringSolid(255, 255, 255);
+		//SolidBackgroundEffect bg = new SolidBackgroundEffect(bgColor); 
 		/*
 		leds.applyEffect(bg);
 		display.show(leds);
