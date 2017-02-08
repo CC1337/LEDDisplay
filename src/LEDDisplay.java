@@ -28,9 +28,7 @@ public class LEDDisplay implements Runnable {
 
 	@Override
 	public void run() {
-		
-		new LoggingConfigurer().readConfigFile("logging.properties");
-		
+	
 		IDisplayAdaptor display;
 		ISerial serial = null;
 				
@@ -148,9 +146,11 @@ public class LEDDisplay implements Runnable {
 	}
 
 	public static void main(String[] args) {
+		new LoggingConfigurer().readConfigFile("logging.properties");
+		
 		Runnable runnable = new LEDDisplay();
-		new Thread(runnable).start();
-		System.out.println("LEDDisplay starting...");
+		new Thread(runnable, "Main").start();
+		LOGGER.info("LEDDisplay starting...");
 	}
 
 }
