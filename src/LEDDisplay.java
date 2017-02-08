@@ -131,7 +131,7 @@ public class LEDDisplay implements Runnable {
 
 		IModeConfigSelector configSelector = ModeConfigSelector.getInstance();
 		final IModeSelector modeSelector = ModeSelector.getInstance(display, leds, configSelector);
-		Thread modeSelectorThread = new Thread(modeSelector);
+		Thread modeSelectorThread = new Thread(modeSelector, "ModeSel");
 		modeSelectorThread.start();
 
 		Thread shutdownHook = new ShutdownHook(serial, display, leds, modeSelector);
@@ -149,7 +149,7 @@ public class LEDDisplay implements Runnable {
 		new LoggingConfigurer().readConfigFile("logging.properties");
 		
 		Runnable runnable = new LEDDisplay();
-		new Thread(runnable, "Main").start();
+		new Thread(runnable, "Display").start();
 		LOGGER.info("LEDDisplay starting...");
 	}
 

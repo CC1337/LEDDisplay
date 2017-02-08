@@ -168,7 +168,7 @@ public class ModeSelector implements IModeSelector, Observer {
 	private void startMode(IMode mode) {
 		LOGGER.info("Starting Mode: " + mode.getClass().getName());
 		_currentMode = mode;
-		_currentModeThread = new Thread(_currentMode);
+		_currentModeThread = new Thread(_currentMode, _currentMode.modeName().replace("Mode", "M"));
 		_currentModeThread.start();
 	}
 
