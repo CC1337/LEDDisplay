@@ -1,10 +1,12 @@
 package modes;
 
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.logging.Logger;
 
 import net.PvData;
 import configuration.DisplayConfiguration;
@@ -22,6 +24,7 @@ import modeselection.IModeSelector;
 
 public class ClockMode implements IMode, Observer {
 
+	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	private IDisplayAdaptor _display;
 	private ILEDArray _leds;
 	private IModeSelector _modeSelector;

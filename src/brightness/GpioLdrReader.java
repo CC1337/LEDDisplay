@@ -1,6 +1,9 @@
 package brightness;
 
 
+import java.lang.invoke.MethodHandles;
+import java.util.logging.Logger;
+
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.GpioPinDigitalMultipurpose;
@@ -13,6 +16,7 @@ import helper.Helper;
 
 public class GpioLdrReader implements IBrightnessSensorReader {
 
+	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	final GpioController _gpio = GpioFactory.getInstance();
 	private GpioPinDigitalMultipurpose _ldrPin;
 	private int _lastValue = 0;

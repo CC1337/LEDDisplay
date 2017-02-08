@@ -1,3 +1,6 @@
+import java.lang.invoke.MethodHandles;
+import java.util.logging.Logger;
+
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 
@@ -10,6 +13,7 @@ import output.ISerial;
 
 public class ShutdownHook extends Thread {
 	
+	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	private ISerial _serial;
 	private IDisplayAdaptor _display;
 	private ILEDArray _leds;

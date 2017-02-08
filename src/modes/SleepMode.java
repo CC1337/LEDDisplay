@@ -1,5 +1,8 @@
 package modes;
 
+import java.lang.invoke.MethodHandles;
+import java.util.logging.Logger;
+
 import effects.background.SolidBackgroundEffect;
 import effects.coloring.*;
 import helper.FpsController;
@@ -9,6 +12,7 @@ import modeselection.IModeSelector;
 
 public class SleepMode implements IMode {
 
+	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	private IDisplayAdaptor _display;
 	private ILEDArray _leds;
 	private IModeSelector _modeSelector;

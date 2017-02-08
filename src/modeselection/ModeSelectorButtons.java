@@ -1,6 +1,8 @@
 package modeselection;
 
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.Callable;
+import java.util.logging.Logger;
 
 import configuration.IDisplayConfiguration;
 import input.ButtonListener;
@@ -8,6 +10,7 @@ import input.IButtonListener;
 
 public class ModeSelectorButtons {
 
+	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	private IDisplayConfiguration _config;
 	private ModeSelector _modeSelector;
 

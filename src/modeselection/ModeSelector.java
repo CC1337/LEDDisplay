@@ -1,11 +1,13 @@
 package modeselection;
 
 import java.io.FileNotFoundException;
+import java.lang.invoke.MethodHandles;
 import java.util.LinkedHashMap;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Logger;
 
 import org.apache.commons.configuration.ConfigurationException;
 
@@ -21,6 +23,7 @@ public class ModeSelector implements IModeSelector, Observer {
 	protected static final String MODELESECTOR_PROPERTIES = "modeselector.properties";
 	protected static final String MODE_NEXT_GPIOPINNUMBER = "mode.next.buttonGpioPinNumber";
 	protected static final String MODE_CYCLECONFIG_GPIOPINNUMBER = "mode.cycleConfig.GpioPinNumber";
+	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	
 	private static ModeSelector __instance = null;
 	private IDisplayAdaptor _display;

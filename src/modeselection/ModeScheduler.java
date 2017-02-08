@@ -2,8 +2,10 @@ package modeselection;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.invoke.MethodHandles;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Logger;
 
 import helper.Helper;
 import it.sauronsoftware.cron4j.Scheduler;
@@ -13,6 +15,7 @@ public class ModeScheduler {
 	private static ModeScheduler __instance;
 	private static String __configFileName = "modeschedule.txt";
 	private static String __lastMode = null;
+	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	private IModeSelector _modeSelector;
 	private Scheduler _scheduler;
 	private File _config;

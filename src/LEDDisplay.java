@@ -1,3 +1,6 @@
+import java.lang.invoke.MethodHandles;
+import java.util.logging.Logger;
+
 import effects.animation.RandomDotEffect;
 
 import effects.text.*;
@@ -17,6 +20,8 @@ import modeselection.ModeSelector;
 
 public class LEDDisplay implements Runnable {
 
+	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
+	
 	public LEDDisplay() {
 
 	}

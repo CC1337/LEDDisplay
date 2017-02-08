@@ -1,11 +1,14 @@
 package brightness;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Observable;
+import java.util.logging.Logger;
 
 import helper.Helper;
 
 public class BrightnessReaderThread extends Observable implements Runnable {
 
+	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	private IBrightnessSensorReader _brightnessReader;
 	private int _brightnessDiffNotificationThreshold;
 	private int _lastNotifiedBrightnessValue;

@@ -1,8 +1,10 @@
 package brightness;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.Callable;
+import java.util.logging.Logger;
 
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
@@ -17,7 +19,8 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 	private static final String BRIGHTNESS_BUTTON_CYCLEVALUES = "Brightness.Button.CycleValues";
 	private static final String BRIGHTNESS_BUTTON_GPIOPINNUMBER = "Brightness.Button.GpioPinNumber";
 	private static final String BRIGHTNESS_AUTOBRIGHTNESS_LDRGPIOPINNUMBER = "Brightness.AutoBrightness.LdrGpioPinNumber";
-	
+
+	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	private static IBrightnessCorrection _instance;
 	private DisplayConfiguration _config;
 	private int _currentBrightness;

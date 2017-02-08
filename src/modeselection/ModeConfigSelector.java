@@ -1,8 +1,10 @@
 package modeselection;
 
 import java.io.FileNotFoundException;
+import java.lang.invoke.MethodHandles;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.logging.Logger;
 
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
@@ -12,6 +14,7 @@ import helper.Helper;
 public class ModeConfigSelector extends Observable implements IModeConfigSelector, Observer {
 
 	private static final String MODECONFIGSELECTOR_PROPERTIES = "modeconfigselector.properties";
+	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
 	private static ModeConfigSelector __instance;
 	

@@ -1,6 +1,8 @@
 package input;
 
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.Callable;
+import java.util.logging.Logger;
 
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
@@ -14,6 +16,7 @@ import helper.Helper;
 
 public class ButtonListener implements IButtonListener {
 
+	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	final GpioController _gpio = Helper.isWindows() ? null : GpioFactory.getInstance();
 	final GpioPinDigitalInput _button;
 	

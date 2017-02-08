@@ -4,9 +4,11 @@ import net.contentobjects.jnotify.JNotify;
 import net.contentobjects.jnotify.JNotifyException;
 import net.contentobjects.jnotify.JNotifyListener;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Observable;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Logger;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -14,6 +16,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 
 public class DisplayConfiguration extends Observable implements JNotifyListener, IDisplayConfiguration{
 
+	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	private String _filename;
 	private boolean _enableAutoReload;
 	private boolean _configHasChanged = false;

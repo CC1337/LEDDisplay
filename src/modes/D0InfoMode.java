@@ -1,9 +1,11 @@
 package modes;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.logging.Logger;
 
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
@@ -22,6 +24,7 @@ import net.PvData;
 
 public class D0InfoMode implements IMode, Observer {
 
+	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	private IDisplayAdaptor _display;
 	private ILEDArray _leds;
 	private IModeSelector _modeSelector;

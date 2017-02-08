@@ -3,14 +3,17 @@ package effects.text;
 import net.RssReader;
 import led.ILEDArray;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.logging.Logger;
 
 import configuration.IDisplayConfiguration;
 import effects.*;
 
 public class NewsMarqueeTextEffect implements IColorableEffect {
 	
+	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	private ArrayList<RssReader> _rssReaders = new ArrayList<RssReader>();
 	private IColor _color;
 	private int _newsPerRssFeed = 3;
