@@ -28,12 +28,12 @@ public class ShutdownHook extends Thread {
 
 	@Override
 	public void run() {
-		System.out.println("Shutting down...");
+		LOGGER.info("Shutting down...");
 		shutDownModeSelector();
 		shutdownSerial();
 		if (!Helper.isWindows())
 			shutdownGpio();
-		System.out.println("Shutdown complete.");
+		LOGGER.info("Shutdown complete.");
 	}
 	
 	private void shutDownModeSelector() {

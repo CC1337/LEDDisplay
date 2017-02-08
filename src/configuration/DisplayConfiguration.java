@@ -60,7 +60,7 @@ public class DisplayConfiguration extends Observable implements JNotifyListener,
 			_configuration = new PropertiesConfiguration(_filename);
 		} catch (ConfigurationException e) {
 			e.printStackTrace();
-			System.err.println("Error reading config from " + _filename);
+			LOGGER.severe("Error reading config from " + _filename);
 		}
 		_configuration.setListDelimiter(',');
 		_configuration.setAutoSave(true);
@@ -143,7 +143,7 @@ public class DisplayConfiguration extends Observable implements JNotifyListener,
 			debouncedFileModifiedTimer = new Timer(true);
 			debouncedFileModifiedTimer.schedule(new TimerTask() {
 				public void run() {
-					System.out.println(_filename + " changed. Reloading...");
+					LOGGER.info(_filename + " changed. Reloading...");
 					reload();	
 					debouncedFileModifiedTimer.cancel();
 				}

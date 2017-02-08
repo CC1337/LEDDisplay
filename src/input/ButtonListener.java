@@ -24,10 +24,10 @@ public class ButtonListener implements IButtonListener {
 		String pinName = "GPIO " + pinNumber;
 		
 		if (_gpio == null) {
-			System.out.println("NOT using Pin " + pinName + " for ButtonListener because running on Windows w/o pi4j");
+			LOGGER.info("NOT using Pin " + pinName + " for ButtonListener because running on Windows w/o pi4j");
 			_button = null;
 		} else {
-			System.out.println("Using Pin " + pinName + " for ButtonListener");
+			LOGGER.info("Using Pin " + pinName + " for ButtonListener");
 	        _button = _gpio.provisionDigitalInputPin(RaspiPin.getPinByName(pinName), PinPullResistance.PULL_UP);
 	        _button.setDebounce(100);
 		}

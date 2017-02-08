@@ -24,7 +24,7 @@ public class GpioLdrReader implements IBrightnessSensorReader {
 
 	public GpioLdrReader(String pinNumber, int maxCapacitorUnloadNs) {
 		String pinName = "GPIO " + pinNumber;
-		System.out.println("Using Pin " + pinName + " for LDR");
+		LOGGER.info("Using Pin " + pinName + " for LDR");
 		_ldrPin = _gpio.provisionDigitalMultipurposePin(RaspiPin.getPinByName(pinName), "LDR", PinMode.DIGITAL_OUTPUT);
 		_maxCapacitorUnloadNs = maxCapacitorUnloadNs;
 	}
@@ -47,7 +47,7 @@ public class GpioLdrReader implements IBrightnessSensorReader {
 		time = time * time;
 		time = time / 100;
 		
-		//System.out.println(time);
+		//LOGGER.info(time);
 
 		_lastValue = time;
 	}

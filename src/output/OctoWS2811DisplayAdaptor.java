@@ -1,11 +1,15 @@
 package output;
 
+import java.lang.invoke.MethodHandles;
+import java.util.logging.Logger;
+
 import brightness.BrightnessCorrection;
 import brightness.IBrightnessCorrection;
 import led.*;
 
 public class OctoWS2811DisplayAdaptor implements IDisplayAdaptor{
 
+	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	private ISerial _serial;
 	private int _linesPerPin = 1;
 	private IBrightnessCorrection _brightnessCorrection;
@@ -26,9 +30,9 @@ public class OctoWS2811DisplayAdaptor implements IDisplayAdaptor{
 		_brightnessCorrection.doDimmingStep();
 		//long startTime = System.currentTimeMillis();
 		byte[] transmitArray = image2data(leds);
-		//System.out.println("transmitarray ready: " + (System.currentTimeMillis() - startTime));
+		//LOGGER.info("transmitarray ready: " + (System.currentTimeMillis() - startTime));
 		_serial.send(transmitArray);
-		//System.out.println("sent after: " + (System.currentTimeMillis() - startTime));
+		//LOGGER.info("sent after: " + (System.currentTimeMillis() - startTime));
 	}
 	
 	// *** copied & modified from "processing" movie2serial example from OctoWS2811 Lib. ***

@@ -1,6 +1,7 @@
 package net;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -8,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
@@ -16,6 +18,7 @@ import helper.Helper;
 public class PvData {
 	
 	private static PvData _instance = null;
+	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	private IDisplayConfiguration _config = new DisplayConfiguration("global.properties", false);
 	private Calendar _lastDayDataUpdate;
 	private String[] _lastDayData;
@@ -108,7 +111,7 @@ public class PvData {
 
     	for (int i=0; i< d0Values.length; i++) {
     		result[i] = selfConsumptionValues[i] - (d0Values[i] < 0 ? d0Values[i] : 0);
-    		//System.out.println("overall " + i + ": " + result[i] + "  d0: " + d0Values[i] + "  self: " + selfConsumptionValues[i]);
+    		//LOGGER.info("overall " + i + ": " + result[i] + "  d0: " + d0Values[i] + "  self: " + selfConsumptionValues[i]);
     	}
     	
     	return result;

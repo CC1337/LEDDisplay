@@ -34,13 +34,13 @@ public class SleepMode implements IMode {
 	@Override
 	public void abort() {
 		_aborted = true;
-		System.out.println(modeName() + " abort() called");
+		LOGGER.fine(modeName() + " abort() called");
 	}
 
 	@Override
 	public void end() {
 		_end = true;
-		System.out.println(modeName() + " end() called");
+		LOGGER.fine(modeName() + " end() called");
 	}
 
 	@Override
@@ -61,7 +61,7 @@ public class SleepMode implements IMode {
 			_fpsController.waitForNextFrame();
 		}
 		_modeSelector.modeEnded();
-		System.out.println(modeName() + " exit");
+		LOGGER.info(modeName() + " exit");
 	}
 
 	@Override

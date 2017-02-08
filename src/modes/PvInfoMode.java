@@ -65,13 +65,13 @@ public class PvInfoMode implements IMode, Observer {
 	@Override
 	public void abort() {
 		_aborted = true;
-		System.out.println(modeName() + " abort() called");
+		LOGGER.info(modeName() + " abort() called");
 	}
 
 	@Override
 	public void end() {
 		_end = true;
-		System.out.println(modeName() + " end() called");
+		LOGGER.fine(modeName() + " end() called");
 	}
 
 	@Override
@@ -95,7 +95,7 @@ public class PvInfoMode implements IMode, Observer {
 			_fpsController.waitForNextFrame();
 		}
 		_modeSelector.modeEnded();
-		System.out.println(modeName() + " exit");
+		LOGGER.fine(modeName() + " exit");
 	}
 	
 	private void updateData() {
@@ -126,7 +126,7 @@ public class PvInfoMode implements IMode, Observer {
 	}
 
 	private void reloadConfig() {
-		System.out.println(modeName() + " config reload");
+		LOGGER.info(modeName() + " config reload");
 		try {
 			_updateIntervalMinutes = _config.getInt("updateIntervalMinutes", 5);
 			
@@ -166,7 +166,7 @@ public class PvInfoMode implements IMode, Observer {
 	@Override
 	public void update(Observable observable, Object arg1) {
 		if (observable instanceof IDisplayConfiguration) {
-			System.out.println(modeName() + " config updated");
+			LOGGER.info(modeName() + " config updated");
 			reloadConfig();		
 		}
 	}

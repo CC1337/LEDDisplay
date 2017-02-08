@@ -63,13 +63,13 @@ public class ClockMode implements IMode, Observer {
 	@Override
 	public void abort() {
 		_aborted = true;
-		System.out.println(modeName() + " abort() called");
+		LOGGER.fine(modeName() + " abort() called");
 	}
 
 	@Override
 	public void end() {
 		_end = true;
-		System.out.println(modeName() + " abort() called");
+		LOGGER.fine(modeName() + " abort() called");
 	}
 
 	@Override
@@ -119,11 +119,11 @@ public class ClockMode implements IMode, Observer {
 			_fpsController.waitForNextFrame();
 		}
 		_modeSelector.modeEnded();
-		System.out.println(modeName() + " exit");
+		LOGGER.info(modeName() + " exit");
 	}
 	
 	private void reloadConfig() {
-		System.out.println(modeName() + " config reload");
+		LOGGER.info(modeName() + " config reload");
 		try {
 			_displayDateEverySeconds = _config.getInt("displayDateEverySeconds", 30);
 			_displayDateForSeconds = _config.getInt("displayDateForSeconds", 5);
@@ -162,7 +162,7 @@ public class ClockMode implements IMode, Observer {
 	@Override
 	public void update(Observable observable, Object arg1) {
 		if (observable instanceof IDisplayConfiguration) {
-			System.out.println(modeName() + " config updated");
+			LOGGER.info(modeName() + " config updated");
 			reloadConfig();		
 		}
 	}

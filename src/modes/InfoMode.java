@@ -74,13 +74,13 @@ public class InfoMode implements IMode, Observer {
 	@Override
 	public void abort() {
 		_aborted = true;
-		System.out.println(modeName() + " abort() called");
+		LOGGER.fine(modeName() + " abort() called");
 	}
 
 	@Override
 	public void end() {
 		_end = true;
-		System.out.println(modeName() + " end() called");
+		LOGGER.fine(modeName() + " end() called");
 	}
 
 	@Override
@@ -148,11 +148,11 @@ public class InfoMode implements IMode, Observer {
 			_fpsController.waitForNextFrame();
 		}
 		_modeSelector.modeEnded();
-		System.out.println(modeName() + " exit");
+		LOGGER.info(modeName() + " exit");
 	}
 	
 	private void reloadConfig() {
-		System.out.println(modeName() + " config reload");
+		LOGGER.info(modeName() + " config reload");
 		try {
 			_infoChangeDelay = _config.getInt("infoChangeDelay", 5);
 			_newsEnabled = _config.getInt("newsEnabled", 1);
@@ -199,7 +199,7 @@ public class InfoMode implements IMode, Observer {
 	@Override
 	public void update(Observable observable, Object arg1) {
 		if (observable instanceof IDisplayConfiguration) {
-			System.out.println(modeName() + " config updated");
+			LOGGER.info(modeName() + " config updated");
 			reloadConfig();		
 		}
 	}

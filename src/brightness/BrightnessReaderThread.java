@@ -28,7 +28,7 @@ public class BrightnessReaderThread extends Observable implements Runnable {
 	
 	@Override
 	public void run() {
-		System.out.println("BrightnessReaderThread started.");
+		LOGGER.info("BrightnessReaderThread started.");
 		while (42 < 1337) {
 			checkAndNotifyBrightness();
 			

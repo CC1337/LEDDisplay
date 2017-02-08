@@ -45,7 +45,7 @@ public class ModeConfigSelector extends Observable implements IModeConfigSelecto
 		if (!Helper.fileExists(fileName)) {
 			if (secondTry)
 				throw new FileNotFoundException("No valid config found for " + modeName + ", last Try was: " + fileName);
-			System.err.println("Configuration file " + fileName + " does not exist! Trying another cycle value...");
+			LOGGER.severe("Configuration file " + fileName + " does not exist! Trying another cycle value...");
 			nextConfig(modeName);
 			return getCurrentConfigFileName(modeName, true);
 		}
@@ -60,8 +60,8 @@ public class ModeConfigSelector extends Observable implements IModeConfigSelecto
 			nextFileName = getFileName(modeName, nextCycleValue);
 		}
 		if (!Helper.fileExists(nextFileName)) {
-			System.err.println("Configuration file " + nextFileName + " MUST exist! Please create.");
-			System.out.println("Additional files for cycling with the naming pattern <modeName>.<int>.properties are optional. <int> has to start at 1 and should not contain gaps.");
+			LOGGER.severe("Configuration file " + nextFileName + " MUST exist! Please create.");
+			LOGGER.info("Additional files for cycling with the naming pattern <modeName>.<int>.properties are optional. <int> has to start at 1 and should not contain gaps.");
 			return;
 		}
 		_modeConfigSelectorConfig.setString(getCycleValueConfigKey(modeName), String.valueOf(nextCycleValue));
@@ -82,7 +82,7 @@ public class ModeConfigSelector extends Observable implements IModeConfigSelecto
 	@Override
 	public void update(Observable observable, Object arg1) {
 		if (observable instanceof IDisplayConfiguration) {
-			System.out.println(MODECONFIGSELECTOR_PROPERTIES + " updated");
+			LOGGER.info(MODECONFIGSELECTOR_PROPERTIES + " updated");
 			setChanged();
 			notifyObservers();
 		}

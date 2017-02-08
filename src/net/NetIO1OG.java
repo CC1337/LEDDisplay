@@ -1,8 +1,10 @@
 package net;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.Calendar;
 import java.util.List;
+import java.util.logging.Logger;
 
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
@@ -11,6 +13,7 @@ import helper.Helper;
 public class NetIO1OG {
 	
 	private static NetIO1OG _instance = null;
+	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	private IDisplayConfiguration _config = new DisplayConfiguration("global.properties", false);
 	private Calendar _lastUpdate;
 	private String[] _lastData;

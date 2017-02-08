@@ -1,7 +1,9 @@
 package net;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Calendar;
 import java.util.List;
+import java.util.logging.Logger;
 
 import net.rss.Feed;
 import net.rss.FeedMessage;
@@ -9,6 +11,7 @@ import net.rss.RSSFeedParser;
 
 public class RssReader {
 	
+	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	private Calendar _lastUpdate;
 	private Feed _lastData;
 	private String _url;
@@ -44,7 +47,7 @@ public class RssReader {
 
 		try
 		{
-			System.out.println("Reading RSS Feed: " + _url);
+			LOGGER.info("Reading RSS Feed: " + _url);
 	       _lastData = _rssReader.readFeed();
 	    }
 	    catch (Exception e) {

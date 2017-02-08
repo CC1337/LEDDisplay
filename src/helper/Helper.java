@@ -51,7 +51,7 @@ public final class Helper {
 	}
 	
 	public static URLConnection getUrlConnection(String address) {
-		System.out.println("Loading data from " + address + "...");
+		LOGGER.info("Loading data from " + address + "...");
 		
 		URLConnection urlConn = null;
 		try {
@@ -64,7 +64,7 @@ public final class Helper {
 		    {
 		       HttpURLConnection httpConnection = (HttpURLConnection) urlConn;
 		       if (httpConnection.getResponseCode() != 200) {
-		    	   System.out.println("HTTP Error: " + httpConnection.getResponseCode());
+		    	   LOGGER.info("HTTP Error: " + httpConnection.getResponseCode());
 		    	   return null;
 		       }
 		    }

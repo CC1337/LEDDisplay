@@ -23,8 +23,7 @@ public class ModeScheduler {
 	private ModeScheduler (IModeSelector modeSelector) {
 		_modeSelector = modeSelector;
 		try {
-			System.out.println("Creating ModeScheduler using config file " + __configFileName);
-			System.out.println(this.getClass().getName());
+			LOGGER.info("Creating ModeScheduler using config file " + __configFileName);
 			createScheduler();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -54,7 +53,7 @@ public class ModeScheduler {
 	 */
 	public void start() {
 		_scheduler.start();
-		System.out.println("ModeScheduler started");
+		LOGGER.info("ModeScheduler started");
 	}
 	
 	/**
@@ -62,7 +61,7 @@ public class ModeScheduler {
 	 */
 	public void stop() {
 		_scheduler.stop();
-		System.out.println("ModeScheduler stopped");
+		LOGGER.info("ModeScheduler stopped");
 	}
 	
 	/**
@@ -84,11 +83,11 @@ public class ModeScheduler {
 			secondsDelay = parseDelay(args[2]);
 		
 		if (!isValidMode(nextMode)) {
-			System.err.println("ModeScheduler can't start new mode because it's not valid: " + nextMode);
-			System.err.println("Please specify full class name like modes.SampleMode in correct casing.");
+			LOGGER.severe("ModeScheduler can't start new mode because it's not valid: " + nextMode);
+			LOGGER.severe("Please specify full class name like modes.SampleMode in correct casing.");
 		}
 		
-		System.out.println("ModeScheduler Task: setMode " + nextMode + " / save current mode: " + saveCurrentMode + " / delay: " + secondsDelay + " seconds");
+		LOGGER.info("ModeScheduler Task: setMode " + nextMode + " / save current mode: " + saveCurrentMode + " / delay: " + secondsDelay + " seconds");
 		
 		delayedSetMode(nextMode, saveCurrentMode, secondsDelay);
 	}
@@ -103,7 +102,7 @@ public class ModeScheduler {
 		if (args.length >= 1)
 			secondsDelay = parseDelay(args[0]);
 			
-		System.out.println("ModeScheduler Task: restorePreviousMode / delay: " + secondsDelay + " seconds");
+		LOGGER.info("ModeScheduler Task: restorePreviousMode / delay: " + secondsDelay + " seconds");
 		
 		delayedRestoreLastMode(secondsDelay);
 	}
@@ -145,7 +144,7 @@ public class ModeScheduler {
 		try {
 			secondsDelay = Integer.valueOf(delay);
 		} catch (NumberFormatException e) {
-			System.err.println("Invalid delay (must be int) in " + __configFileName + ": " + delay);
+			LOGGER.severe("Invalid delay (must be int) in " + __configFileName + ": " + delay);
 			secondsDelay = 0;
 		}
 		return secondsDelay;
@@ -176,7 +175,7 @@ public class ModeScheduler {
 		@Override
 		public void run() {
 			if (__lastMode == null) {
-				System.out.println("ModeScheduler skipped restorePreviousMode because there is no previous mode saved or it has been restored already.");
+				LOGGER.info("ModeScheduler skipped restorePreviousMode because there is no previous mode saved or it has been restored already.");
 				return;
 			}
 

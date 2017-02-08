@@ -2,7 +2,9 @@ package output;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.invoke.MethodHandles;
 import java.util.Enumeration;
+import java.util.logging.Logger;
 
 import gnu.io.CommPortIdentifier;
 import gnu.io.PortInUseException;
@@ -11,6 +13,7 @@ import gnu.io.UnsupportedCommOperationException;
 
 public class Serial implements ISerial {
 
+	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	private CommPortIdentifier serialPortId;
 	private Enumeration enumComm;
 	private SerialPort serialPort;
@@ -37,11 +40,11 @@ public class Serial implements ISerial {
 	{
 		Boolean foundPort = false;
 		if (serialPortOpen != false) {
-			System.out.println("Serial port " + portName + " already opened.");
+			LOGGER.info("Serial port " + portName + " already opened.");
 			return false;
 		}
 		
-		System.out.println("Opening serial port "+ portName);
+		LOGGER.info("Opening serial port "+ portName);
 		
 		enumComm = CommPortIdentifier.getPortIdentifiers();
 		while(enumComm.hasMoreElements()) {
@@ -52,29 +55,29 @@ public class Serial implements ISerial {
 			}
 		}
 		if (foundPort != true) {
-			System.out.println("Serial port not found: " + portName);
+			LOGGER.warning("Serial port not found: " + portName);
 			return false;
 		}
 		try {
 			serialPort = (SerialPort) serialPortId.open("oeffnen und Senden", 500);
 		} catch (PortInUseException e) {
-			System.out.println("Serial port " + portName + " busy");
+			LOGGER.warning("Serial port " + portName + " busy");
 			e.printStackTrace();
 		}
 		try {
 			outputStream = serialPort.getOutputStream();
 		} catch (IOException e) {
-			System.out.println("No access to serial port output stream on " + portName);
+			LOGGER.warning("No access to serial port output stream on " + portName);
 			e.printStackTrace();
 		}
 		try {
 			serialPort.setSerialPortParams(baudrate, dataBits, stopBits, parity);
 		} catch(UnsupportedCommOperationException e) {
-			System.out.println("Can't set serial port parameters on " + portName);
+			LOGGER.warning("Can't set serial port parameters on " + portName);
 			e.printStackTrace();
 		}
 		
-		System.out.println("Serial port " + portName + " opened successfully.");
+		LOGGER.info("Serial port " + portName + " opened successfully.");
 		serialPortOpen = true;
 		return true;
 	}
@@ -82,11 +85,11 @@ public class Serial implements ISerial {
 	public void closeSerialPort()
 	{
 		if ( serialPortOpen == true) {
-			System.out.println("Closing serial port " + portName);
+			LOGGER.info("Closing serial port " + portName);
 			serialPort.close();
 			serialPortOpen = false;
 		} else {
-			System.out.println("Serial port " + portName + " already closed.");
+			LOGGER.info("Serial port " + portName + " already closed.");
 		}
 	}
 	
@@ -111,7 +114,7 @@ public class Serial implements ISerial {
 	public void send(byte[] bytes)
 	{
 		if (!serialPortOpen) {
-			System.err.println("ERROR: Serial port " + portName + " not opened. Retry alternate port after 1 second.");
+			LOGGER.severe("ERROR: Serial port " + portName + " not opened. Retry alternate port after 1 second.");
 			delayedSwapSerialPort();
 			if (!serialPortOpen)
 				return;
@@ -120,7 +123,7 @@ public class Serial implements ISerial {
 			outputStream.write(bytes);
 		} catch (IOException e) {
 			e.printStackTrace();
-			System.err.println("Error while sending on serial port " + portName + ". Trying alternate port in 1 second.");
+			LOGGER.severe("Error while sending on serial port " + portName + ". Trying alternate port in 1 second.");
 			delayedSwapSerialPort();
 		}
 	}

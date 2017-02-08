@@ -23,15 +23,15 @@ public class ModeSelectorButtons {
 		String gpioPinNumber = _config.getString(ModeSelector.MODE_NEXT_GPIOPINNUMBER, "");
 		
 		if (gpioPinNumber.isEmpty()) {
-			System.err.println("No valid \"next mode\" button configured, set " + ModeSelector.MODE_NEXT_GPIOPINNUMBER + " in " + ModeSelector.MODELESECTOR_PROPERTIES + " and restart the application in order to switch modes by a button.");
+			LOGGER.severe("No valid \"next mode\" button configured, set " + ModeSelector.MODE_NEXT_GPIOPINNUMBER + " in " + ModeSelector.MODELESECTOR_PROPERTIES + " and restart the application in order to switch modes by a button.");
 			return;
 		}
 		
-		System.out.println("Next Mode button init on Pin GPIO " + gpioPinNumber);
+		LOGGER.info("Next Mode button init on Pin GPIO " + gpioPinNumber);
 		IButtonListener nextModeButton = new ButtonListener(gpioPinNumber);
 		nextModeButton.setSingleTriggerCallback(new Callable<Void>() {
 			public Void call() throws Exception {
-				System.out.println("Next mode button pressed");
+				LOGGER.info("Next mode button pressed");
 				_modeSelector.nextMode();
 				return null;
 			}
@@ -42,15 +42,15 @@ public class ModeSelectorButtons {
 		String gpioPinNumber = _config.getString(ModeSelector.MODE_CYCLECONFIG_GPIOPINNUMBER, "");
 		
 		if (gpioPinNumber.isEmpty()) {
-			System.err.println("No valid \"cycle mode configuration\" button configured, set " + ModeSelector.MODE_CYCLECONFIG_GPIOPINNUMBER + " in " + ModeSelector.MODELESECTOR_PROPERTIES + " and restart the application in order to switch mode config by a button.");
+			LOGGER.severe("No valid \"cycle mode configuration\" button configured, set " + ModeSelector.MODE_CYCLECONFIG_GPIOPINNUMBER + " in " + ModeSelector.MODELESECTOR_PROPERTIES + " and restart the application in order to switch mode config by a button.");
 			return;
 		}
 		
-		System.out.println("Cycle Mode Configuration button init on Pin GPIO " + gpioPinNumber);
+		LOGGER.info("Cycle Mode Configuration button init on Pin GPIO " + gpioPinNumber);
 		IButtonListener nextModeConfigButton = new ButtonListener(gpioPinNumber);
 		nextModeConfigButton.setSingleTriggerCallback(new Callable<Void>() {
 			public Void call() throws Exception {
-				System.out.println("Cycle mode configuration button pressed");
+				LOGGER.info("Cycle mode configuration button pressed");
 				_modeSelector.nextModeConfig();
 				return null;
 			}

@@ -65,8 +65,8 @@ public class NewsMarqueeTextEffect implements IColorableEffect {
 		try {
 			_color = (IColor) Class.forName(colorName).getConstructor(IDisplayConfiguration.class, String.class).newInstance(config, configPrefix);
 		} catch (Exception exception) {
-			System.out.println("Configured NewsMarqueeTextEffect color '" + configPrefix + colorName + "' not found!" );
-			System.out.println(exception);
+			LOGGER.severe("Configured NewsMarqueeTextEffect color '" + configPrefix + colorName + "' not found!" );
+			LOGGER.severe(exception.toString());
 		}
 	}
 	
@@ -100,7 +100,7 @@ public class NewsMarqueeTextEffect implements IColorableEffect {
 		}
 		if (result.isEmpty())
 			return "No News available :(";
-		System.out.println(result);
+		LOGGER.info(result);
 		return result;
 	}
 	
