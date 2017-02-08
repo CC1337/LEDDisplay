@@ -16,7 +16,7 @@ public class NetIO1OG {
 	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	private IDisplayConfiguration _config = new DisplayConfiguration("global.properties", false);
 	private Calendar _lastUpdate;
-	private String[] _lastData;
+	private String[] _lastData = new String[0];
 	 
     public static NetIO1OG getInstance() {
         if (_instance == null) {
@@ -151,7 +151,7 @@ public class NetIO1OG {
     }
 
     private String getDataByIndex(int index) {
-    	updateDayData();
+    	updateData();
     	if (_lastData.length < index + 1)
     		return "";
     	
@@ -162,11 +162,23 @@ public class NetIO1OG {
     	return _config.getInt("net.pvdata.maxPossiblePac", 8000);
     }
     
-    private void updateDayData() {
+    private void updateData() {
     	if (_lastData != null && lastResultValid(_lastUpdate, 1))
     		return;
-
-		try
+    	
+    	Thread thread = new Thread(() -> {
+    		tryFetchData();	
+			}, "NETIOUpd");
+    	thread.setDaemon(true);
+    	// Run synchronous if app start / first run
+    	if (_lastUpdate == null)
+    		thread.run();
+    	else
+    		thread.start();
+    }
+    
+    private void tryFetchData() {
+    	try
 		{
 		   	List<String> resultList = Helper.getFileAsList(_config.getString("net.netio_1og.url"));
 		   	if (resultList.size() == 0)
@@ -181,6 +193,7 @@ public class NetIO1OG {
 		    _lastUpdate = Calendar.getInstance();
 	    }
 	    catch (IOException exception) {
+	    	LOGGER.severe(exception.getMessage());
 	    	exception.printStackTrace();
 	    	_lastData = new String[0];
 		    _lastUpdate = Calendar.getInstance();

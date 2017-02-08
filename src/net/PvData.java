@@ -1,7 +1,6 @@
 package net;
 
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
 import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -9,7 +8,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Logger;
 
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
@@ -18,13 +16,15 @@ import helper.Helper;
 public class PvData {
 	
 	private static PvData _instance = null;
-	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	private IDisplayConfiguration _config = new DisplayConfiguration("global.properties", false);
 	private Calendar _lastDayDataUpdate;
-	private String[] _lastDayData;
+	private boolean _lastDayDataLoading = false;
+	private String[] _lastDayData = null;
 	private Calendar _lastD0DayDataUpdate;
-	private String[] _lastD0DayData;
-	private String[] _yesterdayD0DayData = new String[0];
+	private boolean _lastD0DayDataLoading = false;
+	private String[] _lastD0DayData = null;
+	private boolean _yesterdayD0DayDataLoading = false;
+	private String[] _yesterdayD0DayData = null;
 	private int _yesterdayD0DayDataFromDayOfWeek = -1;
 	 
     public static PvData getInstance() {
@@ -267,12 +267,18 @@ public class PvData {
     }
     
     public int getD0ToPvDatasetsEndOffset() {
+    	if (getLastD0TodayUpdateTime() == null || getLastPvUpdateTime() == null)
+    		return 0;
+    	
     	long offsetTime = getLastD0TodayUpdateTime().getTime() - getLastPvUpdateTime().getTime();
     	
     	return getNumDatasetsForTimeframe(offsetTime);
     }
     
     public int getD0ToPvDatasetsStartOffset() {
+    	if (getPvStartTime() == null || getDateNow() == null)
+    		return 0;
+    	
     	long offsetTime = Math.min(
     			Helper.getMillisecondsSinceMidnight(getPvStartTime().getTime()), 
     			Helper.getMillisecondsSinceMidnight(getDateNow().getTime())
@@ -282,6 +288,9 @@ public class PvData {
     }
     
     public int getNowToPvEndTimeDatasetsOffset() {
+    	if (getPvEndTime() == null || getDateNow() == null)
+    		return 0;
+    	
     	long offsetTime = getPvEndTime().getTime() - getDateNow().getTime();
     	    	
     	return getNumDatasetsForTimeframe(offsetTime);
@@ -349,10 +358,24 @@ public class PvData {
     }
     
     private void updateDayData() {
-    	if (_lastDayData != null && lastResultValid(_lastDayDataUpdate, 1))
+    	if (_lastDayData != null && lastResultValid(_lastDayDataUpdate, 1) || _lastDayDataLoading)
     		return;
 
-		try
+    	_lastDayDataLoading = true;
+    	Thread thread = new Thread(() -> {
+    		tryFetchDayData();
+    		_lastDayDataLoading = false;
+			}, "PvDayDataUpd");
+    	thread.setDaemon(true);
+    	// Run synchronous if app start / first run
+    	if (_lastDayData == null)
+    		thread.run();
+    	else
+    		thread.start();
+    }
+    
+    private void tryFetchDayData() {
+    	try
 		{
 	        URLConnection urlConn = Helper.getUrlConnection(getDayDataUrl(getDateNow()));
 		    if (urlConn == null) {
@@ -373,14 +396,29 @@ public class PvData {
 	    catch (IOException exception) {
 	    	exception.printStackTrace();
 	    }
-
     }
 
     private void updateD0DayData() {
-    	if (_lastD0DayData != null && lastResultValid(_lastD0DayDataUpdate, 1))
+    	if (_lastD0DayData != null && lastResultValid(_lastD0DayDataUpdate, 1) || _lastD0DayDataLoading)
     		return;
 
-		try
+    	_lastD0DayDataLoading = true;
+    	Thread thread = new Thread(() -> {
+			tryFetchD0DayData();	
+			_lastD0DayDataLoading = false;
+			}, "PvD0DataUpd");
+    	thread.setDaemon(true);
+    	// Run synchronous if app start / first run
+    	if (_lastD0DayData == null)
+    		thread.run();
+    	else
+    		thread.start();
+    	
+		updateYesterdayD0DayData();
+    }
+    
+    private void tryFetchD0DayData() {
+    	try
 		{
 	        URLConnection urlConn = Helper.getUrlConnection(getD0DayDataUrl(getDateNow()));
 		    if (urlConn == null) {
@@ -402,14 +440,28 @@ public class PvData {
 	    catch (IOException exception) {
 	    	exception.printStackTrace();
 	    }
-		updateYesterdayD0DayData();
     }
     
     private void updateYesterdayD0DayData() {
-    	if (_yesterdayD0DayData != null && _yesterdayD0DayData.length > 0 && getCurrentDayOfWeek() != _yesterdayD0DayDataFromDayOfWeek)
+    	if (_yesterdayD0DayData != null && _yesterdayD0DayData.length > 0 && getCurrentDayOfWeek() != _yesterdayD0DayDataFromDayOfWeek || _yesterdayD0DayDataLoading)
     		return;
 
-		try
+    	_yesterdayD0DayDataLoading = true;
+    	Thread thread = new Thread(() -> {
+    		tryFetchYesterdayD0DayData();
+    		_yesterdayD0DayDataLoading = false;
+			}, "PvD0YDUpd");
+    	thread.setDaemon(true);
+    	// Run synchronous if app start / first run
+    	if (_yesterdayD0DayData == null)
+    		thread.run();
+    	else
+    		thread.start();
+
+    }
+    
+    private void tryFetchYesterdayD0DayData() {
+    	try
 		{
 	        URLConnection urlConn = Helper.getUrlConnection(getD0DayDataUrl(getDateYesterday()));
 	    	if (urlConn == null)
@@ -427,7 +479,6 @@ public class PvData {
 	    catch (IOException exception) {
 	    	exception.printStackTrace();
 	    }
-
     }
 
     private int getCurrentDayOfWeek() {

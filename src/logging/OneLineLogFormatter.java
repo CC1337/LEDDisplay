@@ -19,7 +19,7 @@ public class OneLineLogFormatter extends Formatter {
 		StringBuilder output = new StringBuilder()
 			.append(getStringWithLength(loggerName, 35))
 			.append(" ")
-			.append(getStringWithLength(Thread.currentThread().getName(), 9))
+			.append(getStringWithLength(Thread.currentThread().getName(), 12))
 			.append(" ")
 			.append(getStringWithLength(record.getLevel().toString(), 6))
 			.append(" ")

@@ -112,6 +112,9 @@ public class PvChartEffect extends ColorableEffectBase {
 		else if (_showOnlyPvActiveTime && (_renderData == RenderData.SELFCONSUMPTION || _renderData == RenderData.CONSUMPTION))
 			startDataset = data.length - _pvData.getD0TodayDatasetsCount() + _skipDatasetsAtStart;
 
+		if (startDataset < 0 || endDataset < startDataset)
+			return values;
+		
 		for (int i=startDataset; i<endDataset; i++) {
 			values.add(i < data.length ? data[i] : 0);
 		}

@@ -1,15 +1,11 @@
 package output;
 
-import java.lang.invoke.MethodHandles;
-import java.util.logging.Logger;
-
 import brightness.BrightnessCorrection;
 import brightness.IBrightnessCorrection;
 import led.*;
 
 public class OctoWS2811DisplayAdaptor implements IDisplayAdaptor{
 
-	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	private ISerial _serial;
 	private int _linesPerPin = 1;
 	private IBrightnessCorrection _brightnessCorrection;
