@@ -12,6 +12,8 @@ public interface ILEDArray {
 	
 	void setLed(int x, int y, int r, int g, int b);
 	
+	void blendLed(int x, int y, int r, int g, int b, double alpha);
+	
 	void reset();
 	
 	void applyEffect(IEffect effect);

@@ -1,6 +1,7 @@
 package led;
 
 import effects.IEffect;
+import helper.ColorHelper;
 
 public class LEDArray implements ILEDArray{
 
@@ -32,19 +33,31 @@ public class LEDArray implements ILEDArray{
 	}
 		
 	public LED led(int x, int y) {
-		if (x >= sizeX || y >= sizeY || x < 0 || y < 0) {
+		if (isInvalidLed(x, y)) {
 			return null;
 		}
 		return ledArray[x][y];
 	}
 	
 	public void setLed(int x, int y, int r, int g, int b) {
-		if (x >= sizeX || y >= sizeY || x < 0 || y < 0) {
+		if (isInvalidLed(x, y)) {
 			return;
 		}
 		ledArray[x][y].r(r);
 		ledArray[x][y].g(g);
 		ledArray[x][y].b(b);
+	}
+	
+	public void blendLed(int x, int y, int r, int g, int b, double alpha) {
+		if (isInvalidLed(x, y)) {
+			return;
+		}
+		ILED led = led(x, y);
+		setLed(	x, 
+				y, 
+				ColorHelper.blend(led.r(), r, alpha),
+				ColorHelper.blend(led.g(), g, alpha),
+				ColorHelper.blend(led.b(), b, alpha));
 	}
 	
 	public void reset() {
@@ -57,6 +70,10 @@ public class LEDArray implements ILEDArray{
 
 	public void applyEffect(IEffect effect) {
 		effect.apply(this);
+	}
+	
+	private boolean isInvalidLed(int x, int y) {
+		return x >= sizeX || y >= sizeY || x < 0 || y < 0;
 	}
 				
 }

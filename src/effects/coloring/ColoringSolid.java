@@ -38,15 +38,8 @@ public class ColoringSolid implements IColor {
 		byte[][] effectData = effect.getEffectData();
 		for(int x=0; x<effectData.length; x++) {
 			for(int y=0; y<effectData[0].length; y++) {
-				if (effectData[x][y] == 1) {
-					ILED led = leds.led(x+effect.getPosX(), y+effect.getPosY());
-					leds.setLed(
-							x+effect.getPosX(), 
-							y+effect.getPosY(), 
-							ColorHelper.blend(led.r(), _r, _alpha),
-							ColorHelper.blend(led.g(), _g, _alpha),
-							ColorHelper.blend(led.b(), _b, _alpha)); // TODO extra helper etc
-				}
+				if (effectData[x][y] == 1)
+					leds.blendLed(x+effect.getPosX(), y+effect.getPosY(), _r, _g, _b, _alpha);
 			}
 		}		
 	}
