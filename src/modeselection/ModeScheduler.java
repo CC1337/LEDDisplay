@@ -7,7 +7,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Logger;
 
-import helper.Helper;
+import helper.FileHelper;
 import it.sauronsoftware.cron4j.Scheduler;
 
 public class ModeScheduler {
@@ -40,7 +40,7 @@ public class ModeScheduler {
 	private void createScheduler() throws FileNotFoundException {
 		if (_scheduler != null)
 			return;
-		if (!Helper.fileExists(__configFileName))
+		if (!FileHelper.fileExists(__configFileName))
 			throw new FileNotFoundException("ModeScheduler init aborted, config file not found: " + __configFileName);
 		_config = new File("modeschedule.txt");
 		_scheduler = new Scheduler();

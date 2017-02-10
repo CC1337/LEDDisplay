@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
-import helper.Helper;
+import helper.FileHelper;
 
 public class NetIO1OG {
 
@@ -180,7 +180,7 @@ public class NetIO1OG {
 	private void tryFetchData() {
 		try
 		{
-			List<String> resultList = Helper.getFileAsList(_config.getString("net.netio_1og.url"));
+			List<String> resultList = FileHelper.getFileAsList(_config.getString("net.netio_1og.url"));
 			if (resultList.size() == 0)
 				throw new IOException("Cannot load data for NETIO 1.OG - giving up...");
 

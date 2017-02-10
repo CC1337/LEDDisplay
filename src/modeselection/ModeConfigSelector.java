@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
-import helper.Helper;
+import helper.FileHelper;
 
 
 public class ModeConfigSelector extends Observable implements IModeConfigSelector, Observer {
@@ -42,7 +42,7 @@ public class ModeConfigSelector extends Observable implements IModeConfigSelecto
 
 	private String getCurrentConfigFileName(String modeName, boolean secondTry) throws FileNotFoundException {
 		String fileName = getFileName(modeName, getCurrentCycleValueFromConfig(modeName));
-		if (!Helper.fileExists(fileName)) {
+		if (!FileHelper.fileExists(fileName)) {
 			if (secondTry)
 				throw new FileNotFoundException("No valid config found for " + modeName + ", last Try was: " + fileName);
 			LOGGER.severe("Configuration file " + fileName + " does not exist! Trying another cycle value...");
@@ -55,11 +55,11 @@ public class ModeConfigSelector extends Observable implements IModeConfigSelecto
 	public void nextConfig(String modeName) {
 		int nextCycleValue = getCurrentCycleValueFromConfig(modeName) + 1;
 		String nextFileName = getFileName(modeName, nextCycleValue);
-		if (!Helper.fileExists(nextFileName)) {
+		if (!FileHelper.fileExists(nextFileName)) {
 			nextCycleValue = 0;
 			nextFileName = getFileName(modeName, nextCycleValue);
 		}
-		if (!Helper.fileExists(nextFileName)) {
+		if (!FileHelper.fileExists(nextFileName)) {
 			LOGGER.severe("Configuration file " + nextFileName + " MUST exist! Please create.");
 			LOGGER.info("Additional files for cycling with the naming pattern <modeName>.<int>.properties are optional. <int> has to start at 1 and should not contain gaps.");
 			return;

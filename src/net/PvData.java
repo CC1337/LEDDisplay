@@ -11,6 +11,7 @@ import java.util.List;
 
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
+import helper.FileHelper;
 import helper.Helper;
 
 public class PvData {
@@ -377,15 +378,15 @@ public class PvData {
 	private void tryFetchDayData() {
 		try
 		{
-			URLConnection urlConn = Helper.getUrlConnection(getDayDataUrl(getDateNow()));
+			URLConnection urlConn = FileHelper.getUrlConnection(getDayDataUrl(getDateNow()));
 			if (urlConn == null) {
 				// Try yesterday
-				urlConn = Helper.getUrlConnection(getDayDataUrl(getDateYesterday()));
+				urlConn = FileHelper.getUrlConnection(getDayDataUrl(getDateYesterday()));
 				if (urlConn == null)
 					throw new IOException("No PV data for today and yesterday :( giving up...");
 			}
 
-			List<String> resultList = Helper.getFileAsList(urlConn);
+			List<String> resultList = FileHelper.getFileAsList(urlConn);
 
 			if (resultList != null && resultList.size() > 0)
 				_lastDayData = resultList.toArray(new String[0]);
@@ -420,16 +421,16 @@ public class PvData {
 	private void tryFetchD0DayData() {
 		try
 		{
-			URLConnection urlConn = Helper.getUrlConnection(getD0DayDataUrl(getDateNow()));
+			URLConnection urlConn = FileHelper.getUrlConnection(getD0DayDataUrl(getDateNow()));
 			if (urlConn == null) {
 				// Try yesterday and reset yesterday data
 				_yesterdayD0DayData = new String[0];
-				urlConn = Helper.getUrlConnection(getD0DayDataUrl(getDateYesterday()));
+				urlConn = FileHelper.getUrlConnection(getD0DayDataUrl(getDateYesterday()));
 				if (urlConn == null)
 					throw new IOException("No d0 day data for today and yesterday :( giving up...");
 			}
 
-			List<String> resultList = Helper.getFileAsList(urlConn);
+			List<String> resultList = FileHelper.getFileAsList(urlConn);
 
 			if (resultList != null && resultList.size() > 0)
 				_lastD0DayData = resultList.toArray(new String[0]);
@@ -463,11 +464,11 @@ public class PvData {
 	private void tryFetchYesterdayD0DayData() {
 		try
 		{
-			URLConnection urlConn = Helper.getUrlConnection(getD0DayDataUrl(getDateYesterday()));
+			URLConnection urlConn = FileHelper.getUrlConnection(getD0DayDataUrl(getDateYesterday()));
 			if (urlConn == null)
 				throw new IOException("No d0 day data for yesterday :(");
 
-			List<String> resultList = Helper.getFileAsList(urlConn);
+			List<String> resultList = FileHelper.getFileAsList(urlConn);
 
 			if (resultList != null && resultList.size() > 0) {
 				_yesterdayD0DayData = resultList.toArray(new String[0]); 
