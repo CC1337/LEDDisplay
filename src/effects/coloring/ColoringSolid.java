@@ -4,6 +4,7 @@ import configuration.IDisplayConfiguration;
 import led.ILED;
 import led.ILEDArray;
 import effects.*;
+import helper.ColorHelper;
 
 public class ColoringSolid implements IColor {
 	
@@ -42,9 +43,9 @@ public class ColoringSolid implements IColor {
 					leds.setLed(
 							x+effect.getPosX(), 
 							y+effect.getPosY(), 
-							(int)Math.round(led.r() * (1.0-_alpha) + _r * _alpha), 
-							(int)Math.round(led.g() * (1.0-_alpha) + _g * _alpha), 
-							(int)Math.round(led.b() * (1.0-_alpha) + _b * _alpha)); // TODO extra helper etc
+							ColorHelper.blend(led.r(), _r, _alpha),
+							ColorHelper.blend(led.g(), _g, _alpha),
+							ColorHelper.blend(led.b(), _b, _alpha)); // TODO extra helper etc
 				}
 			}
 		}		
