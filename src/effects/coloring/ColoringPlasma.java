@@ -23,17 +23,22 @@ public class ColoringPlasma implements IColor {
 	protected int _cols;
 	protected int _brightnessPercent;
 	protected int _speed;
+	protected double _alpha = 1.0;
 	protected int[][] _r;
 	protected int[][] _g;
 	protected int[][] _b;
 	private IDisplayConfiguration _config;
 	private String _configPrefix = "";
 
-
 	public ColoringPlasma(int cols, int rows, int brightnessPercent) {
+		this(cols, rows, brightnessPercent, 1.0);
+	}
+
+	public ColoringPlasma(int cols, int rows, int brightnessPercent, double alpha) {
 		_cols = cols;
 		_rows = rows;
 		_brightnessPercent = brightnessPercent;
+		_alpha = alpha;
 		_speed = 5;
 		_r = new int[_cols][_rows];
 		_g = new int[_cols][_rows];
@@ -49,6 +54,15 @@ public class ColoringPlasma implements IColor {
 		_speed = speed;
 	}
 	
+	public void setAlpha(double alpha) {
+		if (_alpha >= 0.0 || alpha <= 1.0)
+			_alpha = alpha;
+	}
+	
+	public double getAlpha() {
+		return _alpha;
+	}
+	
 	@Override
 	public void apply(ILEDArray leds, IColorableEffect effect) {
 		applyConfig();
@@ -57,7 +71,7 @@ public class ColoringPlasma implements IColor {
 		for(int x=0; x<effectData.length; x++) {
 			for(int y=0; y<effectData[0].length; y++) {
 				if (effectData[x][y] == 1 && x < _cols && x >= 0 && y < _rows && y >= 0)
-					leds.setLed(x+effect.getPosX(), y+effect.getPosY(), applyBrightness(_r[x][y]), applyBrightness(_g[x][y]), applyBrightness(_b[x][y]));
+					leds.blendLed(x+effect.getPosX(), y+effect.getPosY(), applyBrightness(_r[x][y]), applyBrightness(_g[x][y]), applyBrightness(_b[x][y]), _alpha);
 			}
 		}		
 	}
@@ -96,6 +110,7 @@ public class ColoringPlasma implements IColor {
 			_speed =  _config.getInt(getConfigKey("speed"), 5);
 			_cols =  _config.getInt(getConfigKey("cols"), 60);
 			_rows =  _config.getInt(getConfigKey("rows"), 16);
+			_alpha = _config.getDouble(getConfigKey("alpha"), 1.0);
 			if (_r == null) {
 				_r = new int[_cols][_rows];
 				_g = new int[_cols][_rows];
