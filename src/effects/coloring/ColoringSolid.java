@@ -1,10 +1,8 @@
 package effects.coloring;
 
 import configuration.IDisplayConfiguration;
-import led.ILED;
 import led.ILEDArray;
 import effects.*;
-import helper.ColorHelper;
 
 public class ColoringSolid implements IColor {
 	
