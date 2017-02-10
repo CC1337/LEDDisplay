@@ -64,6 +64,7 @@ public class ModeConfigSelector extends Observable implements IModeConfigSelecto
 			LOGGER.info("Additional files for cycling with the naming pattern <modeName>.<int>.properties are optional. <int> has to start at 1 and should not contain gaps.");
 			return;
 		}
+		LOGGER.info("Switching config of " + modeName + " to " + getFileName(modeName, nextCycleValue));
 		_modeConfigSelectorConfig.setString(getCycleValueConfigKey(modeName), String.valueOf(nextCycleValue));
 	}
 
