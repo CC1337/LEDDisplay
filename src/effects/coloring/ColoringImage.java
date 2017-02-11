@@ -1,6 +1,8 @@
 package effects.coloring;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +20,9 @@ public class ColoringImage implements IColor {
 	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	private String _fileName;
 	private double _alpha = 1.0;
+	private int _scaledWidth = -1;
+	private int _scaledHeight = -1;
+	private boolean _keepRatio;
 	private IDisplayConfiguration _config;
 	private String _configPrefix = "";
 	private Color[][] _pixels;
@@ -72,7 +77,44 @@ public class ColoringImage implements IColor {
 	
 	private void updatePixelData() throws IOException {
 		BufferedImage image = ImageIO.read(new File(_fileName));
+		if (_scaledWidth != -1 || _scaledHeight != -1)
+			image = getScaledImage(image);
 		_pixels = getPixelData(image);
+	}
+	
+	private BufferedImage getScaledImage(BufferedImage image) {
+		int targetWidth = _scaledWidth;
+		int targetHeight = _scaledHeight;
+
+		if (_keepRatio && targetWidth > 0 && targetHeight > 0) {
+			int originalWidth = image.getWidth();
+			int originalHeight = image.getHeight();
+			double scalingRatioWidth = (double)targetWidth / (double)originalWidth;
+			double scalingRatioHeight = (double)targetHeight / (double)originalHeight;
+			double scalingRatio = scalingRatioHeight;
+			
+			//LOGGER.info("pre scaling - w: " + targetWidth + " h: " + targetHeight + " org w: " + originalWidth + " org h: " + originalHeight + " rat-w: " + scalingRatioWidth + " rat-h:" + scalingRatioHeight);
+			
+			if (scalingRatioWidth < scalingRatioHeight) 
+				scalingRatio = scalingRatioWidth;
+			targetWidth = (int)Math.ceil((originalWidth * scalingRatio));
+			targetHeight = (int)Math.ceil((originalHeight * scalingRatio));
+			
+			//LOGGER.info("post scaling - w: " + targetWidth + " h: " + targetHeight + " rat: " + scalingRatio);
+		}
+		
+		return convertToBufferedImage(image.getScaledInstance(_scaledWidth, _scaledHeight, Image.SCALE_DEFAULT));
+	}
+	
+	public static BufferedImage convertToBufferedImage(Image image)
+	{
+	    BufferedImage newImage = new BufferedImage(
+	        image.getWidth(null), image.getHeight(null),
+	        BufferedImage.TYPE_INT_ARGB);
+	    Graphics2D g = newImage.createGraphics();
+	    g.drawImage(image, 0, 0, null);
+	    g.dispose();
+	    return newImage;
 	}
 	
 	private Color[][] getPixelData(BufferedImage image) {
@@ -96,8 +138,27 @@ public class ColoringImage implements IColor {
 		_fileName = fileName;
 	}
 	
+	public void setScaledWidth(int width) {
+		if (width == -1 || width > 0) {
+			_scaledWidth = width;
+			clearPixelData();
+		}
+	}
+	
+	public void setScaledHeight(int height) {
+		if (height == -1 || height > 0) {
+			_scaledHeight = height;
+			clearPixelData();
+		}
+	}
+	
+	public void setKeepRatio(boolean keepRatio) {
+		_keepRatio = keepRatio;
+		clearPixelData();
+	}
+	
 	public void setAlpha(double alpha) {
-		if (_alpha >= 0.0 || alpha <= 1.0)
+		if (alpha >= 0.0 || alpha <= 1.0)
 			_alpha = alpha;
 	}
 	
@@ -109,14 +170,35 @@ public class ColoringImage implements IColor {
 		return _alpha;
 	}
 	
+	public int getScaledWidth() {
+		return _scaledWidth;
+	}
+	
+	public int getScaledHeight() {
+		return _scaledHeight;
+	}
+	
+	public boolean getKeepRatio() {
+		return _keepRatio;
+	}
+	
 	public void setColorFromConfig() {
-		if (_config != null) {
-			String newFileName = _fileName = _config.getString(getConfigKey("filename"));
-			if (!_fileName.equals(newFileName))
-				clearPixelData();
-			_fileName = _config.getString(getConfigKey("filename"));
-			_alpha = _config.getDouble(getConfigKey("alpha"), 1.0);
-		}
+		if (_config == null) 
+			return;
+		
+		String newFileName = _fileName = _config.getString(getConfigKey("filename"));
+		int newScaledWidth = _config.getInt(getConfigKey("width"), -1);
+		int newScaledHeight = _config.getInt(getConfigKey("height"), -1);
+		boolean newKeepRatio = _config.getInt(getConfigKey("keepratio"), 1) == 1;
+		_alpha = _config.getDouble(getConfigKey("alpha"), 1.0);
+		
+		if (!_fileName.equals(newFileName) || newScaledWidth != _scaledWidth || newScaledHeight != _scaledHeight || newKeepRatio != _keepRatio)
+			clearPixelData();
+		
+		_fileName = newFileName;
+		_scaledWidth = newScaledWidth;
+		_scaledHeight = newScaledHeight;
+		_keepRatio = newKeepRatio;
 	}
 	
 	private void clearPixelData() {
