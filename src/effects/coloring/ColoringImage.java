@@ -56,16 +56,24 @@ public class ColoringImage implements IColor {
 			}
 		
 		byte[][] effectData = effect.getEffectData();
+		
+		int offsetX = getEffectOffsetX(effectData);
+		int offsetY = getEffectOffsetY(effectData);
+		
 		for(int x=0; x<effectData.length; x++) {
 			for(int y=0; y<effectData[0].length; y++) {
 				if (effectData[x][y] == 1) {
 					int posX = x+effect.getPosX();
+					int posXPixels = posX - offsetX;
 					int posY = y+effect.getPosY();
-					if (posX < 0 || posX > _pixels.length)
+					int posYPixels = posY - offsetY;
+					
+					if (posX < 0 || posXPixels >= _pixels.length || posXPixels < 0)
 						continue;
-					if (posY < 0 || posY > _pixels[posX].length)
+					if (posY < 0 || posYPixels >= _pixels[posXPixels].length || posYPixels < 0)
 						continue;
-					Color color = _pixels[posX][posY];
+					
+					Color color = _pixels[posXPixels][posYPixels];
 					leds.blendLed(
 							posX, 
 							posY, 
@@ -76,6 +84,22 @@ public class ColoringImage implements IColor {
 				}
 			}
 		}		
+	}
+	
+	private int getEffectOffsetX(byte[][] effectData) {
+		if (_pixels == null)
+			return 0;
+		if (_center)
+			return (int)Math.floor((double)(effectData.length - _pixels.length)/2.0);
+		return _offsetX;
+	}
+	
+	private int getEffectOffsetY(byte[][] effectData) {
+		if (_pixels == null)
+			return 0;
+		if (_center)
+			return (int)Math.floor((double)(effectData[0].length - _pixels[0].length)/2.0);
+		return _offsetY;
 	}
 	
 	private void updatePixelData() throws IOException {
