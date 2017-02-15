@@ -22,6 +22,9 @@ public class ColoringImage implements IColor {
 	private double _alpha = 1.0;
 	private int _scaledWidth = -1;
 	private int _scaledHeight = -1;
+	private int _offsetX = 0;
+	private int _offsetY = 0;
+	private boolean _center = false;
 	private boolean _keepRatio;
 	private IDisplayConfiguration _config;
 	private String _configPrefix = "";
@@ -152,6 +155,21 @@ public class ColoringImage implements IColor {
 		}
 	}
 	
+	public void setOffsetX(int offset) {
+		_offsetX = offset;
+		clearPixelData();
+	}
+	
+	public void setOffsetY(int offset) {
+		_offsetY = offset;
+		clearPixelData();
+	}
+	
+	public void setCenter(boolean center) {
+		_center = center;
+		clearPixelData();
+	}
+	
 	public void setKeepRatio(boolean keepRatio) {
 		_keepRatio = keepRatio;
 		clearPixelData();
@@ -178,6 +196,18 @@ public class ColoringImage implements IColor {
 		return _scaledHeight;
 	}
 	
+	public int getOffsetX() {
+		return _offsetX;
+	}
+	
+	public int getOffsety() {
+		return _offsetY;
+	}
+	
+	public boolean getCenter() {
+		return _center;
+	}
+	
 	public boolean getKeepRatio() {
 		return _keepRatio;
 	}
@@ -189,15 +219,22 @@ public class ColoringImage implements IColor {
 		String newFileName = _fileName = _config.getString(getConfigKey("filename"));
 		int newScaledWidth = _config.getInt(getConfigKey("width"), -1);
 		int newScaledHeight = _config.getInt(getConfigKey("height"), -1);
+		int newOffsetX = _config.getInt(getConfigKey("offsetx"), 0);
+		int newOffsetY = _config.getInt(getConfigKey("offsety"), 0);
+		boolean newCenter = _config.getInt(getConfigKey("center"), 0) == 1;
 		boolean newKeepRatio = _config.getInt(getConfigKey("keepratio"), 1) == 1;
 		_alpha = _config.getDouble(getConfigKey("alpha"), 1.0);
 		
-		if (!_fileName.equals(newFileName) || newScaledWidth != _scaledWidth || newScaledHeight != _scaledHeight || newKeepRatio != _keepRatio)
+		if (!_fileName.equals(newFileName) || newScaledWidth != _scaledWidth || newScaledHeight != _scaledHeight || newKeepRatio != _keepRatio || 
+				newOffsetX != _offsetX || newOffsetY != _offsetY || newCenter != _center)
 			clearPixelData();
 		
 		_fileName = newFileName;
 		_scaledWidth = newScaledWidth;
 		_scaledHeight = newScaledHeight;
+		_offsetX = newOffsetX;
+		_offsetY = newOffsetY;
+		_center = newCenter;
 		_keepRatio = newKeepRatio;
 	}
 	
