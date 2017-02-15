@@ -130,7 +130,7 @@ public class ColoringImage implements IColor {
 			//LOGGER.info("post scaling - w: " + targetWidth + " h: " + targetHeight + " rat: " + scalingRatio);
 		}
 		
-		return convertToBufferedImage(image.getScaledInstance(_scaledWidth, _scaledHeight, Image.SCALE_DEFAULT));
+		return convertToBufferedImage(image.getScaledInstance(targetWidth, targetHeight, Image.SCALE_DEFAULT));
 	}
 	
 	public static BufferedImage convertToBufferedImage(Image image)
