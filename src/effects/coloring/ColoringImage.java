@@ -7,6 +7,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
@@ -15,7 +17,7 @@ import configuration.IDisplayConfiguration;
 import led.ILEDArray;
 import effects.*;
 
-public class ColoringImage implements IColor {
+public class ColoringImage implements IColor, Observer {
 	
 	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	private String _fileName;
@@ -41,6 +43,7 @@ public class ColoringImage implements IColor {
 	public ColoringImage(IDisplayConfiguration config, String configPrefix) {
 		_config = config;
 		_configPrefix = configPrefix;
+		((Observable) _config).addObserver(this);
 	}
 
 	@Override
@@ -268,5 +271,13 @@ public class ColoringImage implements IColor {
 	
 	private String getConfigKey(String param) {
 		return _configPrefix + this.getClass().getName() + "." + param;
+	}
+
+	@Override
+	public void update(Observable observable, Object arg1) {
+		if (observable instanceof IDisplayConfiguration) {
+			LOGGER.info("Updating ColoringImage " + _fileName);
+			setColorFromConfig();
+		}
 	}
 }
