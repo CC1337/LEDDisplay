@@ -73,6 +73,7 @@ public class LEDDisplay implements Runnable {
 		Runnable runnable = new LEDDisplay();
 		new Thread(runnable, "Display").start();
 		LOGGER.info("LEDDisplay starting...");
+		LOGGER.info("Roman ist ein Doofi...");
 	}
 
 }
