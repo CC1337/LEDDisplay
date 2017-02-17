@@ -47,6 +47,7 @@ public class DisplayConfiguration extends Observable implements IDebounceFileWat
 	public void changeConfigFile(String newFileName) {
 		if (_filename.equals(newFileName))
 			return;
+		_filename = newFileName;
 		if (_enableAutoReload)
 			_fileWatch.changeFile(_filename);
 		reload();
