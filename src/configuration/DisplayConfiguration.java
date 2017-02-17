@@ -1,28 +1,24 @@
 package configuration;
 
-import net.contentobjects.jnotify.JNotify;
-import net.contentobjects.jnotify.JNotifyException;
-import net.contentobjects.jnotify.JNotifyListener;
-
 import java.lang.invoke.MethodHandles;
 import java.util.Observable;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.logging.Logger;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
+import helper.DebouncedFileModifiedWatch;
+import helper.IDebounceFileWatchListener;
 
-public class DisplayConfiguration extends Observable implements JNotifyListener, IDisplayConfiguration{
+
+public class DisplayConfiguration extends Observable implements IDebounceFileWatchListener, IDisplayConfiguration{
 
 	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	private String _filename;
 	private boolean _enableAutoReload;
 	private boolean _configHasChanged = false;
 	private PropertiesConfiguration _configuration;
-	private int _fileWatchId = -1;
-	private Timer debouncedFileModifiedTimer = new Timer(true);
+	private DebouncedFileModifiedWatch _fileWatch;
 
 	public DisplayConfiguration(String filename, boolean enableAutoReload) {
 		_filename = filename;
@@ -30,31 +26,10 @@ public class DisplayConfiguration extends Observable implements JNotifyListener,
 		
 		System.loadLibrary("jnotify");
 		reload();
-		addFileWatch();
+		if (_enableAutoReload)
+			_fileWatch = new DebouncedFileModifiedWatch(_filename, this);
 	}
 	
-	
-	private void addFileWatch() {
-		if (!_enableAutoReload || _fileWatchId >= 0)
-			return;
-		try {
-			_fileWatchId = JNotify.addWatch(_configuration.getPath(), JNotify.FILE_MODIFIED, false, this);
-		} catch (JNotifyException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	private void removeFileWatch() {
-		if (!_enableAutoReload || _fileWatchId <= 0)
-			return;
-		try {
-			JNotify.removeWatch(_fileWatchId);
-			_fileWatchId = -1;
-		} catch (JNotifyException e) {
-			e.printStackTrace();
-		}
-	}
-
 	public void reload() {
 		try {
 			_configuration = new PropertiesConfiguration(_filename);
@@ -72,27 +47,22 @@ public class DisplayConfiguration extends Observable implements JNotifyListener,
 	public void changeConfigFile(String newFileName) {
 		if (_filename.equals(newFileName))
 			return;
-		removeFileWatch();
-		_filename = newFileName;
+		if (_enableAutoReload)
+			_fileWatch.changeFile(_filename);
 		reload();
-		addFileWatch();
+	}
+	
+	@Override
+	public void stopWatching() {
+		_fileWatch.destroy();
+		_fileWatch = null;
+		_enableAutoReload = false;
 	}
 
 	public boolean hasChanged() {
 		return _configHasChanged;
 	}
 	
-	public void stopWatching() {
-		if (_fileWatchId != -1) {
-			try {
-				JNotify.removeWatch(_fileWatchId);
-				_fileWatchId = -1;
-			} catch (JNotifyException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
 	public String getString(String key) {
 		return _configuration.getString(key);
 	}
@@ -121,45 +91,12 @@ public class DisplayConfiguration extends Observable implements JNotifyListener,
 		return _configuration.getDouble(key, defaultValue);
 	}
 
-	@Override
-	public void fileCreated(int wd, String rootPath, String name) {
-
-	}
-
-	@Override
-	public void fileDeleted(int wd, String rootPath, String name) {
-	}
-
-	@Override
-	public void fileModified(int wd, String rootPath, String name) {
-		if (rootPath.endsWith(_filename)) {
-			debouncedFileModified();
-		}
-	}
-	
-	private void debouncedFileModified() {
-		try {
-			debouncedFileModifiedTimer.cancel();
-			debouncedFileModifiedTimer = new Timer(true);
-			debouncedFileModifiedTimer.schedule(new TimerTask() {
-				public void run() {
-					LOGGER.info(_filename + " changed. Reloading...");
-					reload();	
-					debouncedFileModifiedTimer.cancel();
-				}
-			}, 50);
-		} 
-		catch (java.lang.IllegalStateException e) {}
-	}
-	
-
-	@Override
-	public void fileRenamed(int wd, String rootPath, String oldName, String newName) {
-	}
-
-	@Override
 	public void setString(String key, String newValue) {
 		_configuration.setProperty(key, newValue);
 	}
-	
+
+	@Override
+	public void fileChanged(String fileName) {
+		reload();
+	}
 }
