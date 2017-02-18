@@ -16,8 +16,10 @@ import javax.imageio.ImageIO;
 import configuration.IDisplayConfiguration;
 import led.ILEDArray;
 import effects.*;
+import helper.DebouncedFileModifiedWatch;
+import helper.IDebounceFileWatchListener;
 
-public class ColoringImage implements IColor, Observer {
+public class ColoringImage implements IColor, Observer, IDebounceFileWatchListener {
 	
 	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	private String _fileName;
@@ -31,9 +33,10 @@ public class ColoringImage implements IColor, Observer {
 	private IDisplayConfiguration _config;
 	private String _configPrefix = "";
 	private Color[][] _pixels;
+	private DebouncedFileModifiedWatch _fileWatch;
 	
 	public ColoringImage(String fileName, double alpha) {
-
+		_fileWatch = new DebouncedFileModifiedWatch(fileName, this);
 	}
 	
 	public ColoringImage(String fileName) {
@@ -48,7 +51,8 @@ public class ColoringImage implements IColor, Observer {
 
 	@Override
 	public void apply(ILEDArray leds, IColorableEffect effect) {
-		setColorFromConfig();
+		if (_config != null)
+			setColorFromConfig();
 		
 		if (_pixels == null)
 			try {
@@ -163,8 +167,10 @@ public class ColoringImage implements IColor, Observer {
 	}
 	
 	public void setFileName(String fileName) {
-		if (!_fileName.equals(fileName))
+		if (!_fileName.equals(fileName)) {
 			clearPixelData();
+			_fileWatch.changeFile(fileName);
+		}
 		_fileName = fileName;
 	}
 	
@@ -242,7 +248,7 @@ public class ColoringImage implements IColor, Observer {
 	public void setColorFromConfig() {
 		if (_config == null) 
 			return;
-		
+	
 		String newFileName = _fileName = _config.getString(getConfigKey("filename"));
 		int newScaledWidth = _config.getInt(getConfigKey("width"), -1);
 		int newScaledHeight = _config.getInt(getConfigKey("height"), -1);
@@ -256,7 +262,10 @@ public class ColoringImage implements IColor, Observer {
 				newOffsetX != _offsetX || newOffsetY != _offsetY || newCenter != _center)
 			clearPixelData();
 		
-		_fileName = newFileName;
+		if (_fileWatch == null)
+			_fileWatch = new DebouncedFileModifiedWatch(newFileName, this);
+		
+		setFileName(newFileName);
 		_scaledWidth = newScaledWidth;
 		_scaledHeight = newScaledHeight;
 		_offsetX = newOffsetX;
@@ -276,8 +285,14 @@ public class ColoringImage implements IColor, Observer {
 	@Override
 	public void update(Observable observable, Object arg1) {
 		if (observable instanceof IDisplayConfiguration) {
-			LOGGER.info("Updating ColoringImage " + _fileName);
+			LOGGER.info("Updating ColoringImage '" + _fileName + "' (config change)");
 			setColorFromConfig();
 		}
+	}
+
+	@Override
+	public void fileChanged(String fileName) {
+		LOGGER.info("Updating ColoringImage '" + _fileName + "' (image file change)");
+		clearPixelData();
 	}
 }

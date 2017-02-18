@@ -34,6 +34,7 @@ public class DebouncedFileModifiedWatch implements JNotifyListener {
 			return;
 		try {
 			_fileWatchId = JNotify.addWatch(_filePath, JNotify.FILE_MODIFIED, false, this);
+			LOGGER.fine("New DebouncedFileModifiedWatch: " + _filePath + " / ID: " + _fileWatchId);
 		} catch (JNotifyException e) {
 			e.printStackTrace();
 		}
@@ -62,7 +63,6 @@ public class DebouncedFileModifiedWatch implements JNotifyListener {
 
 	@Override
 	public void fileCreated(int wd, String rootPath, String name) {
-
 	}
 
 	@Override
