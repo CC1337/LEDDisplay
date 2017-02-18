@@ -46,14 +46,12 @@ public class ColoringImage implements IColor, Observer, IDebounceFileWatchListen
 	public ColoringImage(IDisplayConfiguration config, String configPrefix) {
 		_config = config;
 		_configPrefix = configPrefix;
+		setColorFromConfig();
 		((Observable) _config).addObserver(this);
 	}
 
 	@Override
 	public void apply(ILEDArray leds, IColorableEffect effect) {
-		if (_config != null)
-			setColorFromConfig();
-		
 		if (_pixels == null)
 			try {
 				updatePixelData();
@@ -167,7 +165,9 @@ public class ColoringImage implements IColor, Observer, IDebounceFileWatchListen
 	}
 	
 	public void setFileName(String fileName) {
-		if (!_fileName.equals(fileName)) {
+		if (fileName == null)
+			return;
+		if (!fileName.equals(_fileName)) {
 			clearPixelData();
 			_fileWatch.changeFile(fileName);
 		}
@@ -249,7 +249,7 @@ public class ColoringImage implements IColor, Observer, IDebounceFileWatchListen
 		if (_config == null) 
 			return;
 	
-		String newFileName = _fileName = _config.getString(getConfigKey("filename"));
+		String newFileName = _config.getString(getConfigKey("filename"));
 		int newScaledWidth = _config.getInt(getConfigKey("width"), -1);
 		int newScaledHeight = _config.getInt(getConfigKey("height"), -1);
 		int newOffsetX = _config.getInt(getConfigKey("offsetx"), 0);
@@ -258,7 +258,7 @@ public class ColoringImage implements IColor, Observer, IDebounceFileWatchListen
 		boolean newKeepRatio = _config.getInt(getConfigKey("keepratio"), 1) == 1;
 		_alpha = _config.getDouble(getConfigKey("alpha"), 1.0);
 		
-		if (!_fileName.equals(newFileName) || newScaledWidth != _scaledWidth || newScaledHeight != _scaledHeight || newKeepRatio != _keepRatio || 
+		if (!newFileName.equals(_fileName) || newScaledWidth != _scaledWidth || newScaledHeight != _scaledHeight || newKeepRatio != _keepRatio || 
 				newOffsetX != _offsetX || newOffsetY != _offsetY || newCenter != _center)
 			clearPixelData();
 		
