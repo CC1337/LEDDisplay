@@ -82,10 +82,22 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 		
 		LOGGER.info("Cycle Brightness button init on Pin GPIO " + _configuredBrightnessCycleButtonPin);
 		IButtonListener nextModeButton = new ButtonListener(_configuredBrightnessCycleButtonPin);
+		
 		nextModeButton.setSingleTriggerCallback(new Callable<Void>() {
 			public Void call() throws Exception {
-				LOGGER.info("Cycle brightness button pressed");
+				LOGGER.info("Cycle brightness button pressed short");
 				nextCycleBrightnessValue();
+				return null;
+			}
+		});
+		
+		nextModeButton.setLongTriggerCallback(new Callable<Void>() {
+			public Void call() throws Exception {
+				LOGGER.info("Cycle brightness button pressed long");
+				if (_configuredBrightness == 0)
+					setConfiguredBrightness("100");
+				else
+					setConfiguredBrightness("0");
 				return null;
 			}
 		});
@@ -110,11 +122,15 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 			}
 		}
 
-		_config.setString("Brightness.Value", _configuredBrightnessCycleValues[nextValueIndex]);
+		setConfiguredBrightness(_configuredBrightnessCycleValues[nextValueIndex]);
 	}
 
 	public int getBrightnessPercentage() {
 		return _currentBrightness;
+	}
+	
+	private void setConfiguredBrightness(String brightness) {
+		_config.setString("Brightness.Value", brightness);
 	}
 	
 	private void updateAutoBrightness() {
