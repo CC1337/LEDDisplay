@@ -73,17 +73,19 @@ public class ButtonListener implements IButtonListener {
 		long pressDuration = _lastButtonPressEnd - _lastButtonPressStart;
 		
 		if (pressDuration > LONG_PRESS_DURATION_MIN)
-			try {
-				_longTriggerCallback.call();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			if (_longTriggerCallback != null)
+				try {
+					_longTriggerCallback.call();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 		else if (pressDuration > SINGLE_PRESS_DURATION_MIN)
-			try {
-				_singleTriggerCallback.call();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			if (_singleTriggerCallback != null)
+				try {
+					_singleTriggerCallback.call();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 		
 		resetButtonPressedState();
 	}

@@ -29,10 +29,19 @@ public class ModeSelectorButtons {
 		
 		LOGGER.info("Next Mode button init on Pin GPIO " + gpioPinNumber);
 		IButtonListener nextModeButton = new ButtonListener(gpioPinNumber);
+		
 		nextModeButton.setSingleTriggerCallback(new Callable<Void>() {
 			public Void call() throws Exception {
-				LOGGER.info("Next mode button pressed");
+				LOGGER.info("Next mode button pressed short");
 				_modeSelector.nextMode();
+				return null;
+			}
+		});
+		
+		nextModeButton.setLongTriggerCallback(new Callable<Void>() {
+			public Void call() throws Exception {
+				LOGGER.info("Next mode button pressed long");
+				_modeSelector.toggleModeScheduler();
 				return null;
 			}
 		});

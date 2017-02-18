@@ -42,7 +42,7 @@ public class ModeScheduler {
 			return;
 		if (!FileHelper.fileExists(__configFileName))
 			throw new FileNotFoundException("ModeScheduler init aborted, config file not found: " + __configFileName);
-		_config = new File("modeschedule.txt");
+		_config = new File(__configFileName);
 		_scheduler = new Scheduler();
 		_scheduler.setDaemon(true);
 		_scheduler.scheduleFile(_config);
@@ -52,6 +52,8 @@ public class ModeScheduler {
 	 * Starts the scheduler, should be called once at app start
 	 */
 	public void start() {
+		if (_scheduler.isStarted())
+			return;
 		_scheduler.start();
 		LOGGER.info("ModeScheduler started");
 	}
@@ -60,8 +62,20 @@ public class ModeScheduler {
 	 * Stops the scheduler, should be called once at app unload
 	 */
 	public void stop() {
+		if (!_scheduler.isStarted())
+			return;
 		_scheduler.stop();
 		LOGGER.info("ModeScheduler stopped");
+	}
+	
+	/**
+	 * toggles Scheduler start/stop
+	 */
+	public void toggle() {
+		if (!_scheduler.isStarted())
+			start();
+		else
+			stop();
 	}
 	
 	/**

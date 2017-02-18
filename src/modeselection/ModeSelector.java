@@ -23,6 +23,7 @@ public class ModeSelector implements IModeSelector, Observer {
 	protected static final String MODELESECTOR_PROPERTIES = "modeselector.properties";
 	protected static final String MODE_NEXT_GPIOPINNUMBER = "mode.next.buttonGpioPinNumber";
 	protected static final String MODE_CYCLECONFIG_GPIOPINNUMBER = "mode.cycleConfig.GpioPinNumber";
+	protected static final String MODE_SCHEDULERACTIVE = "mode.schedulerActive";
 	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
 	private static ModeSelector __instance = null;
@@ -64,7 +65,7 @@ public class ModeSelector implements IModeSelector, Observer {
 		_modeSelectorButtons.initCycleModeConfigurationButton();
 
 		_modeScheduler = ModeScheduler.getInstance(this);
-		_modeScheduler.start();
+		restoreModeSchedulerStateFromConfig();
 	}
 
 	public static ModeSelector getInstance(IDisplayAdaptor display, ILEDArray leds,
@@ -233,11 +234,33 @@ public class ModeSelector implements IModeSelector, Observer {
 	}
 
 	@Override
+	public void startModeScheduler() {
+		_modeScheduler.start();
+		_config.setString(MODE_SCHEDULERACTIVE, "1");
+	}
+
+	@Override
+	public void stopModeScheduler() {
+		_modeScheduler.stop();
+		_config.setString(MODE_SCHEDULERACTIVE, "0");
+	}
+	
+	@Override
+	public void toggleModeScheduler() {
+		_modeScheduler.toggle();
+	}
+	
+	private void restoreModeSchedulerStateFromConfig() {
+		if (_config.getInt(MODE_SCHEDULERACTIVE, 1) == 1)
+			_modeScheduler.start();
+	}
+	
+	@Override
 	public void shutdown() {
 		LOGGER.info("ModeSelector Shutdown start");
 		_shouldShutdown = true;
 		_modeCheckTimer.cancel();
-		_modeScheduler.stop();
+		stopModeScheduler();
 		if (_currentMode != null)
 			_currentMode.abort();
 		if (_currentModeThread != null)

@@ -23,6 +23,15 @@ public interface IModeSelector extends Runnable {
 	/** Call to force next config (modename.<int>.properties) for the current active mode */
 	void nextModeConfig();
 	
+	/** Start automatic scheduling of modes **/
+	void startModeScheduler();
+	
+	/** Stop automatic scheduling of modes **/
+	void stopModeScheduler();
+	
+	/** Toggle automatic scheduling of modes **/
+	void toggleModeScheduler();
+	
 	/** End all modes and don't start any new one, terminate ModeSelector **/
 	void shutdown();
 }
