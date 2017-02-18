@@ -7,8 +7,8 @@
     <property environment="env"/>
     <property name="ECLIPSE_HOME" value="C:/Oryx/eclipse"/>
     <property name="debuglevel" value="source,lines,vars"/>
-    <property name="target" value="1.6"/>
-    <property name="source" value="1.6"/>
+    <property name="target" value="1.8"/>
+    <property name="source" value="1.8"/>
     <path id="LEDDisplay.classpath">
         <pathelement location="bin"/>
         <pathelement location="src/libs/commons-configuration-1.6.jar"/>
