@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
 import helper.Helper;
+import input.ButtonFeedbackLed;
 import input.ButtonListener;
 import input.IButtonListener;
 
@@ -86,7 +87,8 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 		nextModeButton.setSingleTriggerCallback(new Callable<Void>() {
 			public Void call() throws Exception {
 				LOGGER.info("Cycle brightness button pressed short");
-				nextCycleBrightnessValue();
+				String newBrightness = nextCycleBrightnessValue();
+				blinkAfterPressingBrightnessButton(newBrightness);
 				return null;
 			}
 		});
@@ -94,19 +96,32 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 		nextModeButton.setLongTriggerCallback(new Callable<Void>() {
 			public Void call() throws Exception {
 				LOGGER.info("Cycle brightness button pressed long");
+				String newBrightness = "0";
 				if (_configuredBrightness == 0)
-					setConfiguredBrightness("100");
-				else
-					setConfiguredBrightness("0");
+					newBrightness = "100";
+
+				setConfiguredBrightness(newBrightness);
+				blinkAfterPressingBrightnessButton(newBrightness);
 				return null;
 			}
 		});
 	}
 	
-	private void nextCycleBrightnessValue() {
+	private void blinkAfterPressingBrightnessButton(String newBrightness) {
+		ButtonFeedbackLed buttonFeedbackLed = ButtonFeedbackLed.getInstance();
+		
+		if (newBrightness.equals("0"))
+			buttonFeedbackLed.blinkTwice();
+		else if (newBrightness.equals("100")) {
+			buttonFeedbackLed.blinkLong();
+		} else
+			buttonFeedbackLed.blinkOnce();
+	}
+	
+	private String nextCycleBrightnessValue() {
 		if (_configuredBrightnessCycleValues.length == 0) {
 			LOGGER.severe("Next brightness cycle value requested but nothing configured in " + BRIGHTNESS_PROPERTIES + " at " + BRIGHTNESS_BUTTON_CYCLEVALUES);
-			return;
+			return "";
 		}
 		
 		int nextValueIndex = 0;
@@ -123,6 +138,7 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 		}
 
 		setConfiguredBrightness(_configuredBrightnessCycleValues[nextValueIndex]);
+		return _configuredBrightnessCycleValues[nextValueIndex];
 	}
 
 	public int getBrightnessPercentage() {
