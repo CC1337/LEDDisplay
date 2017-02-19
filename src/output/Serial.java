@@ -10,6 +10,7 @@ import gnu.io.CommPortIdentifier;
 import gnu.io.PortInUseException;
 import gnu.io.SerialPort;
 import gnu.io.UnsupportedCommOperationException;
+import input.ButtonFeedbackLed;
 
 public class Serial implements ISerial {
 
@@ -94,6 +95,7 @@ public class Serial implements ISerial {
 	}
 	
 	private void delayedSwapSerialPort() {
+		ButtonFeedbackLed.getInstance().blinkTwice();
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
