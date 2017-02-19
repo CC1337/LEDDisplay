@@ -49,7 +49,7 @@ public class ButtonListener implements IButtonListener {
 				_buttonReleased = PinState.LOW;
 			}
 			
-			LOGGER.info("Using Pin " + pinName + " for ButtonListener, pressed when state is " + _buttonPressed.toString() + " long: " + LONG_PRESS_DURATION_MIN + " short: " + SINGLE_PRESS_DURATION_MIN);
+			LOGGER.info("Using Pin " + pinName + " for ButtonListener, pressed when state is " + _buttonPressed.toString());
 			
 			_button = _gpio.provisionDigitalInputPin(RaspiPin.getPinByName(pinName), buttonStateIsHighWhenPressed ? PinPullResistance.PULL_DOWN : PinPullResistance.PULL_UP);
 	        _button.setDebounce(DEBOUNCE_MS);
