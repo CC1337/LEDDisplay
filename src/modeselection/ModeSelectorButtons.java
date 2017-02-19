@@ -88,7 +88,6 @@ public class ModeSelectorButtons {
 			public Void call() throws Exception {
 				LOGGER.info("Mode internal button pressed short");
 				_modeSelector._currentMode.buttonPressedShort();
-				ButtonFeedbackLed.getInstance().blinkOnce();
 				return null;
 			}
 		});
@@ -97,7 +96,6 @@ public class ModeSelectorButtons {
 			public Void call() throws Exception {
 				LOGGER.info("Mode internal button pressed long");
 				_modeSelector._currentMode.buttonPressedLong();
-				ButtonFeedbackLed.getInstance().blinkLong();
 				return null;
 			}
 		});

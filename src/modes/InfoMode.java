@@ -17,6 +17,7 @@ import effects.info.PvChartEffect;
 import effects.shape.RectEffect;
 import effects.text.*;
 import helper.FpsController;
+import input.ButtonFeedbackLed;
 import output.IDisplayAdaptor;
 import led.ILEDArray;
 import modeselection.IModeSelector;
@@ -38,6 +39,7 @@ public class InfoMode implements IMode, Observer {
 	private boolean _end = false;
 	private IDisplayConfiguration _config;
 	private FpsController _fpsController = FpsController.getInstance();
+	private ButtonFeedbackLed _buttonFeedbackLed = ButtonFeedbackLed.getInstance();
 	
 	private IColor _bgColor = null;
 	private IColor _timeTextColor = null;
@@ -212,9 +214,17 @@ public class InfoMode implements IMode, Observer {
 	@Override
 	public void buttonPressedShort() {
 		_infoText.nextInfo();
+		_buttonFeedbackLed.blinkOnce();
 	}
 
 	@Override
 	public void buttonPressedLong() {
+		if (_newsEnabled == 0) {
+			_buttonFeedbackLed.blinkTwice();
+			_config.setString("newsEnabled", "1");
+		} else {
+			_buttonFeedbackLed.blinkLong();
+			_config.setString("newsEnabled", "0");
+		}
 	}
 }
