@@ -5,6 +5,7 @@ import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
 import configuration.IDisplayConfiguration;
+import input.ButtonFeedbackLed;
 import input.ButtonListener;
 import input.IButtonListener;
 
@@ -34,6 +35,7 @@ public class ModeSelectorButtons {
 			public Void call() throws Exception {
 				LOGGER.info("Next mode button pressed short");
 				_modeSelector.nextMode();
+				ButtonFeedbackLed.getInstance().blinkOnce();
 				return null;
 			}
 		});
@@ -42,6 +44,10 @@ public class ModeSelectorButtons {
 			public Void call() throws Exception {
 				LOGGER.info("Next mode button pressed long");
 				_modeSelector.toggleModeScheduler();
+				if (_modeSelector.isModeSchedulerStarted())
+					ButtonFeedbackLed.getInstance().blinkTwice();
+				else
+					ButtonFeedbackLed.getInstance().blinkLong();
 				return null;
 			}
 		});
@@ -61,6 +67,7 @@ public class ModeSelectorButtons {
 			public Void call() throws Exception {
 				LOGGER.info("Cycle mode configuration button pressed");
 				_modeSelector.nextModeConfig();
+				ButtonFeedbackLed.getInstance().blinkOnce();
 				return null;
 			}
 		});

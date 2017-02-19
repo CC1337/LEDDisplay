@@ -32,6 +32,9 @@ public interface IModeSelector extends Runnable {
 	/** Toggle automatic scheduling of modes **/
 	void toggleModeScheduler();
 	
+	/** Returns true if ModeScheduler is active **/
+	boolean isModeSchedulerStarted();
+	
 	/** End all modes and don't start any new one, terminate ModeSelector **/
 	void shutdown();
 }

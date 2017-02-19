@@ -79,6 +79,13 @@ public class ModeScheduler {
 	}
 	
 	/**
+	 * Returns true if the Scheduler is active
+	 */
+	public boolean isStarted() {
+		return _scheduler.isStarted();
+	}
+	
+	/**
 	 * called from cron config file commands, sets specified mode after specified delay conditionally saving current mode for later restore.
 	 * @param String[] args, all optional, some must be convertable to another data type: <String>modeName, <boolean>savePreviousState(default true), <int>delaySeconds(default 0)
 	 */

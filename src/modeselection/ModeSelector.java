@@ -254,6 +254,11 @@ public class ModeSelector implements IModeSelector, Observer {
 		if (_config.getInt(MODE_SCHEDULERACTIVE, 1) == 1)
 			_modeScheduler.start();
 	}
+
+	@Override
+	public boolean isModeSchedulerStarted() {
+		return _modeScheduler.isStarted();
+	}
 	
 	@Override
 	public void shutdown() {
