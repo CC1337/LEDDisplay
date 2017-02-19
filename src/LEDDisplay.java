@@ -5,6 +5,7 @@ import effects.animation.RandomDotEffect;
 
 import effects.text.*;
 import helper.Helper;
+import input.ButtonFeedbackLed;
 import input.ButtonListener;
 import input.IButtonListener;
 import output.*;
@@ -52,7 +53,10 @@ public class LEDDisplay implements Runnable {
 		ButtonListener.class.getName();
 		IButtonListener.class.getName();
 
-
+		// Foce-init to set LED low if still on
+		ButtonFeedbackLed.getInstance();
+		
+		
 		IModeConfigSelector configSelector = ModeConfigSelector.getInstance();
 		final IModeSelector modeSelector = ModeSelector.getInstance(display, leds, configSelector);
 		Thread modeSelectorThread = new Thread(modeSelector, "ModeSel");
