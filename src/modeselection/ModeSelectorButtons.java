@@ -28,7 +28,7 @@ public class ModeSelectorButtons {
 		}
 		
 		LOGGER.info("Next Mode button init on Pin GPIO " + gpioPinNumber);
-		IButtonListener nextModeButton = new ButtonListener(gpioPinNumber);
+		IButtonListener nextModeButton = new ButtonListener(gpioPinNumber, true);
 		
 		nextModeButton.setSingleTriggerCallback(new Callable<Void>() {
 			public Void call() throws Exception {
@@ -56,7 +56,7 @@ public class ModeSelectorButtons {
 		}
 		
 		LOGGER.info("Cycle Mode Configuration button init on Pin GPIO " + gpioPinNumber);
-		IButtonListener nextModeConfigButton = new ButtonListener(gpioPinNumber);
+		IButtonListener nextModeConfigButton = new ButtonListener(gpioPinNumber, true);
 		nextModeConfigButton.setSingleTriggerCallback(new Callable<Void>() {
 			public Void call() throws Exception {
 				LOGGER.info("Cycle mode configuration button pressed");

@@ -81,7 +81,7 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 		}
 		
 		LOGGER.info("Cycle Brightness button init on Pin GPIO " + _configuredBrightnessCycleButtonPin);
-		IButtonListener nextModeButton = new ButtonListener(_configuredBrightnessCycleButtonPin);
+		IButtonListener nextModeButton = new ButtonListener(_configuredBrightnessCycleButtonPin, true);
 		
 		nextModeButton.setSingleTriggerCallback(new Callable<Void>() {
 			public Void call() throws Exception {
