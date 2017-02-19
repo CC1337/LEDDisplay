@@ -188,4 +188,12 @@ public class D0InfoMode implements IMode, Observer {
 	public void changeConfig(String newConfigFileName) {
 		_config.changeConfigFile(newConfigFileName);
 	}
+
+	@Override
+	public void buttonPressedShort() {
+	}
+
+	@Override
+	public void buttonPressedLong() {
+	}
 }

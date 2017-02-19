@@ -73,4 +73,34 @@ public class ModeSelectorButtons {
 		});
 	}
 	
+	public void initModeInternalButton() {
+		String gpioPinNumber = _config.getString(ModeSelector.MODE_INTERNAL_GPIOPINNUMBER, "");
+		
+		if (gpioPinNumber.isEmpty()) {
+			LOGGER.severe("No valid \"mode internal\" button configured, set " + ModeSelector.MODE_INTERNAL_GPIOPINNUMBER + " in " + ModeSelector.MODELESECTOR_PROPERTIES + " and restart the application in order to switch modes by a button.");
+			return;
+		}
+		
+		LOGGER.info("Mode internal button init on Pin GPIO " + gpioPinNumber);
+		IButtonListener nextModeButton = new ButtonListener(gpioPinNumber, true);
+		
+		nextModeButton.setSingleTriggerCallback(new Callable<Void>() {
+			public Void call() throws Exception {
+				LOGGER.info("Mode internal button pressed short");
+				_modeSelector._currentMode.buttonPressedShort();
+				ButtonFeedbackLed.getInstance().blinkOnce();
+				return null;
+			}
+		});
+		
+		nextModeButton.setLongTriggerCallback(new Callable<Void>() {
+			public Void call() throws Exception {
+				LOGGER.info("Mode internal button pressed long");
+				_modeSelector._currentMode.buttonPressedLong();
+				ButtonFeedbackLed.getInstance().blinkLong();
+				return null;
+			}
+		});
+	}
+	
 }

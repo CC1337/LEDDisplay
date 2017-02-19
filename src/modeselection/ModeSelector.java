@@ -22,6 +22,7 @@ public class ModeSelector implements IModeSelector, Observer {
 
 	protected static final String MODELESECTOR_PROPERTIES = "modeselector.properties";
 	protected static final String MODE_NEXT_GPIOPINNUMBER = "mode.next.buttonGpioPinNumber";
+	protected static final String MODE_INTERNAL_GPIOPINNUMBER = "mode.internal.buttonGpioPinNumber";
 	protected static final String MODE_CYCLECONFIG_GPIOPINNUMBER = "mode.cycleConfig.GpioPinNumber";
 	protected static final String MODE_SCHEDULERACTIVE = "mode.schedulerActive";
 	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
@@ -32,7 +33,7 @@ public class ModeSelector implements IModeSelector, Observer {
 	private IModeConfigSelector _configSelector;
 	private LinkedHashMap<String, IMode> _modes = new LinkedHashMap<String, IMode>();
 	private IMode _defaultMode;
-	private IMode _currentMode;
+	protected IMode _currentMode;
 	private IMode _lastConfiguredMode;
 	private IDisplayConfiguration _config;
 	private ModeSelectorButtons _modeSelectorButtons;
@@ -63,6 +64,7 @@ public class ModeSelector implements IModeSelector, Observer {
 		_modeSelectorButtons = new ModeSelectorButtons(this, _config);
 		_modeSelectorButtons.initNextModeButton();
 		_modeSelectorButtons.initCycleModeConfigurationButton();
+		_modeSelectorButtons.initModeInternalButton();
 
 		_modeScheduler = ModeScheduler.getInstance(this);
 		restoreModeSchedulerStateFromConfig();

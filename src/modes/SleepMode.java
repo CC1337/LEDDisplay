@@ -67,4 +67,12 @@ public class SleepMode implements IMode {
 	@Override
 	public void changeConfig(String newConfigFileName) {
 	}
+
+	@Override
+	public void buttonPressedShort() {
+	}
+
+	@Override
+	public void buttonPressedLong() {
+	}
 }

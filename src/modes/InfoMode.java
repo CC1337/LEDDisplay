@@ -208,4 +208,13 @@ public class InfoMode implements IMode, Observer {
 	public void changeConfig(String newConfigFileName) {
 		_config.changeConfigFile(newConfigFileName);
 	}
+
+	@Override
+	public void buttonPressedShort() {
+		_infoText.nextInfo();
+	}
+
+	@Override
+	public void buttonPressedLong() {
+	}
 }
