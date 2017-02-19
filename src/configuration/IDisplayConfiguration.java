@@ -13,6 +13,11 @@ public interface IDisplayConfiguration {
 	public void changeConfigFile(String newFileName);
 	
 	/**
+	 * Returns the name of the currently used config file in this instance
+	 */
+	public String getConfigFileName();
+	
+	/**
 	 * Returns current config sync state
 	 * @return true, if config changed but not yet reloaded (trigger reload() or set enableConfigReload to true at object creation)
 	 */

@@ -54,6 +54,11 @@ public class DisplayConfiguration extends Observable implements IDebounceFileWat
 	}
 	
 	@Override
+	public String getConfigFileName() {
+		return _filename;
+	}
+	
+	@Override
 	public void stopWatching() {
 		_fileWatch.destroy();
 		_fileWatch = null;

@@ -250,6 +250,12 @@ public class ColoringImage implements IColor, Observer, IDebounceFileWatchListen
 			return;
 	
 		String newFileName = _config.getString(getConfigKey("filename"));
+		
+		if (newFileName == null) {
+			LOGGER.info("Skipping ColoringImage config update becasuse no filename set in config " + _config.getConfigFileName());
+			return;
+		}
+		
 		int newScaledWidth = _config.getInt(getConfigKey("width"), -1);
 		int newScaledHeight = _config.getInt(getConfigKey("height"), -1);
 		int newOffsetX = _config.getInt(getConfigKey("offsetx"), 0);
