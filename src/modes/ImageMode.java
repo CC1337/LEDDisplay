@@ -42,6 +42,13 @@ public class ImageMode implements IMode, Observer {
 	private String _imageFolder;
 	private long _lastImageChangeMs = 0;
 	private int _currentImageIndex = 0;
+	private double _currentFadeAlpha = 1;
+
+	private Object _prevColor;
+
+	private IColorableEffect _prev;
+
+	private boolean _shouldFadeOnConfigChange;
 	
 	public ImageMode(IDisplayAdaptor display, ILEDArray leds, IModeSelector modeSelector, String configFileName) {
 		_display = display;
@@ -81,6 +88,13 @@ public class ImageMode implements IMode, Observer {
 				nextImage();
 			
 			_leds.reset();
+			
+			if (_currentFadeAlpha < 1.0) {
+				_leds.applyEffect(_prev);
+				_currentFadeAlpha += 0.05;
+				_bg.getColor().setAlpha(_currentFadeAlpha);
+			}
+			
 			_leds.applyEffect(_bg);
 
 			_display.show(_leds);
@@ -100,8 +114,10 @@ public class ImageMode implements IMode, Observer {
 		ArrayList<File> files = getFilesInFolder();
 		if (files == null)
 			return;
+		_config.setString("prev.effects.coloring.ColoringImage.filename", files.get(_currentImageIndex).getAbsolutePath());
 		_currentImageIndex = (_currentImageIndex + 1) % files.size();
 		_config.setString("bg.effects.coloring.ColoringImage.filename", files.get(_currentImageIndex).getAbsolutePath());
+		_shouldFadeOnConfigChange = true;
 	}
 	
 	 private ArrayList<File> getFilesInFolder() {
@@ -137,6 +153,8 @@ public class ImageMode implements IMode, Observer {
 		try {
 			String newBgColor = _config.getString("bg.Coloring", "effects.coloring.ColoringImage");
 			String newBgEffect = _config.getString("bg.Effect", "effects.background.SolidBackgroundEffect");
+			String newPrevColor = _config.getString("prev.Coloring", "effects.coloring.ColoringImage");
+			String newPrevEffect = _config.getString("prev.Effect", "effects.background.SolidBackgroundEffect");
 			_slideshowDelay = _config.getInt(SLIDESHOW_DELAY, 5);
 			_imageFolder = _config.getString("imageFolder", "images");
 
@@ -145,6 +163,17 @@ public class ImageMode implements IMode, Observer {
 				_bg = (IColorableEffect) Class.forName(newBgEffect).getConstructor(IColor.class).newInstance(_bgColor);
 			if (_bg == null || !newBgEffect.endsWith(_bg.getClass().getCanonicalName()))
 				_bg = (IColorableEffect) Class.forName(newBgEffect).getConstructor(IColor.class).newInstance(_bgColor); 
+			
+			if (_prevColor == null || !newPrevColor.endsWith(_prevColor.getClass().getCanonicalName()))
+				_prevColor = (IColor) Class.forName(newPrevColor).getConstructor(IDisplayConfiguration.class, String.class).newInstance(_config, "prev.");
+				_prev = (IColorableEffect) Class.forName(newPrevEffect).getConstructor(IColor.class).newInstance(_prevColor);
+			if (_prev == null || !newPrevEffect.endsWith(_prev.getClass().getCanonicalName()))
+				_prev = (IColorableEffect) Class.forName(newPrevEffect).getConstructor(IColor.class).newInstance(_prevColor); 
+			
+			if (_shouldFadeOnConfigChange) {
+				_shouldFadeOnConfigChange = false;
+				_currentFadeAlpha = 0.0;
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
