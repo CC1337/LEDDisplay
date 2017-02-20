@@ -34,6 +34,7 @@ public class ColoringImage implements IColor, Observer, IDebounceFileWatchListen
 	private String _configPrefix = "";
 	private Color[][] _pixels;
 	private DebouncedFileModifiedWatch _fileWatch;
+	private boolean _cropToFit;
 	
 	public ColoringImage(String fileName, double alpha) {
 		_fileWatch = new DebouncedFileModifiedWatch(fileName, this);
@@ -127,7 +128,7 @@ public class ColoringImage implements IColor, Observer, IDebounceFileWatchListen
 			
 			//LOGGER.info("pre scaling - w: " + targetWidth + " h: " + targetHeight + " org w: " + originalWidth + " org h: " + originalHeight + " rat-w: " + scalingRatioWidth + " rat-h:" + scalingRatioHeight);
 			
-			if (scalingRatioWidth < scalingRatioHeight) 
+			if ((_cropToFit && scalingRatioWidth > scalingRatioHeight) || (!_cropToFit && scalingRatioWidth < scalingRatioHeight)) 
 				scalingRatio = scalingRatioWidth;
 			targetWidth = (int)Math.ceil((originalWidth * scalingRatio));
 			targetHeight = (int)Math.ceil((originalHeight * scalingRatio));
@@ -208,6 +209,15 @@ public class ColoringImage implements IColor, Observer, IDebounceFileWatchListen
 		clearPixelData();
 	}
 	
+	/**
+	 * Only used if keepRatio is on and image will be scaled. Will not fit into given x and y dimensions but cut to fill the whole area. Consider centering then.
+	 * @param cropToFit
+	 */
+	public void setCropToFit(boolean cropToFit) {
+		_cropToFit = cropToFit;
+		clearPixelData();
+	}
+	
 	public void setAlpha(double alpha) {
 		if (alpha >= 0.0 || alpha <= 1.0)
 			_alpha = alpha;
@@ -245,6 +255,10 @@ public class ColoringImage implements IColor, Observer, IDebounceFileWatchListen
 		return _keepRatio;
 	}
 	
+	public boolean getCropToFit() {
+		return _cropToFit;
+	}
+	
 	public void setColorFromConfig() {
 		if (_config == null) 
 			return;
@@ -262,10 +276,11 @@ public class ColoringImage implements IColor, Observer, IDebounceFileWatchListen
 		int newOffsetY = _config.getInt(getConfigKey("offsety"), 0);
 		boolean newCenter = _config.getInt(getConfigKey("center"), 0) == 1;
 		boolean newKeepRatio = _config.getInt(getConfigKey("keepratio"), 1) == 1;
+		boolean newCropToFit = _config.getInt(getConfigKey("croptofit"), 0) == 1;
 		_alpha = _config.getDouble(getConfigKey("alpha"), 1.0);
 		
 		if (!newFileName.equals(_fileName) || newScaledWidth != _scaledWidth || newScaledHeight != _scaledHeight || newKeepRatio != _keepRatio || 
-				newOffsetX != _offsetX || newOffsetY != _offsetY || newCenter != _center)
+				newOffsetX != _offsetX || newOffsetY != _offsetY || newCenter != _center || newCropToFit != _cropToFit)
 			clearPixelData();
 		
 		if (_fileWatch == null)
@@ -278,6 +293,7 @@ public class ColoringImage implements IColor, Observer, IDebounceFileWatchListen
 		_offsetY = newOffsetY;
 		_center = newCenter;
 		_keepRatio = newKeepRatio;
+		_cropToFit = newCropToFit;
 	}
 	
 	private void clearPixelData() {
