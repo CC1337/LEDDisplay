@@ -243,13 +243,18 @@ public class ModeSelector implements IModeSelector, Observer {
 
 	@Override
 	public void stopModeScheduler() {
-		_modeScheduler.stop();
+		stopModeSchedulerNotUpdatingConfig();
 		_config.setString(MODE_SCHEDULERACTIVE, "0");
+	}
+	
+	private void stopModeSchedulerNotUpdatingConfig() {
+		_modeScheduler.stop();
 	}
 	
 	@Override
 	public void toggleModeScheduler() {
 		_modeScheduler.toggle();
+		_config.setString(MODE_SCHEDULERACTIVE, _modeScheduler.isStarted() ? "1" : "0");
 	}
 	
 	private void restoreModeSchedulerStateFromConfig() {
@@ -267,7 +272,7 @@ public class ModeSelector implements IModeSelector, Observer {
 		LOGGER.info("ModeSelector Shutdown start");
 		_shouldShutdown = true;
 		_modeCheckTimer.cancel();
-		stopModeScheduler();
+		stopModeSchedulerNotUpdatingConfig();
 		if (_currentMode != null)
 			_currentMode.abort();
 		if (_currentModeThread != null)
