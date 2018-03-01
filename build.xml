@@ -21,6 +21,11 @@
         <pathelement location="src/libs/pi4j-1.0/pi4j-device.jar"/>
         <pathelement location="src/libs/pi4j-1.0/pi4j-gpio-extension.jar"/>
         <pathelement location="src/libs/pi4j-1.0/pi4j-service.jar"/>
+        <pathelement location="src/libs/marvin/framework/marvin_1.5.5.jar"/>
+ 	<pathelement location="src/libs/opencv/javacpp-1.0.jar"/>
+        <pathelement location="src/libs/opencv/javacv-1.0.jar"/>
+        <pathelement location="src/libs/opencv/opencv-3.0.0-1.0-linux-arm.jar"/>
+        <pathelement location="src/libs/opencv/opencv-3.0.0-1.0.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>

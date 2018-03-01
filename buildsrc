@@ -1,5 +1,5 @@
 rm src/*.class
 rm src/*/*.class
 rm src/*/*/*.class
-javac -cp src/:src/*/:src/*/*:src/*/*/*:src/libs/:src/libs/*:src/libs/commons-lang-2.6/*:src/libs/commons-collections-3.2.1/*:src/libs/commons-logging-1.1.3/*:src/libs/pi4j-1.0/lib/*:src/libs/cron4j-2.2.5/*:/usr/share/java/RXTXcomm.jar src/LEDDisplay.java src/modes/*.java
+javac -cp src/:src/*/:src/*/*:src/*/*/*:src/libs/:src/libs/*:src/libs/commons-lang-2.6/*:src/libs/commons-collections-3.2.1/*:src/libs/commons-logging-1.1.3/*:src/libs/pi4j-1.0/lib/*:src/libs/cron4j-2.2.5/*:src/libs/marvin/framework/*:/usr/share/java/RXTXcomm.jar src/LEDDisplay.java src/modes/*.java
 #ant
