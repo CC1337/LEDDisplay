@@ -125,6 +125,7 @@ public class InfoMode implements IMode, Observer {
 			
 			if (currentInfo == InfoType.PVDAYCHART) {
 				_leds.applyEffect(_pvDayChart);
+				_pvDayChart.updateData();
 				if (lastInfoUpdate != currentSecond && currentSecond % (2*_infoChangeDelay) == 0) {
 					currentInfo = InfoType.NEWSTEXT;
 				}
