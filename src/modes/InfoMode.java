@@ -58,6 +58,7 @@ public class InfoMode implements IMode, Observer {
 	int _newsEnabled = 1;
 	int _infoChangeDelay = 5;
 	boolean _showSecondPixel = true;
+	private int _lastInfoUpdate = 1337;;
 	
 	
 	public InfoMode(IDisplayAdaptor display, ILEDArray leds, IModeSelector modeSelector, String configFileName) {
@@ -97,7 +98,7 @@ public class InfoMode implements IMode, Observer {
 		int currentSecond;
 		InfoType currentInfo = InfoType.INFOTEXT;
 		
-		int lastInfoUpdate = 1337;
+		_lastInfoUpdate = 1337;
 
 		while (!_aborted && !_end) {
 
@@ -112,8 +113,8 @@ public class InfoMode implements IMode, Observer {
 			_leds.applyEffect(_d0Text);
 			
 			if (currentInfo == InfoType.INFOTEXT) {
-				if (lastInfoUpdate != currentSecond && currentSecond % _infoChangeDelay == 0) {
-					lastInfoUpdate = currentSecond;
+				if (_lastInfoUpdate != currentSecond && currentSecond % _infoChangeDelay == 0) {
+					setLastInfoUpdated();
 					_infoText.nextInfo();
 				}
 				if (_infoText.loopEnded()) {
@@ -126,7 +127,7 @@ public class InfoMode implements IMode, Observer {
 			if (currentInfo == InfoType.PVDAYCHART) {
 				_leds.applyEffect(_pvDayChart);
 				_pvDayChart.updateData();
-				if (lastInfoUpdate != currentSecond && currentSecond % (2*_infoChangeDelay) == 0) {
+				if (_lastInfoUpdate != currentSecond && currentSecond % (2*_infoChangeDelay) == 0) {
 					currentInfo = InfoType.NEWSTEXT;
 				}
 			}
@@ -215,6 +216,7 @@ public class InfoMode implements IMode, Observer {
 	@Override
 	public void buttonPressedShort() {
 		_infoText.nextInfo();
+		setLastInfoUpdated();
 		_buttonFeedbackLed.blinkOnce();
 	}
 
@@ -227,5 +229,9 @@ public class InfoMode implements IMode, Observer {
 			_buttonFeedbackLed.blinkLong();
 			_config.setString("newsEnabled", "0");
 		}
+	}
+	
+	private void setLastInfoUpdated() {
+		_lastInfoUpdate = Calendar.getInstance().get(Calendar.SECOND);
 	}
 }
