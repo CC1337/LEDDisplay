@@ -85,10 +85,10 @@ public class PvInfoMode implements IMode, Observer {
 			updateData();
 
 			_leds.applyEffect(_bg);
-			_leds.applyEffect(_pacText);
-			_leds.applyEffect(_kwhText);
 			_leds.applyEffect(_pvDayChart);
 			_leds.applyEffect(_evDayChart);
+			_leds.applyEffect(_pacText);
+			_leds.applyEffect(_kwhText);
 			
 			_display.show(_leds);
 
