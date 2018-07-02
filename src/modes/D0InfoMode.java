@@ -12,6 +12,7 @@ import configuration.IDisplayConfiguration;
 
 import effects.IColor;
 import effects.IColorableEffect;
+import effects.coloring.ColoringPlasma;
 import effects.info.PvChartEffect;
 import effects.text.*;
 import helper.FpsController;
@@ -49,6 +50,10 @@ public class D0InfoMode implements IMode, Observer {
 	TextEffect _kwhText = null;
 	Date _lastUpdate = null;
 	int _updateIntervalMinutes = 5;
+	private boolean _doof = false;
+	IColor _dooferColor = (IColor) new ColoringPlasma(60, 16, 100);
+	TextEffect _dooferText1 = new TextEffect(_font, _dooferColor, "Roman ist", 4, 1);
+	TextEffect _dooferText2 = new TextEffect(_font, _dooferColor, " doof", 17, 9);
 	
 	
 	public D0InfoMode(IDisplayAdaptor display, ILEDArray leds, IModeSelector modeSelector, String configFileName) {
@@ -86,12 +91,18 @@ public class D0InfoMode implements IMode, Observer {
 		while (!_aborted && !_end) {
 			updateData();
 
-			_leds.applyEffect(_bg);			
-			_leds.applyEffect(_pvChart);
-			_leds.applyEffect(_d0Chart);
-			_leds.applyEffect(_evChart);
-			_leds.applyEffect(_pacText);
-			_leds.applyEffect(_kwhText);
+			if (_doof) {
+				_leds.applyEffect(_dooferText1);	
+				_leds.applyEffect(_dooferText2);	
+			} else {
+				_leds.applyEffect(_bg);			
+				_leds.applyEffect(_pvChart);
+				_leds.applyEffect(_d0Chart);
+				_leds.applyEffect(_evChart);
+				_leds.applyEffect(_pacText);
+				_leds.applyEffect(_kwhText);
+			}
+			_doof = !_doof;
 			
 			_display.show(_leds);
 
