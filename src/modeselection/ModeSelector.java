@@ -194,7 +194,7 @@ public class ModeSelector implements IModeSelector, Observer {
 	}
 
 	@Override
-	public void nextMode() {
+	public String nextMode() {
 		String[] cycleModesConfigured = _config.getStringArray("mode.cycle");
 		String newMode = _currentMode.getClass().getName();
 
@@ -206,6 +206,7 @@ public class ModeSelector implements IModeSelector, Observer {
 		}
 
 		_config.setString("mode.current", newMode);
+		return newMode;
 	}
 
 	@Override

@@ -17,8 +17,9 @@ public interface IModeSelector extends Runnable {
 	/** Switches to a specific mode with the given name. Full class name with package needed. **/
 	void startMode(String fullModeName);
 	
-	/** Call to force end current and start next mode configured in mode.cycle **/
-	void nextMode();
+	/** Call to force end current and start next mode configured in mode.cycle 
+	 * @return full classpath of next mode **/
+	String nextMode();
 	
 	/** Call to force next config (modename.<int>.properties) for the current active mode */
 	void nextModeConfig();

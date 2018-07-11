@@ -8,19 +8,16 @@ import helper.Helper;
 import led.ILEDArray;
 import modeselection.IModeSelector;
 import output.IDisplayAdaptor;
-import output.ISerial;
 
 
 public class ShutdownHook extends Thread {
 	
 	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
-	private ISerial _serial;
 	private IDisplayAdaptor _display;
 	private ILEDArray _leds;
 	private IModeSelector _modeSelector;
 	
-	public ShutdownHook(ISerial serial, IDisplayAdaptor display, ILEDArray leds, IModeSelector modeSelector) {
-		_serial = serial;
+	public ShutdownHook(IDisplayAdaptor display, ILEDArray leds, IModeSelector modeSelector) {
 		_display = display;
 		_leds = leds;
 		_modeSelector = modeSelector;
@@ -48,7 +45,7 @@ public class ShutdownHook extends Thread {
 			}
 		}
 		_display.show(_leds);
-		_serial.closeSerialPort();
+		_display.closeSerialPort();
 	}
 	
 	private void shutdownGpio() {

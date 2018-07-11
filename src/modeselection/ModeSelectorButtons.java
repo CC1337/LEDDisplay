@@ -5,15 +5,20 @@ import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
 import configuration.IDisplayConfiguration;
+import effects.coloring.ColoringSolid;
+import effects.text.CenteredTextEffect;
 import input.ButtonFeedbackLed;
 import input.ButtonListener;
 import input.IButtonListener;
+import output.DisplayAdaptorBuilder;
+import output.IDisplayAdaptor;
 
 public class ModeSelectorButtons {
 
 	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 	private IDisplayConfiguration _config;
 	private ModeSelector _modeSelector;
+	private IDisplayAdaptor _display = DisplayAdaptorBuilder.getInstance().getDisplayAdaptor();
 
 	protected ModeSelectorButtons(ModeSelector modeSelector, IDisplayConfiguration config) {
 		_config = config;
@@ -34,7 +39,9 @@ public class ModeSelectorButtons {
 		nextModeButton.setSingleTriggerCallback(new Callable<Void>() {
 			public Void call() throws Exception {
 				LOGGER.info("Next mode button pressed short");
-				_modeSelector.nextMode();
+				String nextMode = _modeSelector.nextMode();
+				nextMode = nextMode.substring(nextMode.lastIndexOf('.'));
+				_display.addOverlay(new CenteredTextEffect(new ColoringSolid(255, 255, 255, 0.5), nextMode));
 				ButtonFeedbackLed.getInstance().blinkOnce();
 				return null;
 			}

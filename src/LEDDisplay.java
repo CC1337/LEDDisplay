@@ -31,18 +31,7 @@ public class LEDDisplay implements Runnable {
 	@Override
 	public void run() {
 	
-		IDisplayAdaptor display;
-		ISerial serial = null;
-				
-		if (Helper.isWindows()) {
-			serial = new SerialFake();
-			display = new GuiDisplayAdaptor(new OctoWS2811DisplayAdaptor(serial));
-		} else {
-			serial = new Serial(115200, "/dev/ttyACM0", "/dev/ttyACM1");
-			display = new OctoWS2811DisplayAdaptor(serial, 2);
-		}
-		
-		serial.openSerialPort();
+		IDisplayAdaptor display = DisplayAdaptorBuilder.getInstance().getDisplayAdaptor();
 		ILEDArray leds = new LEDArray(60, 16);
 		
 
@@ -65,7 +54,7 @@ public class LEDDisplay implements Runnable {
 		Thread modeSelectorThread = new Thread(modeSelector, "ModeSel");
 		modeSelectorThread.start();
 
-		Thread shutdownHook = new ShutdownHook(serial, display, leds, modeSelector);
+		Thread shutdownHook = new ShutdownHook(display, leds, modeSelector);
 		Runtime.getRuntime().addShutdownHook(shutdownHook);
 
 		if (Helper.isWindows()) {
