@@ -24,7 +24,14 @@ public class DisplayConfiguration extends Observable implements IDebounceFileWat
 		_filename = filename;
 		_enableAutoReload = enableAutoReload;
 		
-		System.loadLibrary("jnotify");
+		try {
+			System.loadLibrary("jnotify");
+		} catch (Error | Exception error) {
+			LOGGER.warning("Error loading jnotify library, automatic config reload will be disdabled for " + filename);
+			error.printStackTrace();
+			_enableAutoReload = false;
+		}
+		
 		reload();
 		if (_enableAutoReload)
 			_fileWatch = new DebouncedFileModifiedWatch(_filename, this);
