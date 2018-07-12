@@ -8,10 +8,13 @@ import java.util.logging.Logger;
 
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
+import effects.text.OverlayTextEffect;
 import helper.Helper;
 import input.ButtonFeedbackLed;
 import input.ButtonListener;
 import input.IButtonListener;
+import output.DisplayAdaptorBuilder;
+import output.IDisplayAdaptor;
 
 
 public class BrightnessCorrection implements IBrightnessCorrection, Observer {
@@ -37,6 +40,7 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 	private int _configuredAutoBrightnessCapacitorUnloadNs;
 	private String _configuredBrightnessCycleButtonPin;
 	private String[] _configuredBrightnessCycleValues;
+	private IDisplayAdaptor _display;
 	
 	private BrightnessCorrection () {
 		_config = new DisplayConfiguration(BRIGHTNESS_PROPERTIES, true);
@@ -88,6 +92,7 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 			public Void call() throws Exception {
 				LOGGER.info("Cycle brightness button pressed short");
 				String newBrightness = nextCycleBrightnessValue();
+				showBrightnessOverlay(newBrightness);
 				blinkAfterPressingBrightnessButton(newBrightness);
 				return null;
 			}
@@ -101,6 +106,7 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 					newBrightness = "100";
 
 				setConfiguredBrightness(newBrightness);
+				showBrightnessOverlay(newBrightness);
 				blinkAfterPressingBrightnessButton(newBrightness);
 				return null;
 			}
@@ -116,6 +122,12 @@ public class BrightnessCorrection implements IBrightnessCorrection, Observer {
 			buttonFeedbackLed.blinkLong();
 		} else
 			buttonFeedbackLed.blinkOnce();
+	}
+	
+	private void showBrightnessOverlay(String newBrightness) {
+		if (_display == null)
+			_display = DisplayAdaptorBuilder.getInstance().getDisplayAdaptor();
+		_display.addOverlay(new OverlayTextEffect("Brightness", newBrightness.equals("0") ? "auto" : newBrightness));
 	}
 	
 	private String nextCycleBrightnessValue() {

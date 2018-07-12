@@ -8,7 +8,6 @@ import brightness.BrightnessCorrection;
 import brightness.IBrightnessCorrection;
 import configuration.DisplayConfiguration;
 import configuration.IDisplayConfiguration;
-import effects.IColorableEffect;
 import effects.IEffect;
 import led.*;
 

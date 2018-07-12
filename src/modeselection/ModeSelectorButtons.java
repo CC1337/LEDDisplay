@@ -5,8 +5,6 @@ import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
 import configuration.IDisplayConfiguration;
-import effects.coloring.ColoringSolid;
-import effects.text.CenteredTextEffect;
 import effects.text.OverlayTextEffect;
 import input.ButtonFeedbackLed;
 import input.ButtonListener;
@@ -52,10 +50,13 @@ public class ModeSelectorButtons {
 			public Void call() throws Exception {
 				LOGGER.info("Next mode button pressed long");
 				_modeSelector.toggleModeScheduler();
-				if (_modeSelector.isModeSchedulerStarted())
+				if (_modeSelector.isModeSchedulerStarted()) {
 					ButtonFeedbackLed.getInstance().blinkTwice();
-				else
+					_display.addOverlay(new OverlayTextEffect("Scheduler", "ON"));
+				} else {
 					ButtonFeedbackLed.getInstance().blinkLong();
+					_display.addOverlay(new OverlayTextEffect("Scheduler", "OFF"));
+				}
 				return null;
 			}
 		});
