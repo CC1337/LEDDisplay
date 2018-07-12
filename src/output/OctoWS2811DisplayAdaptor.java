@@ -1,11 +1,8 @@
 package output;
 
-import java.time.Instant;
-
 import brightness.BrightnessCorrection;
 import brightness.IBrightnessCorrection;
-import configuration.DisplayConfiguration;
-import configuration.IDisplayConfiguration;
+
 import effects.IEffect;
 import led.*;
 
@@ -14,11 +11,7 @@ public class OctoWS2811DisplayAdaptor implements IDisplayAdaptor {
 	private ISerial _serial;
 	private int _linesPerPin = 1;
 	private IBrightnessCorrection _brightnessCorrection;
-	private IDisplayConfiguration _config = new DisplayConfiguration("global.properties", false);
-	final int DEFAULT_OVERLAY_DURATION_MS = _config.getInt("output.DefaultOverlayDurationMs", 1000);
-	private IEffect _currentOverlayEffect;
-	private long _currentOverlayStartedMs;
-	private int _currentOverlayDurationMs;
+	private Overlay _overlay = new Overlay();
 
 	public OctoWS2811DisplayAdaptor(ISerial serial) {
 		this._serial = serial;
@@ -102,26 +95,16 @@ public class OctoWS2811DisplayAdaptor implements IDisplayAdaptor {
 
 	@Override
 	public void addOverlay(IEffect overlayEffect) {
-		addOverlay(overlayEffect, DEFAULT_OVERLAY_DURATION_MS);
+		_overlay.addOverlay(overlayEffect);
 	}
 
 	@Override
 	public void addOverlay(IEffect overlayEffect, int overlayDuratrionMs) {
-		_currentOverlayEffect = overlayEffect;
-		_currentOverlayStartedMs = Instant.now().toEpochMilli();
-		_currentOverlayDurationMs = overlayDuratrionMs;
+		_overlay.addOverlay(overlayEffect, overlayDuratrionMs);
 	}
 	
 	private void applyOverlay(ILEDArray leds) {
-		if (_currentOverlayEffect == null)
-			return;
-		if (Instant.now().toEpochMilli() < _currentOverlayStartedMs + _currentOverlayDurationMs)
-			leds.applyEffect(_currentOverlayEffect);
-		else {
-			_currentOverlayEffect = null;
-			_currentOverlayStartedMs = 0;
-			_currentOverlayDurationMs = 0;
-		}
+		_overlay.applyOverlay(leds);
 	}
 
 	@Override
