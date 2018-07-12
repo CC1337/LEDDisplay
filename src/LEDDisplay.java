@@ -2,6 +2,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.logging.Logger;
 
 import effects.animation.RandomDotEffect;
+import effects.coloring.ColoringImage;
 import effects.coloring.ColoringVideo;
 import effects.text.*;
 import helper.Helper;
@@ -53,6 +54,7 @@ public class LEDDisplay implements Runnable {
 		ButtonListener.class.getName();
 		IButtonListener.class.getName();
 		ColoringVideo.class.getName();
+		ColoringImage.class.getName();
 
 		// Foce-init to set LED low if still on
 		ButtonFeedbackLed.getInstance();
