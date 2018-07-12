@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import configuration.IDisplayConfiguration;
 import effects.coloring.ColoringSolid;
 import effects.text.CenteredTextEffect;
+import effects.text.OverlayTextEffect;
 import input.ButtonFeedbackLed;
 import input.ButtonListener;
 import input.IButtonListener;
@@ -40,8 +41,8 @@ public class ModeSelectorButtons {
 			public Void call() throws Exception {
 				LOGGER.info("Next mode button pressed short");
 				String nextMode = _modeSelector.nextMode();
-				nextMode = nextMode.substring(nextMode.lastIndexOf('.'));
-				_display.addOverlay(new CenteredTextEffect(new ColoringSolid(255, 255, 255, 0.5), nextMode));
+				nextMode = nextMode.substring(nextMode.lastIndexOf('.')+1).replace("Mode", "");
+				_display.addOverlay(new OverlayTextEffect(nextMode));
 				ButtonFeedbackLed.getInstance().blinkOnce();
 				return null;
 			}
