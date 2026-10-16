@@ -1,7 +1,5 @@
 package net;
 
-import java.io.IOException;
-import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,17 +16,11 @@ public class PvData {
 
 	private static PvData _instance = null;
 	private IDisplayConfiguration _config = new DisplayConfiguration("global.properties", false);
-	private Calendar _lastDayDataUpdate;
-	private boolean _lastDayDataLoading = false;
-	private String[] _lastDayData = null;
-	private Calendar _lastD0DayDataUpdate;
-	private boolean _lastD0DayDataLoading = false;
-	private String[] _lastD0DayData = null;
-	private boolean _yesterdayD0DayDataLoading = false;
-	private String[] _yesterdayD0DayData = null;
-	private int _yesterdayD0DayDataFromDayOfWeek = -1;
+	private volatile String[] _lastDayData = new String[0];
+	private volatile String[] _lastD0DayData = new String[0];
+	private volatile String[] _yesterdayD0DayData = new String[0];
 
-	public static PvData getInstance() {
+	public static synchronized PvData getInstance() {
 		if (_instance == null) {
 			_instance = new PvData();
 		}
@@ -111,7 +103,7 @@ public class PvData {
 		int[] result = new int[d0Values.length];
 
 		for (int i=0; i< d0Values.length; i++) {
-			result[i] = selfConsumptionValues[i] - (d0Values[i] < 0 ? d0Values[i] : 0);
+			result[i] = (i < selfConsumptionValues.length ? selfConsumptionValues[i] : 0) - (d0Values[i] < 0 ? d0Values[i] : 0);
 			//LOGGER.info("overall " + i + ": " + result[i] + "  d0: " + d0Values[i] + "  self: " + selfConsumptionValues[i]);
 		}
 
@@ -148,7 +140,7 @@ public class PvData {
 
 	public int getCurrentSelfConsumption() {
 		int[] data = getSelfConsumptionValues();
-		return data[data.length-1];
+		return data.length == 0 ? 0 : data[data.length-1];
 	}
 
 	public int getCurrentOverallConsumption() {
@@ -307,7 +299,7 @@ public class PvData {
 		for (String line : data) {
 			if (line.contains("var "+ prefix +"='")) {
 				String date = line.replace("var "+ prefix +"='", "").replace("';", "");
-				DateFormat df = new SimpleDateFormat("dd.mm.yyyy hh:mm:ss");
+				DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 				try {
 					return df.parse(date);
 				} catch (ParseException e) {
@@ -323,7 +315,7 @@ public class PvData {
 			if (line.contains("var "+ prefix +"='")) {
 				String date = line.replace("var "+ prefix +"='", "").replace("';", "");
 				date = getFormattedDatafileDate(getDateNow()) + " " + date;
-				DateFormat df = new SimpleDateFormat("yyyyMMdd hh:mm");
+				DateFormat df = new SimpleDateFormat("yyyyMMdd HH:mm");
 				try {
 					return df.parse(date);
 				} catch (ParseException e) {
@@ -358,135 +350,55 @@ public class PvData {
 		return result;
 	}
 
-	private void updateDayData() {
-		if (_lastDayData != null && lastResultValid(_lastDayDataUpdate, 1) || _lastDayDataLoading)
+	private final java.util.concurrent.atomic.AtomicBoolean _loading = new java.util.concurrent.atomic.AtomicBoolean();
+	private volatile long _nextAttempt;
+	private long _retryDelay = 10000;
+	private int _yesterdayLoadedOn = -1;
+
+	private void updateDayData() { updateData(); }
+	private void updateD0DayData() { updateData(); }
+
+	private void updateData() {
+		if (System.nanoTime() < _nextAttempt || !_loading.compareAndSet(false, true)) return;
+		if (System.nanoTime() < _nextAttempt) {
+			_loading.set(false);
 			return;
-
-		_lastDayDataLoading = true;
-		Thread thread = new Thread(() -> {
-			tryFetchDayData();
-			_lastDayDataLoading = false;
-		}, "PvDayDataUpd");
-		thread.setDaemon(true);
-		// Run synchronous if app start / first run
-		if (_lastDayData == null)
-			thread.run();
-		else
-			thread.start();
-	}
-
-	private void tryFetchDayData() {
-		try
-		{
-			URLConnection urlConn = FileHelper.getUrlConnection(getDayDataUrl(getDateNow()));
-			if (urlConn == null) {
-				// Try yesterday
-				urlConn = FileHelper.getUrlConnection(getDayDataUrl(getDateYesterday()));
-				if (urlConn == null)
-					throw new IOException("No PV data for today and yesterday :( giving up...");
+		}
+		Thread worker = new Thread(() -> {
+			boolean success = true;
+			try {
+				String[] data = fetch(getDayDataUrl(getDateNow()));
+				if (data.length == 0) data = fetch(getDayDataUrl(getDateYesterday()));
+				if (data.length > 0) _lastDayData = data; else success = false;
+				data = fetch(getD0DayDataUrl(getDateNow()));
+				if (data.length == 0) data = fetch(getD0DayDataUrl(getDateYesterday()));
+				if (data.length > 0) _lastD0DayData = data; else success = false;
+				int today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
+				if (_yesterdayLoadedOn != today) {
+					data = fetch(getD0DayDataUrl(getDateYesterday()));
+					if (data.length > 0) {
+						_yesterdayD0DayData = data;
+						_yesterdayLoadedOn = today;
+					} else success = false;
+				}
+			} catch (Exception exception) {
+				success = false;
+				java.util.logging.Logger.getLogger(PvData.class.getName()).warning("PV refresh skipped: " + exception.getMessage());
+			} finally {
+				_retryDelay = success ? 10000 : Math.min(60000, _retryDelay * 2);
+				_nextAttempt = System.nanoTime() + _retryDelay * 1000000L;
+				_loading.set(false);
 			}
-
-			List<String> resultList = FileHelper.getFileAsList(urlConn);
-
-			if (resultList != null && resultList.size() > 0)
-				_lastDayData = resultList.toArray(new String[0]);
-			else
-				_lastDayData = new String[0];
-			_lastDayDataUpdate = Calendar.getInstance();
-		}
-		catch (IOException exception) {
-			exception.printStackTrace();
-		}
+		}, "PVDataUpd");
+		worker.setDaemon(true);
+		worker.start();
 	}
 
-	private void updateD0DayData() {
-		if (_lastD0DayData != null && lastResultValid(_lastD0DayDataUpdate, 1) || _lastD0DayDataLoading)
-			return;
-
-		_lastD0DayDataLoading = true;
-		Thread thread = new Thread(() -> {
-			tryFetchD0DayData();	
-			_lastD0DayDataLoading = false;
-		}, "PvD0DataUpd");
-		thread.setDaemon(true);
-		// Run synchronous if app start / first run
-		if (_lastD0DayData == null)
-			thread.run();
-		else
-			thread.start();
-
-		updateYesterdayD0DayData();
+	private String[] fetch(String address) {
+		List<String> result = FileHelper.getFileAsList(address);
+		return result.toArray(new String[0]);
 	}
-
-	private void tryFetchD0DayData() {
-		try
-		{
-			URLConnection urlConn = FileHelper.getUrlConnection(getD0DayDataUrl(getDateNow()));
-			if (urlConn == null) {
-				// Try yesterday and reset yesterday data
-				_yesterdayD0DayData = new String[0];
-				urlConn = FileHelper.getUrlConnection(getD0DayDataUrl(getDateYesterday()));
-				if (urlConn == null)
-					throw new IOException("No d0 day data for today and yesterday :( giving up...");
-			}
-
-			List<String> resultList = FileHelper.getFileAsList(urlConn);
-
-			if (resultList != null && resultList.size() > 0)
-				_lastD0DayData = resultList.toArray(new String[0]);
-			else
-				_lastD0DayData = new String[0];
-			_lastD0DayDataUpdate = Calendar.getInstance();
-		}
-		catch (IOException exception) {
-			exception.printStackTrace();
-		}
-	}
-
-	private void updateYesterdayD0DayData() {
-		if (_yesterdayD0DayData != null && _yesterdayD0DayData.length > 0 && getCurrentDayOfWeek() != _yesterdayD0DayDataFromDayOfWeek || _yesterdayD0DayDataLoading)
-			return;
-
-		_yesterdayD0DayDataLoading = true;
-		Thread thread = new Thread(() -> {
-			tryFetchYesterdayD0DayData();
-			_yesterdayD0DayDataLoading = false;
-		}, "PvD0YDUpd");
-		thread.setDaemon(true);
-		// Run synchronous if app start / first run
-		if (_yesterdayD0DayData == null)
-			thread.run();
-		else
-			thread.start();
-
-	}
-
-	private void tryFetchYesterdayD0DayData() {
-		try
-		{
-			URLConnection urlConn = FileHelper.getUrlConnection(getD0DayDataUrl(getDateYesterday()));
-			if (urlConn == null)
-				throw new IOException("No d0 day data for yesterday :(");
-
-			List<String> resultList = FileHelper.getFileAsList(urlConn);
-
-			if (resultList != null && resultList.size() > 0) {
-				_yesterdayD0DayData = resultList.toArray(new String[0]); 
-				_yesterdayD0DayDataFromDayOfWeek = getCurrentDayOfWeek();
-			} else {
-				_yesterdayD0DayData = new String[0];
-			}
-		}
-		catch (IOException exception) {
-			exception.printStackTrace();
-		}
-	}
-
-	private int getCurrentDayOfWeek() {
-		return Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
-	}
-
-	private Date getDateNow() {
+private Date getDateNow() {
 		return Calendar.getInstance().getTime();
 	}
 
@@ -507,13 +419,6 @@ public class PvData {
 	private String getFormattedDatafileDate(Date date) {
 		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
 		return format.format(date);
-	}
-
-	private boolean lastResultValid(Calendar cacheDate, int cacheTimeout) {
-		if (cacheDate == null)
-			return false;
-		Calendar now = Calendar.getInstance();
-		return (Math.abs(now.getTime().getTime() - cacheDate.getTime().getTime()) / (1000*60)) < 5;
 	}
 
 }

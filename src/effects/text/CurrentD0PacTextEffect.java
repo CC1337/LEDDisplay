@@ -3,7 +3,6 @@ package effects.text;
 import net.PvData;
 import led.ILEDArray;
 
-import java.util.Calendar;
 
 import effects.*;
 import helper.Helper;
@@ -17,7 +16,6 @@ public class CurrentD0PacTextEffect implements IColorableEffect {
 	private int _posX;
 	private int _posY;
 	private PvData _pvData = PvData.getInstance();
-	private int _lastD0PacUpdate;
 	private int _currentD0Pac;
 	
 	public CurrentD0PacTextEffect(IPixelatedFont font, IColor colorPositive, IColor colorNegative, int posX, int posY) {
@@ -59,9 +57,6 @@ public class CurrentD0PacTextEffect implements IColorableEffect {
 	}
 	
 	private void updateCurentD0Pac() {
-		int currentMinute = Calendar.getInstance().get(Calendar.MINUTE);
-		if (_textArray != null && !(currentMinute % 5 == 0 && currentMinute != _lastD0PacUpdate))
-			return;
 		_currentD0Pac = _pvData.getCurrentD0Pac();
 	}
 	

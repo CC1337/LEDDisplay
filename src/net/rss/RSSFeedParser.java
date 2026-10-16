@@ -35,7 +35,7 @@ public class RSSFeedParser {
 
   public Feed readFeed() {
     Feed feed = null;
-    try {
+    try (InputStream in = read()) {
       boolean isFeedHeader = true;
       // Set header values intial to the empty string
       String description = "";
@@ -49,7 +49,6 @@ public class RSSFeedParser {
       // First create a new XMLInputFactory
       XMLInputFactory inputFactory = XMLInputFactory.newInstance();
       // Setup a new eventReader
-      InputStream in = read();
       XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
       // read the XML document
       while (eventReader.hasNext()) {
@@ -103,7 +102,8 @@ public class RSSFeedParser {
           }
         }
       }
-    } catch (XMLStreamException e) {
+      eventReader.close();
+    } catch (XMLStreamException | IOException e) {
       throw new RuntimeException(e);
     }
     return feed;
@@ -121,9 +121,12 @@ public class RSSFeedParser {
 
   private InputStream read() {
     try {
-      return url.openStream();
+      java.net.URLConnection connection = url.openConnection();
+      connection.setConnectTimeout(2000);
+      connection.setReadTimeout(2000);
+      return connection.getInputStream();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
-} 
+}

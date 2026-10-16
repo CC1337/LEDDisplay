@@ -24,10 +24,15 @@ public final class FileHelper {
 
 	public static List<String> getFileAsList(URLConnection urlConn) {
 		List<String> list = new ArrayList<String>();
-		try { 
-			BufferedReader reader = new BufferedReader(new InputStreamReader(urlConn.getInputStream())); 
+		if (urlConn == null) return list;
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(urlConn.getInputStream()))) {
+			long deadline = System.nanoTime() + 5000000000L;
+			int chars = 0;
 			String line = reader.readLine();
 			while (line != null) {
+				chars += line.length();
+				if (System.nanoTime() > deadline || chars > 2000000)
+					throw new IOException("Response too slow or too large");
 				list.add(line);
 				line = reader.readLine();
 			}
@@ -37,8 +42,12 @@ public final class FileHelper {
 	    	exception.printStackTrace();
 	    }
 	    catch (IOException exception) {
-	    	exception.printStackTrace();
+			LOGGER.warning("Skipping network response: " + exception.getMessage());
+			list.clear();
 	    }
+		finally {
+			if (urlConn instanceof HttpURLConnection) ((HttpURLConnection) urlConn).disconnect();
+		}
 	
 	    return list;
 	}
@@ -59,6 +68,8 @@ public final class FileHelper {
 		try {
 	    	URL url = new URL(address);
 		    urlConn = url.openConnection();
+		    urlConn.setConnectTimeout(2000);
+		    urlConn.setReadTimeout(2000);
 		    urlConn.setDoInput(true); 
 		    urlConn.setUseCaches(false);
 	
@@ -67,6 +78,7 @@ public final class FileHelper {
 		       HttpURLConnection httpConnection = (HttpURLConnection) urlConn;
 		       if (httpConnection.getResponseCode() != 200) {
 		    	   LOGGER.info("HTTP Error: " + httpConnection.getResponseCode());
+			   httpConnection.disconnect();
 		    	   return null;
 		       }
 		    }

@@ -135,6 +135,8 @@ public class PvChartEffect extends ColorableEffectBase {
 	}
 
 	private double getMeanValue(List<Integer> pacValues, int startIndex, int count) {
+		if (pacValues.isEmpty()) return 0;
+		count = Math.min(Math.max(1, count), pacValues.size() - startIndex);
 		double result = 0;
 		for (int i=0; i<count; i++) {
 			result += pacValues.get(startIndex+i);

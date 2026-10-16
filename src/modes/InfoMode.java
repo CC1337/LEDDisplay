@@ -14,6 +14,8 @@ import configuration.IDisplayConfiguration;
 import effects.IColor;
 import effects.IColorableEffect;
 import effects.info.PvChartEffect;
+import effects.info.BatteryBarEffect;
+import net.NetIO1OG;
 import effects.shape.RectEffect;
 import effects.text.*;
 import helper.FpsController;
@@ -53,6 +55,7 @@ public class InfoMode implements IMode, Observer {
 	CurrentD0PacTextEffect _d0Text = null;
 	InfoTextEffect _infoText = null;
 	RectEffect _secondPixel = null;
+	BatteryBarEffect _batteryBar = null;
 	PvChartEffect _pvDayChart = null;
 	NewsMarqueeTextEffect _newsText = null;
 	int _newsEnabled = 1;
@@ -101,6 +104,9 @@ public class InfoMode implements IMode, Observer {
 		_lastInfoUpdate = 1337;
 
 		while (!_aborted && !_end) {
+			// Keep the shared NETIO snapshot fresh even while a chart is displayed.
+			NetIO1OG.getInstance().getBatteryReading();
+			boolean chartDrawn = false;
 
 			currentTime = new SimpleDateFormat("HH:mm").format(new Date());
 			calendar = Calendar.getInstance();
@@ -126,6 +132,7 @@ public class InfoMode implements IMode, Observer {
 			
 			if (currentInfo == InfoType.PVDAYCHART) {
 				_leds.applyEffect(_pvDayChart);
+				chartDrawn = true;
 				_pvDayChart.updateData();
 				if (_lastInfoUpdate != currentSecond && currentSecond % (2*_infoChangeDelay) == 0) {
 					currentInfo = InfoType.NEWSTEXT;
@@ -147,6 +154,9 @@ public class InfoMode implements IMode, Observer {
 				_leds.applyEffect(_secondPixel);
 			}
 
+			if (!chartDrawn && _config.getInt("battery.enabled", 1) == 1)
+				_leds.applyEffect(_batteryBar);
+
 			_display.show(_leds);
 
 			_fpsController.waitForNextFrame();
@@ -159,6 +169,7 @@ public class InfoMode implements IMode, Observer {
 		LOGGER.info(modeName() + " config reload");
 		try {
 			_infoChangeDelay = _config.getInt("infoChangeDelay", 5);
+			_batteryBar = new BatteryBarEffect(0, _leds.sizeY() - 1);
 			_newsEnabled = _config.getInt("newsEnabled", 1);
 			String newBgColor = _config.getString("bg.Coloring", "effects.coloring.ColoringSolid");
 			String newBgEffect = _config.getString("bg.Effect", "effects.background.SolidBackgroundEffect");

@@ -1,7 +1,6 @@
 package net;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -12,8 +11,7 @@ import net.rss.RSSFeedParser;
 public class RssReader {
 	
 	private static final Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
-	private Calendar _lastUpdate;
-	private Feed _lastData;
+	private volatile Feed _lastData;
 	private String _url;
 	private RSSFeedParser _rssReader;
 	
@@ -41,28 +39,30 @@ public class RssReader {
 		return result;
 	}
     
+    private final java.util.concurrent.atomic.AtomicBoolean loading = new java.util.concurrent.atomic.AtomicBoolean();
+    private volatile long nextAttempt;
+
     private void updateData() {
-    	if (_lastData != null && lastResultValid(_lastUpdate, 1))
-    		return;
-
-		try
-		{
-			LOGGER.info("Reading RSS Feed: " + _url);
-	       _lastData = _rssReader.readFeed();
-	    }
-	    catch (Exception e) {
-	    	e.printStackTrace();
-	    	_lastData = null;
-		    _lastUpdate = Calendar.getInstance();
-	    }
+        if (System.nanoTime() < nextAttempt || !loading.compareAndSet(false, true)) return;
+        if (System.nanoTime() < nextAttempt) {
+            loading.set(false);
+            return;
+        }
+        Thread worker = new Thread(() -> {
+            long delay = 60000;
+            try {
+                Feed feed = _rssReader.readFeed();
+                if (feed == null) throw new IllegalStateException("Empty RSS feed");
+                _lastData = feed;
+                delay = 300000;
+            } catch (Exception exception) {
+                LOGGER.warning("RSS skipped: " + exception.getMessage());
+            } finally {
+                nextAttempt = System.nanoTime() + delay * 1000000L;
+                loading.set(false);
+            }
+        }, "RSSUpd");
+        worker.setDaemon(true);
+        worker.start();
     }
-    
-   
-	private boolean lastResultValid(Calendar cacheDate, int cacheTimeout) {
-		if (cacheDate == null)
-			return false;
-		Calendar now = Calendar.getInstance();
-		return (Math.abs(now.getTime().getTime() - cacheDate.getTime().getTime()) / (1000*60)) < 5;
-	}
-
 }
